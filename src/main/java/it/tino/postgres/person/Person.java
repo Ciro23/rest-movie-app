@@ -1,0 +1,112 @@
+package it.tino.postgres.person;
+
+import java.sql.Date;
+
+public class Person {
+    
+    protected int id;
+    protected String name;
+    protected Date birth;
+    protected Gender gender;
+    
+    /**
+     * Constructor for non-persisted people, as the
+     * id is yet to be generated.
+     */
+    public Person(
+        String name,
+        Date birth,
+        Gender gender
+    ) {
+        this.id = 0;
+        this.name = name;
+        this.birth = birth;
+        this.gender = gender;
+    }
+    
+    public Person(
+        int id,
+        String name,
+        Date birth,
+        Gender gender
+    ) {
+        this.id = id;
+        this.name = name;
+        this.birth = birth;
+        this.gender = gender;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Date getBirth() {
+        return birth;
+    }
+
+    public void setBirth(Date birth) {
+        this.birth = birth;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{\n");
+        builder.append("  \"id\": ").append(id).append(",\n");
+        builder.append("  \"name\": \"").append(name).append("\",\n");
+        builder.append("  \"birth\": \"").append(birth).append("\",\n");
+        builder.append("  \"gender\": ").append(gender).append(",\n");
+        builder.append("}");
+        return builder.toString();
+    }
+
+    enum Gender {
+        MALE("m"),
+        FEMALE("f");
+        
+        private final String id;
+
+        private Gender(String id) {
+            this.id = id.toLowerCase();
+        }
+        
+        public String getId() {
+            return id;
+        }
+
+        public static Gender fromId(String id) {
+            String lowerCaseId = id.toLowerCase().trim();
+            
+            if (lowerCaseId.equals(MALE.id)) {
+                return MALE;
+            }
+            
+            if (lowerCaseId.equals(FEMALE.id)) {
+                return FEMALE;
+            }
+            
+            throw new IllegalArgumentException("Gender with id '" + id + "' is not"
+                    + " within supported values ('m', 'f')");
+        }
+    }
+}

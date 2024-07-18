@@ -69,6 +69,6 @@ public class GenreDao extends SimpleDao<Genre, Integer> implements Dao<Genre, In
             }
         };
 		
-		return insert(genre, query, onSetParameters);
+		return update(genre, query, onSetParameters);
 	}
 }

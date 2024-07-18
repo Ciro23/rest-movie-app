@@ -3,6 +3,7 @@ package it.tino.postgres.genre;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -47,8 +48,13 @@ public class GenreDataSource implements GenreRepository {
 
     @Override
     public List<Genre> findAll() {
-        return database.select("select * from genres order by id", null, onMapEntity);
+    	return genreDao.selectByCriteria(Collections.emptyList());
     }
+    
+    @Override
+	public Genre findById(Integer id) {
+		return genreDao.selectById(id);
+	}
     
     @Override
     public List<Genre> findByMovieId(int movieId) {

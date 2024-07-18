@@ -50,8 +50,7 @@ public class App {
 		System.out.println("######### MOVIES #########");
 		System.out.println("##########################");
 		MovieDao moviesDao = new MovieDao(database);
-		DatabaseTable<Movie> table = new DatabaseTable<Movie>(database);
-		MovieRepository movieDataSource = new MovieDataSource(moviesDao, table);
+		MovieRepository movieDataSource = new MovieDataSource(moviesDao);
 		MovieRepositoryTester movieExample = new MovieRepositoryTester(movieDataSource);
 
 		List<Movie> allMovies = movieExample.getAll();
@@ -80,8 +79,7 @@ public class App {
 		System.out.println("########## USER ##########");
 		System.out.println("##########################");
 		UserDao userDao = new UserDao(database);
-		DatabaseTable<User> usersTable = new DatabaseTable<>(database);
-		UserRepository userRepository = new UserDataSource(userDao, usersTable);
+		UserRepository userRepository = new UserDataSource(userDao);
 		UserRepositoryTester userExample = new UserRepositoryTester(userRepository);
 
 		List<User> allUsers = userExample.getAll();
@@ -94,8 +92,7 @@ public class App {
 		System.out.println("######### REVIEWS ########");
 		System.out.println("##########################");
 		ReviewDao reviewDao = new ReviewDao(database);
-		DatabaseTable<Review> reviewsTable = new DatabaseTable<>(database);
-		ReviewRepository reviewRepository = new ReviewDataSource(reviewDao, reviewsTable);
+		ReviewRepository reviewRepository = new ReviewDataSource(reviewDao);
 		ReviewRepositoryTester reviewExample = new ReviewRepositoryTester(reviewRepository);
 
 		List<Review> allReviews = reviewExample.getAll();

@@ -1,39 +1,19 @@
 package it.tino.postgres.user;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import it.tino.postgres.database.DatabaseTable;
 
 public class UserDataSource implements UserRepository {
 
 	protected static final Logger logger = LogManager.getLogger();
 	
 	private final UserDao userDao;
-    private final DatabaseTable<User> database;
-    private final Function<ResultSet, User> onMapEntity;
     
-    public UserDataSource(UserDao userDao, DatabaseTable<User> database) {
+    public UserDataSource(UserDao userDao) {
     	this.userDao = userDao;
-        this.database = database;
-        onMapEntity = (resultSet) -> {
-            try {
-            	User user = new User();
-            	user.setId(resultSet.getInt("id"));
-            	user.setUsername(resultSet.getString("username"));
-            	user.setPassword(resultSet.getString("password"));
-                
-            	return user;
-            } catch (SQLException e) {
-            	logger.error(e);
-                throw new RuntimeException(e);
-            }
-        };
     }
     
     @Override
@@ -46,8 +26,13 @@ public class UserDataSource implements UserRepository {
     
     @Override
     public List<User> findAll() {
-       return database.select("select * from users order by id", null, onMapEntity);
+    	return userDao.selectByCriteria(Collections.emptyList());
     }
+    
+    @Override
+   	public User findById(Integer id) {
+   		return userDao.selectById(id);
+   	}
 
 	@Override
 	public boolean delete(Integer id) {

@@ -70,6 +70,6 @@ public class UserDao extends SimpleDao<User, Integer> implements Dao<User, Integ
             }
         };
         
-        return insert(user, query, onSetParameters);
+        return update(user, query, onSetParameters);
 	}
 }

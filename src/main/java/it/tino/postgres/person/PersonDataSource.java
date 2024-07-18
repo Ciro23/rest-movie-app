@@ -3,6 +3,7 @@ package it.tino.postgres.person;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -49,8 +50,13 @@ public class PersonDataSource implements PersonRepository {
     
     @Override
     public List<Person> findAll() {
-       return database.select("select * from people order by id", null, onMapEntity);
+       return personDao.selectByCriteria(Collections.emptyList());
     }
+    
+    @Override
+	public Person findById(Integer id) {
+		return personDao.selectById(id);
+	}
 
     @Override
     public List<Person> findDirectorsByMovieId(int movieId) {

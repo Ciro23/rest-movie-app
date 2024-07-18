@@ -7,22 +7,6 @@ public class User implements Identifiable<Integer> {
     private int id;
     private String username;
     private String password;
-    
-    /**
-     * Constructor for non-persisted users, as the
-     * id is yet to be generated.
-     */
-    public User(String username, String password) {
-        this.id = 0;
-        this.username = username;
-        this.password = password;
-    }
-    
-    public User(int id, String username, String password) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-    }
 
     public Integer getId() {
         return id;

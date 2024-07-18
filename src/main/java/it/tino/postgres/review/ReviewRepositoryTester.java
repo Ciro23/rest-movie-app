@@ -1,5 +1,7 @@
 package it.tino.postgres.review;
 
+import java.sql.Timestamp;
+
 import it.tino.postgres.database.RepositoryTester;
 
 public class ReviewRepositoryTester extends RepositoryTester<Review, Integer> {
@@ -10,7 +12,14 @@ public class ReviewRepositoryTester extends RepositoryTester<Review, Integer> {
 
     @Override
     protected Review onCreateObject() {
-        return new Review(0, 1, 1, 9.5, "My review");
+    	Review review = new Review();
+    	review.setMovieId(1);
+    	review.setUserId(1);
+    	review.setCreationDate(new Timestamp(100000));
+    	review.setVote(9.5);
+    	review.setReview("My review");
+    	
+    	return review;
     }
 
     @Override

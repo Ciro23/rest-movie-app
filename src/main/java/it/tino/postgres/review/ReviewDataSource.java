@@ -23,14 +23,15 @@ public class ReviewDataSource implements ReviewRepository {
         this.database = database;
         onMapEntity = (resultSet) -> {
             try {
-                return new Review(
-                		resultSet.getInt("id"),
-                        resultSet.getInt("movie_id"),
-                        resultSet.getInt("user_id"),
-                        resultSet.getTimestamp("creation_date"),
-                        resultSet.getDouble("vote"),
-                        resultSet.getString("review")
-                );
+            	Review review = new Review();
+            	review.setId(resultSet.getInt("id"));
+            	review.setMovieId(resultSet.getInt("movie_id"));
+            	review.setUserId(resultSet.getInt("user_id"));
+            	review.setCreationDate(resultSet.getTimestamp("creation_date"));
+            	review.setVote(resultSet.getDouble("vote"));
+            	review.setReview(resultSet.getString("review"));
+
+            	return review;
             } catch (SQLException e) {
             	logger.error(e);
             	throw new RuntimeException(e);

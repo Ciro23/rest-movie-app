@@ -23,11 +23,12 @@ public class UserDataSource implements UserRepository {
         this.database = database;
         onMapEntity = (resultSet) -> {
             try {
-                return new User(
-                        resultSet.getInt("id"),
-                        resultSet.getString("username"),
-                        resultSet.getString("password")
-                );
+            	User user = new User();
+            	user.setId(resultSet.getInt("id"));
+            	user.setUsername(resultSet.getString("username"));
+            	user.setPassword(resultSet.getString("password"));
+                
+            	return user;
             } catch (SQLException e) {
             	logger.error(e);
                 throw new RuntimeException(e);

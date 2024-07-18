@@ -25,12 +25,13 @@ public class PersonDataSource implements PersonRepository {
         this.database = database;
         onMapEntity = (resultSet) -> {
             try {
-                return new Person(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        resultSet.getDate("birth"),
-                        Person.Gender.fromId(resultSet.getString("gender"))
-                );
+            	Person person = new Person();
+                person.setId(resultSet.getInt("id"));
+                person.setName(resultSet.getString("name"));
+                person.setBirth(resultSet.getDate("birth"));
+                person.setGender(Person.Gender.fromId(resultSet.getString("gender")));
+                
+                return person;
             } catch (SQLException e) {
             	logger.error(e);
             	throw new RuntimeException(e);
@@ -86,15 +87,16 @@ public class PersonDataSource implements PersonRepository {
         Function<ResultSet, Person> onMapActorRole = (resultSet) -> {
             Person person = onMapEntity.apply(resultSet);
             try {
-                return new ActorRole(
-                        person.getId(),
-                        person.getName(),
-                        person.getBirth(),
-                        person.getGender(),
-                        movieId,
-                        resultSet.getString("role"),
-                        resultSet.getInt("cast_order")
-                );
+            	ActorRole actorRole = new ActorRole();
+            	actorRole.setId(person.getId());
+            	actorRole.setName(person.getName());
+            	actorRole.setBirth(person.getBirth());
+            	actorRole.setGender(person.getGender());
+                actorRole.setMovieId(movieId);
+                actorRole.setRoleName(resultSet.getString("role"));
+                actorRole.setCastOrder(resultSet.getInt("cast_order"));
+                
+                return actorRole;
             } catch (SQLException e) {
             	logger.error(e);
             	throw new RuntimeException(e);

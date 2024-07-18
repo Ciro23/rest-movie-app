@@ -32,15 +32,16 @@ public class MovieDataSource implements MovieRepository {
     public List<Movie> findAll() {
        return table.select("select * from movies", null, (resultSet) -> {
            try {
-               return new Movie(
-                       resultSet.getInt("id"),
-                       resultSet.getString("title"),
-                       resultSet.getDate("release_date"),
-                       resultSet.getInt("budget"),
-                       resultSet.getInt("box_office"),
-                       resultSet.getInt("runtime"),
-                       resultSet.getString("overview")
-               );
+        	   Movie movie = new Movie();
+        	   movie.setId(resultSet.getInt("id"));
+        	   movie.setTitle(resultSet.getString("title"));
+			   movie.setReleaseDate(resultSet.getDate("release_date"));
+			   movie.setBudget(resultSet.getInt("budget"));
+			   movie.setBoxOffice(resultSet.getInt("box_office"));
+			   movie.setRuntime(resultSet.getInt("runtime"));
+			   movie.setOverview(resultSet.getString("overview"));
+               
+			   return movie;
            } catch (SQLException e) {
            	logger.error(e);
                throw new RuntimeException(e);

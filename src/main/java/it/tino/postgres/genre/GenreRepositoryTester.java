@@ -14,7 +14,10 @@ public class GenreRepositoryTester extends RepositoryTester<Genre, Integer> {
 
     @Override
     protected Genre onCreateObject() {
-        return new Genre("New genre");
+    	Genre genre = new Genre();
+    	genre.setName("New genre");
+    	
+    	return genre;
     }
 
     @Override

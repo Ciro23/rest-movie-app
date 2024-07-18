@@ -25,10 +25,11 @@ public class GenreDao extends SimpleDao<Genre, Integer> implements Dao<Genre, In
 	protected Function<ResultSet, Genre> getOnMapEntity() {
 		return (resultSet) -> {
             try {
-                return new Genre(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name")
-                );
+            	Genre genre = new Genre();
+            	genre.setId(resultSet.getInt("id"));
+            	genre.setName(resultSet.getString("name"));
+            	
+            	return genre;
             } catch (SQLException e) {
             	logger.error(e);
                 throw new RuntimeException(e);

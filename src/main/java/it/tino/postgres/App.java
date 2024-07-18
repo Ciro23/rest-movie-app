@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import it.tino.postgres.database.Database;
 import it.tino.postgres.database.DatabaseTable;
 import it.tino.postgres.genre.Genre;
@@ -37,7 +38,13 @@ public class App {
 	protected static final Logger logger = LogManager.getLogger();
 
 	public static void main(String[] args) {
-		Database database = new Database("jdbc:postgresql://127.0.0.1:5432/movie_app", "postgres", "root");
+		Dotenv dotEnv = Dotenv.load();
+		AppProperties appProperties = AppProperties.getInstance(dotEnv);
+		Database database = new Database(
+				appProperties.getDatabaseUrl(),
+				appProperties.getDatabaseUsername(),
+				appProperties.getDatabasePassword()
+		);
 		
 		System.out.println("##########################");
 		System.out.println("######### MOVIES #########");

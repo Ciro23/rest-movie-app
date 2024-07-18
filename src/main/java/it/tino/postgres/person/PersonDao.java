@@ -25,12 +25,13 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
 	protected Function<ResultSet, Person> getOnMapEntity() {
 		return (resultSet) -> {
             try {
-                return new Person(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        resultSet.getDate("birth"),
-                        Person.Gender.fromId(resultSet.getString("gender"))
-                );
+            	Person person = new Person();
+                person.setId(resultSet.getInt("id"));
+                person.setName(resultSet.getString("name"));
+                person.setBirth(resultSet.getDate("birth"));
+                person.setGender(Person.Gender.fromId(resultSet.getString("gender")));
+                
+                return person;
             } catch (SQLException e) {
             	logger.error(e);
             	throw new RuntimeException(e);

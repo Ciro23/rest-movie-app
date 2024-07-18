@@ -10,7 +10,11 @@ public class UserRepositoryTester extends RepositoryTester<User, Integer> {
 
     @Override
     protected User onCreateObject() {
-        return new User(0, "new_user", "my_password");
+    	User user = new User();
+    	user.setUsername("new_user");
+    	user.setPassword("my_password");
+    	
+    	return user;
     }
 
     @Override

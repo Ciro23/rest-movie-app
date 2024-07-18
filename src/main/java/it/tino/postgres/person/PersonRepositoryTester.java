@@ -17,7 +17,13 @@ public class PersonRepositoryTester extends RepositoryTester<Person, Integer> {
 
     @Override
     protected Person onCreateObject() {
-        return new Person(0, "New person", new Date(7000000), Gender.MALE);
+        Person person = new Person();
+        person.setId(0);
+        person.setName("New person");
+        person.setBirth(new Date(1000000));
+        person.setGender(Gender.MALE);
+        
+        return person;
     }
 
     @Override

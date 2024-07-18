@@ -13,45 +13,6 @@ public class Movie implements Identifiable<Integer> {
     private int boxOffice;
     private int runtime;
     private String overview;
-    
-    /**
-     * Constructor for non-persisted movies, as the
-     * id is yet to be generated.
-     */
-    public Movie(
-        String title,
-        Date releaseDate,
-        int budget,
-        int boxOffice,
-        int runtime,
-        String overview
-    ) {
-        this.id = 0;
-        this.title = title;
-        this.releaseDate = releaseDate;
-        this.budget = budget;
-        this.boxOffice = boxOffice;
-        this.runtime = runtime;
-        this.overview = overview;
-    }
-    
-    public Movie(
-        int id,
-        String title,
-        Date releaseDate,
-        int budget,
-        int boxOffice,
-        int runtime,
-        String overview
-    ) {
-        this.id = id;
-        this.title = title;
-        this.releaseDate = releaseDate;
-        this.budget = budget;
-        this.boxOffice = boxOffice;
-        this.runtime = runtime;
-        this.overview = overview;
-    }
 
     public Integer getId() {
         return id;

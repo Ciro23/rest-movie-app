@@ -18,45 +18,6 @@ public class Review implements Identifiable<Integer> {
     
     @Nullable
     private String review;
-
-    /**
-     * Constructor for non-persisted reviews, as the
-     * creation date is yet to be established (during persistence).
-     */
-    public Review(
-		int id,
-        int movieId,
-        int userId,
-        double vote,
-        String review
-    ) {
-    	this.id = id;
-        this.movieId = movieId;
-        this.userId = userId;
-        setVote(vote);
-        this.review = review;
-    }
-    
-    /**
-     * Constructor which allows to define a custom creation date.
-     * Objects created this way are considered as already persisted
-     * in the database.
-     */
-    public Review(
-		int id,
-        int movieId,
-        int userId,
-        Timestamp creationDate,
-        double vote,
-        String review
-    ) {
-    	this.id = id;
-        this.movieId = movieId;
-        this.userId = userId;
-        this.creationDate = creationDate;
-        setVote(vote);
-        this.review = review;
-    }
     
     public Integer getId() {
 		return id;

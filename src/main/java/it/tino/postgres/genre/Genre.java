@@ -6,20 +6,6 @@ public class Genre implements Identifiable<Integer> {
 
     private int id;
     private String name;
-    
-    /**
-     * Constructor for non-persisted genres, as the
-     * id is yet to be generated.
-     */
-    public Genre(String name) {
-        this.id = 0;
-        this.name = name;
-    }
-    
-    public Genre(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 
     public Integer getId() {
         return id;

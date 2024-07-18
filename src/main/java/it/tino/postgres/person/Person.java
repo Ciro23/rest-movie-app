@@ -6,37 +6,10 @@ import it.tino.postgres.database.Identifiable;
 
 public class Person implements Identifiable<Integer> {
     
-    protected int id;
+    protected int id = 0;
     protected String name;
     protected Date birth;
     protected Gender gender;
-    
-    /**
-     * Constructor for non-persisted people, as the
-     * id is yet to be generated.
-     */
-    public Person(
-        String name,
-        Date birth,
-        Gender gender
-    ) {
-        this.id = 0;
-        this.name = name;
-        this.birth = birth;
-        this.gender = gender;
-    }
-    
-    public Person(
-        int id,
-        String name,
-        Date birth,
-        Gender gender
-    ) {
-        this.id = id;
-        this.name = name;
-        this.birth = birth;
-        this.gender = gender;
-    }
 
     public Integer getId() {
         return id;

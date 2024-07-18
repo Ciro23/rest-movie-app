@@ -1,27 +1,10 @@
 package it.tino.postgres.person;
 
-import java.sql.Date;
-
 public class ActorRole extends Person {
     
     private int movieId;
     private String roleName;
     private int castOrder;
-    
-    public ActorRole(
-        int personId,
-        String name,
-        Date birth,
-        Gender gender,
-        int movieId,
-        String roleName,
-        int castOrder
-    ) {
-        super(personId, name, birth, gender);
-        this.movieId = movieId;
-        this.roleName = roleName;
-        this.castOrder = castOrder;
-    }
 
     public int getMovieId() {
         return movieId;

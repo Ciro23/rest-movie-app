@@ -14,15 +14,15 @@ public class MovieRepositoryTester extends RepositoryTester<Movie, Integer> {
 
     @Override
     protected Movie onCreateObject() {
-        return new Movie(
-                0,
-                "New movie",
-                new Date(7000000),
-                150,
-                300,
-                90,
-                "A newly created movie"
-        );
+    	Movie movie = new Movie();
+    	movie.setTitle("New movie");
+    	movie.setReleaseDate(new Date(7000000));
+    	movie.setBudget(150);
+    	movie.setBoxOffice(300);
+    	movie.setRuntime(90);
+    	movie.setOverview("A newly created movie");
+        
+    	return movie;
     }
 
     @Override

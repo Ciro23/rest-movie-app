@@ -25,11 +25,12 @@ public class UserDao extends SimpleDao<User, Integer> implements Dao<User, Integ
 	protected Function<ResultSet, User> getOnMapEntity() {
 		return (resultSet) -> {
             try {
-                return new User(
-                        resultSet.getInt("id"),
-                        resultSet.getString("username"),
-                        resultSet.getString("password")
-                );
+            	User user = new User();
+            	user.setId(resultSet.getInt("id"));
+            	user.setUsername(resultSet.getString("username"));
+            	user.setPassword(resultSet.getString("password"));
+                
+            	return user;
             } catch (SQLException e) {
             	logger.error(e);
                 throw new RuntimeException(e);

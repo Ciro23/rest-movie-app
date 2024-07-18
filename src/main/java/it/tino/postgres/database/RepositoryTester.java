@@ -43,37 +43,32 @@ abstract public class RepositoryTester<T, ID> {
     
     public List<T> create() {
         System.out.println("--------- INSERT ---------");
-        T newRow = onCreateObject();
-        int numerOfAffectedRows = repository.save(newRow);
-        List<T> allRows = repository.findAll();
+        T entityToInsert = onCreateObject();
+        T justCreatedEntity = repository.save(entityToInsert);
         
-        System.out.println("Number of affected rows: " + numerOfAffectedRows);
-        System.out.println(allRows);
+        System.out.println("Just inserted entity: " + justCreatedEntity);
         System.out.println("--------------------------");
         
-        return allRows;
+        return repository.findAll();
     }
     
-    public List<T> update(T rowToUpdate) {
+    public List<T> update(T entityToUpdate) {
         System.out.println("--------- UPDATE ---------");
-        onUpdateObject(rowToUpdate);
+        onUpdateObject(entityToUpdate);
+        T justUpdatedEntity = repository.save(entityToUpdate);
         
-        int numerOfAffectedRows = repository.save(rowToUpdate);
-        List<T> allRows = repository.findAll();
-        
-        System.out.println("Number of affected rows: " + numerOfAffectedRows);
-        System.out.println(allRows);
+        System.out.println("Just updated entity: " + justUpdatedEntity);
         System.out.println("--------------------------");
         
-        return allRows;
+        return repository.findAll();
     }
     
-    public List<T> delete(T rowToDelete) {
+    public List<T> delete(ID id) {
         System.out.println("--------- DELETE ---------");
-        int numerOfAffectedRows = repository.delete(rowToDelete);
+        boolean success = repository.delete(id);
         List<T> allRows = repository.findAll();
         
-        System.out.println("Number of affected rows: " + numerOfAffectedRows);
+        System.out.println("Deletion result: " + success);
         System.out.println(allRows);
         System.out.println("--------------------------");
         

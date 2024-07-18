@@ -2,7 +2,9 @@ package it.tino.postgres.movie;
 
 import java.sql.Date;
 
-public class Movie {
+import it.tino.postgres.database.Identifiable;
+
+public class Movie implements Identifiable<Integer> {
     
     private int id;
     private String title;
@@ -51,7 +53,7 @@ public class Movie {
         this.overview = overview;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

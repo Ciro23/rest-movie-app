@@ -10,7 +10,7 @@ public class ReviewRepositoryTester extends RepositoryTester<Review, Integer> {
 
     @Override
     protected Review onCreateObject() {
-        return new Review(1, 1, 9.5, "My review");
+        return new Review(0, 1, 1, 9.5, "My review");
     }
 
     @Override

@@ -4,18 +4,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.database.DatabaseTable;
 
 public class GenreDataSource implements GenreRepository {
 
+	protected static final Logger logger = LogManager.getLogger();
+	
+	private final GenreDao genreDao;
     private final DatabaseTable<Genre> database;
     private final Function<ResultSet, Genre> onMapEntity;
     
-    public GenreDataSource(DatabaseTable<Genre> database) {
+    public GenreDataSource(GenreDao genreDao, DatabaseTable<Genre> database) {
+    	this.genreDao = genreDao;
         this.database = database;
         onMapEntity = (resultSet) -> {
             try {
@@ -24,39 +30,19 @@ public class GenreDataSource implements GenreRepository {
                         resultSet.getString("name")
                 );
             } catch (SQLException e) {
+            	logger.error(e);
                 throw new RuntimeException(e);
             }
         };
     }
-
+    
     @Override
-    public int save(Genre genre) {
-        boolean shouldUpdate = genre.getId() != 0;
-        BiConsumer<Genre, PreparedStatement> onSetParameters = (entity, stmt) -> {
-            int index = 0;
-            try {
-                stmt.setString(++index, entity.getName());
-                
-                // Used in the WHERE clause to select the row to modify.
-                if (shouldUpdate) {
-                    stmt.setInt(++index, entity.getId());
-                }
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-        };
-        
-        String query = "insert into genres (name) values (?)";
-        if (shouldUpdate) {
-            query = "update genres set name = ? where id = ?";
-        }
-        
-        return database.insertOrUpdate(
-                genre,
-                query,
-                onSetParameters
-        );
-    }
+	public Genre save(Genre entity) {
+		if (entity.getId() == 0) {
+			return genreDao.insert(entity);
+		}
+		return genreDao.update(entity);
+	}
 
     @Override
     public List<Genre> findAll() {
@@ -73,6 +59,7 @@ public class GenreDataSource implements GenreRepository {
             try {
                 stmt.setInt(1, movieId);
             } catch (SQLException e) {
+            	logger.error(e);
                 throw new RuntimeException(e);
             }
         };
@@ -81,13 +68,7 @@ public class GenreDataSource implements GenreRepository {
     }
 
     @Override
-    public int delete(Genre entity) {
-        return database.delete("delete from genres where id = ?", (stmt) -> {
-            try {
-                stmt.setInt(1, entity.getId());
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
+    public boolean delete(Integer id) {
+        return genreDao.delete(id);
     }
 }

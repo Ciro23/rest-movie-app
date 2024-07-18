@@ -3,9 +3,11 @@ package it.tino.postgres.review;
 import java.sql.Timestamp;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+import it.tino.postgres.database.Identifiable;
 
-public class Review {
+public class Review implements Identifiable<Integer> {
     
+	private int id;
     private int movieId;
     private int userId;
     
@@ -22,11 +24,13 @@ public class Review {
      * creation date is yet to be established (during persistence).
      */
     public Review(
+		int id,
         int movieId,
         int userId,
         double vote,
         String review
     ) {
+    	this.id = id;
         this.movieId = movieId;
         this.userId = userId;
         setVote(vote);
@@ -39,12 +43,14 @@ public class Review {
      * in the database.
      */
     public Review(
+		int id,
         int movieId,
         int userId,
         Timestamp creationDate,
         double vote,
         String review
     ) {
+    	this.id = id;
         this.movieId = movieId;
         this.userId = userId;
         this.creationDate = creationDate;
@@ -52,7 +58,15 @@ public class Review {
         this.review = review;
     }
     
-    public int getMovieId() {
+    public Integer getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getMovieId() {
         return movieId;
     }
 

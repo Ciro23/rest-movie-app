@@ -1,6 +1,8 @@
 package it.tino.postgres.user;
 
-public class User {
+import it.tino.postgres.database.Identifiable;
+
+public class User implements Identifiable<Integer> {
 
     private int id;
     private String username;
@@ -22,7 +24,7 @@ public class User {
         this.password = password;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

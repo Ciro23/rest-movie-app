@@ -13,6 +13,9 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Represents a database table, allowing to execute
  * CRUD operations using JDBC.
@@ -20,6 +23,7 @@ import javax.annotation.Nullable;
  */
 public class DatabaseTable<T> {
     
+	protected static final Logger logger = LogManager.getLogger();
     private final Database db;
     
     public DatabaseTable(Database db) {
@@ -47,9 +51,20 @@ public class DatabaseTable<T> {
                 onSetParameters.accept(entity, statement);
             }
             
-            return statement.executeUpdate();
+            int affectedRows = statement.executeUpdate();
+            
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+	            if (generatedKeys.next()) {
+	                long id = generatedKeys.getLong(1);
+	                logger.trace("GENERATED ID: " + id);
+	            } else {
+	                throw new SQLException("Inserting entity failed, no ID obtained.");
+	            }
+	        }
+            
+            return affectedRows;
         } catch (SQLException e) {
-            System.out.println(e);
+            logger.error(e);
             return 0;
         }
     }
@@ -84,7 +99,7 @@ public class DatabaseTable<T> {
             
             return entities;
         } catch (SQLException e) {
-            System.out.println(e);
+        	logger.error(e);
             return Collections.emptyList();
         }
     }
@@ -109,7 +124,7 @@ public class DatabaseTable<T> {
             
             return statement.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e);
+        	logger.error(e);
             return 0;
         }
     }

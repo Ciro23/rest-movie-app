@@ -4,18 +4,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.database.DatabaseTable;
 
 public class PersonDataSource implements PersonRepository {
 
+	protected static final Logger logger = LogManager.getLogger();
+	
+	private final PersonDao personDao;
     private final DatabaseTable<Person> database;
     private final Function<ResultSet, Person> onMapEntity;
     
-    public PersonDataSource(DatabaseTable<Person> database) {
+    public PersonDataSource(PersonDao personDao, DatabaseTable<Person> database) {
+    	this.personDao = personDao;
         this.database = database;
         onMapEntity = (resultSet) -> {
             try {
@@ -26,41 +32,19 @@ public class PersonDataSource implements PersonRepository {
                         Person.Gender.fromId(resultSet.getString("gender"))
                 );
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+            	logger.error(e);
+            	throw new RuntimeException(e);
             }
         };
     }
     
-    @Override
-    public int save(Person person) {
-        boolean shouldUpdate = person.getId() != 0;
-        BiConsumer<Person, PreparedStatement> onSetParameters = (entity, stmt) -> {
-            int index = 0;
-            try {
-                stmt.setString(++index, entity.getName());
-                stmt.setDate(++index, entity.getBirth());
-                stmt.setString(++index, String.valueOf(entity.getGender().getId()));
-                
-                // Used in the WHERE clause to select the row to modify.
-                if (shouldUpdate) {
-                    stmt.setInt(++index, entity.getId());
-                }
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-        };
-        
-        String query = "insert into people (name, birth, gender) values (?, ?, ?::gender)";
-        if (shouldUpdate) {
-            query = "update people set name = ?, birth = ?, gender = ?::gender where id = ?";
-        }
-        
-        return database.insertOrUpdate(
-                person,
-                query,
-                onSetParameters
-        );
-    }
+	@Override
+	public Person save(Person entity) {
+		if (entity.getId() == 0) {
+			return personDao.insert(entity);
+		}
+		return personDao.update(entity);
+	}
     
     @Override
     public List<Person> findAll() {
@@ -77,7 +61,8 @@ public class PersonDataSource implements PersonRepository {
             try {
                 stmt.setInt(1, movieId);
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+            	logger.error(e);
+            	throw new RuntimeException(e);
             }
         };
         
@@ -111,7 +96,8 @@ public class PersonDataSource implements PersonRepository {
                         resultSet.getInt("cast_order")
                 );
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+            	logger.error(e);
+            	throw new RuntimeException(e);
             }
         };
         
@@ -121,14 +107,8 @@ public class PersonDataSource implements PersonRepository {
                 .toList();
     }
 
-    @Override
-    public int delete(Person person) {
-        return database.delete("delete from people where id = ?", (stmt) -> {
-            try {
-                stmt.setInt(1, person.getId());
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
-    }
+	@Override
+	public boolean delete(Integer id) {
+		return personDao.delete(id);
+	}
 }

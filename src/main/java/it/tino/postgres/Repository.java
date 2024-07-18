@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface Repository<T, ID> {
     
-    int save(T entity);
+	T save(T entity);
     List<T> findAll();
-    int delete(T entity);
+    boolean delete(ID id);
 }

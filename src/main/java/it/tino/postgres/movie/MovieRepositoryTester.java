@@ -3,7 +3,6 @@ package it.tino.postgres.movie;
 import java.sql.Date;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 
 import it.tino.postgres.database.RepositoryTester;
 

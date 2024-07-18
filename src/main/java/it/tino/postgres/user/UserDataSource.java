@@ -1,20 +1,25 @@
 package it.tino.postgres.user;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.database.DatabaseTable;
 
 public class UserDataSource implements UserRepository {
 
+	protected static final Logger logger = LogManager.getLogger();
+	
+	private final UserDao userDao;
     private final DatabaseTable<User> database;
     private final Function<ResultSet, User> onMapEntity;
     
-    public UserDataSource(DatabaseTable<User> database) {
+    public UserDataSource(UserDao userDao, DatabaseTable<User> database) {
+    	this.userDao = userDao;
         this.database = database;
         onMapEntity = (resultSet) -> {
             try {
@@ -24,54 +29,27 @@ public class UserDataSource implements UserRepository {
                         resultSet.getString("password")
                 );
             } catch (SQLException e) {
+            	logger.error(e);
                 throw new RuntimeException(e);
             }
         };
     }
     
     @Override
-    public int save(User user) {
-        boolean shouldUpdate = user.getId() != 0;
-        BiConsumer<User, PreparedStatement> onSetParameters = (entity, stmt) -> {
-            int index = 0;
-            try {
-                stmt.setString(++index, entity.getUsername());
-                stmt.setString(++index, entity.getPassword());
-                
-                // Used in the WHERE clause to select the row to modify.
-                if (shouldUpdate) {
-                    stmt.setInt(++index, entity.getId());
-                }
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-        };
-        
-        String query = "insert into users (username, password) values (?, ?)";
-        if (shouldUpdate) {
-            query = "update users set username = ?, password = ? where id = ?";
-        }
-        
-        return database.insertOrUpdate(
-                user,
-                query,
-                onSetParameters
-        );
-    }
+	public User save(User entity) {
+		if (entity.getId() == 0) {
+			return userDao.insert(entity);
+		}
+		return userDao.update(entity);
+	}
     
     @Override
     public List<User> findAll() {
        return database.select("select * from users order by id", null, onMapEntity);
     }
-    
-    @Override
-    public int delete(User user) {
-        return database.delete("delete from users where id = ?", (stmt) -> {
-            try {
-                stmt.setInt(1, user.getId());
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
-    }
+
+	@Override
+	public boolean delete(Integer id) {
+		return userDao.delete(id);
+	}
 }

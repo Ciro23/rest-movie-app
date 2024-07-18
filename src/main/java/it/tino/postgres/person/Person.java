@@ -2,7 +2,9 @@ package it.tino.postgres.person;
 
 import java.sql.Date;
 
-public class Person {
+import it.tino.postgres.database.Identifiable;
+
+public class Person implements Identifiable<Integer> {
     
     protected int id;
     protected String name;
@@ -36,7 +38,7 @@ public class Person {
         this.gender = gender;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

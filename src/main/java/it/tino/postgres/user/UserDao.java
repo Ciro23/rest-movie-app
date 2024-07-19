@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Dao;
 import it.tino.postgres.database.Database;
 import it.tino.postgres.database.SimpleDao;
@@ -33,7 +34,7 @@ public class UserDao extends SimpleDao<User, Integer> implements Dao<User, Integ
             	return user;
             } catch (SQLException e) {
             	logger.error(e);
-                throw new RuntimeException(e);
+                throw new MovieAppException(e);
             }
         };
 	}
@@ -46,9 +47,9 @@ public class UserDao extends SimpleDao<User, Integer> implements Dao<User, Integ
             try {
                 stmt.setString(++index, entity.getUsername());
                 stmt.setString(++index, entity.getPassword());
-            } catch (Exception e) {
+            } catch (SQLException e) {
             	logger.error(e);
-                throw new RuntimeException(e);
+                throw new MovieAppException(e);
             }
         };
         
@@ -64,9 +65,9 @@ public class UserDao extends SimpleDao<User, Integer> implements Dao<User, Integ
                 stmt.setString(++index, entity.getUsername());
                 stmt.setString(++index, entity.getPassword());
                 stmt.setInt(++index, entity.getId());
-            } catch (Exception e) {
+            } catch (SQLException e) {
             	logger.error(e);
-                throw new RuntimeException(e);
+                throw new MovieAppException(e);
             }
         };
         

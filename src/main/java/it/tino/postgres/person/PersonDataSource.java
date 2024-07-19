@@ -11,6 +11,7 @@ import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.DatabaseTable;
 
 public class PersonDataSource implements PersonRepository {
@@ -35,7 +36,7 @@ public class PersonDataSource implements PersonRepository {
                 return person;
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new RuntimeException(e);
+            	throw new MovieAppException(e);
             }
         };
     }
@@ -60,7 +61,7 @@ public class PersonDataSource implements PersonRepository {
 
     @Override
     public List<Person> findDirectorsByMovieId(int movieId) {
-        String sql = "SELECT * FROM people p " +
+    	String sql = "SELECT * FROM people p " +
                 "JOIN movies_directors md ON p.id = md.director_id " +
                 "WHERE md.movie_id = ?";
         
@@ -69,7 +70,7 @@ public class PersonDataSource implements PersonRepository {
                 stmt.setInt(1, movieId);
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new RuntimeException(e);
+            	throw new MovieAppException(e);
             }
         };
         
@@ -86,7 +87,7 @@ public class PersonDataSource implements PersonRepository {
             try {
                 stmt.setInt(1, movieId);
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new MovieAppException(e);
             }
         };
         
@@ -105,7 +106,7 @@ public class PersonDataSource implements PersonRepository {
                 return actorRole;
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new RuntimeException(e);
+            	throw new MovieAppException(e);
             }
         };
         

@@ -9,6 +9,7 @@ import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Dao;
 import it.tino.postgres.database.Database;
 import it.tino.postgres.database.SimpleDao;
@@ -42,7 +43,7 @@ public class MovieDao extends SimpleDao<Movie, Integer> implements Dao<Movie, In
          	    return movie;
             } catch (SQLException e) {
             	logger.error(e);
-                throw new RuntimeException(e);
+                throw new MovieAppException(e);
             }
         };
 	}
@@ -61,9 +62,9 @@ public class MovieDao extends SimpleDao<Movie, Integer> implements Dao<Movie, In
                 stmt.setInt(++index, entity.getBoxOffice());
                 stmt.setInt(++index, entity.getRuntime());
                 stmt.setString(++index, entity.getOverview());
-            } catch (Exception e) {
+            } catch (SQLException e) {
             	logger.error(e);
-            	throw new RuntimeException(e);
+            	throw new MovieAppException(e);
             }
         };
 		
@@ -85,9 +86,9 @@ public class MovieDao extends SimpleDao<Movie, Integer> implements Dao<Movie, In
                 stmt.setInt(++index, entity.getRuntime());
                 stmt.setString(++index, entity.getOverview());
                 stmt.setInt(++index, entity.getId());
-            } catch (Exception e) {
+            } catch (SQLException e) {
             	logger.error(e);
-            	throw new RuntimeException(e);
+            	throw new MovieAppException(e);
             }
         };
 		

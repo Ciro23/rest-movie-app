@@ -11,6 +11,7 @@ import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.DatabaseTable;
 
 public class GenreDataSource implements GenreRepository {
@@ -33,7 +34,7 @@ public class GenreDataSource implements GenreRepository {
             	return genre;
             } catch (SQLException e) {
             	logger.error(e);
-                throw new RuntimeException(e);
+                throw new MovieAppException(e);
             }
         };
     }
@@ -67,7 +68,7 @@ public class GenreDataSource implements GenreRepository {
                 stmt.setInt(1, movieId);
             } catch (SQLException e) {
             	logger.error(e);
-                throw new RuntimeException(e);
+                throw new MovieAppException(e);
             }
         };
         

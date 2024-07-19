@@ -8,7 +8,7 @@
   <artifactId>postgres</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
-  <name>postgres</name>
+  <name>movie_app</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,11 +17,12 @@
   </properties>
 
   <dependencies>
+    <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>5.10.3</version>
+        <scope>test</scope>
     </dependency>
     
     <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
@@ -57,6 +58,14 @@
         <groupId>io.github.cdimascio</groupId>
         <artifactId>java-dotenv</artifactId>
         <version>5.2.2</version>
+    </dependency>
+    
+    <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+    <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>2.3.230</version>
+        <scope>test</scope>
     </dependency>
   </dependencies>
 

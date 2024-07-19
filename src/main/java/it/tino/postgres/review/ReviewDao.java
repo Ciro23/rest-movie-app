@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Dao;
 import it.tino.postgres.database.Database;
 import it.tino.postgres.database.SimpleDao;
@@ -36,26 +37,27 @@ public class ReviewDao extends SimpleDao<Review, Integer> implements Dao<Review,
             	return review;
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new RuntimeException(e);
+            	throw new MovieAppException(e);
             }
         };
 	}
 	
 	@Override
 	public Review insert(Review review) {
-		 String query = "insert into reviews (movie_id, user_id, vote, review)"
-	                + " values (?, ?, ?, ?)";
+		 String query = "insert into reviews (movie_id, user_id,"
+		 		+ " creation_date, vote, review) values (?, ?, ?, ?, ?)";
 		 
 		 BiConsumer<Review, PreparedStatement> onSetParameters = (entity, stmt) -> {
 	            int index = 0;
 	            try {
 	                stmt.setInt(++index, entity.getMovieId());
 	                stmt.setInt(++index, entity.getUserId());
+	                stmt.setTimestamp(++index, entity.getCreationDate());
 	                stmt.setDouble(++index, entity.getVote());
 	                stmt.setString(++index, entity.getReview());
-	            } catch (Exception e) {
+	            } catch (SQLException e) {
 	            	logger.error(e);
-	            	throw new RuntimeException(e);
+	            	throw new MovieAppException(e);
 	            }
 	        };
 			
@@ -64,20 +66,21 @@ public class ReviewDao extends SimpleDao<Review, Integer> implements Dao<Review,
 
 	@Override
 	public Review update(Review review) {
-		String query = "update reviews set movie_id = ?, user_id = ?, vote = ?, review = ?"
-                + " where id = ?";
+		String query = "update reviews set movie_id = ?, user_id = ?,"
+				+ " creation_date = ?, vote = ?, review = ? where id = ?";
 	 
 		 BiConsumer<Review, PreparedStatement> onSetParameters = (entity, stmt) -> {
 	            int index = 0;
 	            try {
 	                stmt.setInt(++index, entity.getMovieId());
 	                stmt.setInt(++index, entity.getUserId());
+	                stmt.setTimestamp(++index, entity.getCreationDate());
 	                stmt.setDouble(++index, entity.getVote());
 	                stmt.setString(++index, entity.getReview());
 	                stmt.setInt(++index, entity.getId());
-	            } catch (Exception e) {
+	            } catch (SQLException e) {
 	            	logger.error(e);
-	            	throw new RuntimeException(e);
+	            	throw new MovieAppException(e);
 	            }
 	        };
 			

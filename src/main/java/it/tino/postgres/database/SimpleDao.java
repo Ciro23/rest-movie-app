@@ -14,7 +14,15 @@ import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-abstract public class SimpleDao<T extends Identifiable<ID>, ID> implements Dao<T, ID> {
+/**
+ * Offers simple reusable implementations of {@link Dao#selectById(Object)},
+ * {@link Dao#selectByCriteria(Criteria)} and {@link Dao#delete(Object)}.<br>
+ * Helper methods are also available to insert an entity and update it.<br>
+ * Database connection is automatically opened and closed after each
+ * operation.
+ */
+abstract public class SimpleDao<T extends Identifiable<ID>, ID>
+	implements Dao<T, ID> {
 
 	protected static final Logger logger = LogManager.getLogger();
 	
@@ -88,6 +96,12 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID> implements Dao<T
         }
 	}
 	
+	/**
+	 * Handles the JDBC operations to insert a new entity,
+	 * with the help of the specific prepared statement and
+	 * a callback to fill the value of every parameter in the
+	 * query.
+	 */
 	protected T insert(
 		T entity,
 		String query,
@@ -119,13 +133,19 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID> implements Dao<T
 	    }
 	}
 
+	/**
+	 * Handles the JDBC operations to update an entity,
+	 * with the help of the specific prepared statement and
+	 * a callback to fill the value of every parameter in the
+	 * query.
+	 */
 	protected T update(
 		T entity,
 		String query,
 		BiConsumer<T, PreparedStatement> onSetParameters
 	) {
 		try (Connection connection = database.connect()) {
-	        PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+	        PreparedStatement statement = connection.prepareStatement(query);
 	        if (onSetParameters != null) {
 	            onSetParameters.accept(entity, statement);
 	        }

@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Dao;
 import it.tino.postgres.database.Database;
 import it.tino.postgres.database.SimpleDao;
@@ -34,14 +35,15 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
                 return person;
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new RuntimeException(e);
+            	throw new MovieAppException(e);
             }
         };
 	}
 
 	@Override
 	public Person insert(Person person) {
-		String query = "insert into people (name, birth, gender) values (?, ?, ?::gender)";
+		String query = "insert into people (name, birth, gender)"
+				+ " values (?, ?, ?::gender)";
 		
 		BiConsumer<Person, PreparedStatement> onSetParameters = (entity, stmt) -> {
             int index = 0;
@@ -49,9 +51,9 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
                 stmt.setString(++index, entity.getName());
                 stmt.setDate(++index, entity.getBirth());
                 stmt.setString(++index, String.valueOf(entity.getGender().getId()));
-            } catch (Exception e) {
+            } catch (SQLException e) {
             	logger.error(e);
-            	throw new RuntimeException(e);
+            	throw new MovieAppException(e);
             }
         };
 		
@@ -60,7 +62,8 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
 
 	@Override
 	public Person update(Person person) {
-		String query = "update people set name = ?, birth = ?, gender = ?::gender where id = ?";
+		String query = "update people set name = ?, birth = ?,"
+				+ " gender = ?::gender where id = ?";
 		
 		BiConsumer<Person, PreparedStatement> onSetParameters = (entity, stmt) -> {
             int index = 0;
@@ -69,9 +72,9 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
                 stmt.setDate(++index, entity.getBirth());
                 stmt.setString(++index, String.valueOf(entity.getGender().getId()));
                 stmt.setInt(++index, entity.getId());
-            } catch (Exception e) {
+            } catch (SQLException e) {
             	logger.error(e);
-            	throw new RuntimeException(e);
+            	throw new MovieAppException(e);
             }
         };
 		

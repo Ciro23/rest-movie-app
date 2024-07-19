@@ -6,8 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import it.tino.postgres.database.Database;
-import it.tino.postgres.database.DatabaseTable;
+import it.tino.postgres.database.JdbcManager;
 import it.tino.postgres.genre.Genre;
 import it.tino.postgres.genre.GenreDao;
 import it.tino.postgres.genre.GenreDataSource;
@@ -40,7 +39,7 @@ public class App {
 	public static void main(String[] args) {
 		Dotenv dotEnv = Dotenv.load();
 		AppProperties appProperties = AppProperties.getInstance(dotEnv);
-		Database database = new Database(
+		JdbcManager database = new JdbcManager(
 				appProperties.getDatabaseUrl(),
 				appProperties.getDatabaseUsername(),
 				appProperties.getDatabasePassword()
@@ -63,8 +62,7 @@ public class App {
 		System.out.println("######### PEOPLE #########");
 		System.out.println("##########################");
 		PersonDao personDao = new PersonDao(database);
-		DatabaseTable<Person> peopleTable = new DatabaseTable<>(database);
-		PersonRepository personDataSource = new PersonDataSource(personDao, peopleTable);
+		PersonRepository personDataSource = new PersonDataSource(personDao);
 		PersonRepositoryTester personExample = new PersonRepositoryTester(personDataSource);
 
 		List<Person> allPeople = personExample.getAll();
@@ -105,8 +103,7 @@ public class App {
 		System.out.println("######### GENRES #########");
 		System.out.println("##########################");
 		GenreDao genreDao = new GenreDao(database);
-		DatabaseTable<Genre> genresTable = new DatabaseTable<>(database);
-		GenreRepository genreRepository = new GenreDataSource(genreDao, genresTable);
+		GenreRepository genreRepository = new GenreDataSource(genreDao);
 		GenreRepositoryTester genresExample = new GenreRepositoryTester(genreRepository);
 
 		List<Genre> allGenres = genresExample.getAll();

@@ -9,7 +9,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
+
+import javax.annotation.Nullable;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,9 +29,9 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
 
 	protected static final Logger logger = LogManager.getLogger();
 	
-	private final Database database;
+	protected final JdbcManager database;
 	
-	public SimpleDao(Database database) {
+	public SimpleDao(JdbcManager database) {
 		this.database = database;
 	}
 	
@@ -102,6 +105,7 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
 	 * a callback to fill the value of every parameter in the
 	 * query.
 	 */
+	@SuppressWarnings("unchecked")
 	protected T insert(
 		T entity,
 		String query,
@@ -120,7 +124,7 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
 
 	        try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
 	            if (generatedKeys.next()) {
-	                Object id = generatedKeys.getObject(1);
+	                Object id = generatedKeys.getObject("id");
 	                System.out.println("generated id: " + id);
 	                return selectById((ID) id);
 	            } else {
@@ -132,6 +136,42 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
 	        return null;
 	    }
 	}
+	
+	/**
+     * Reads rows returning the mapped objects, allowing to execute
+     * custom advanced queries, for example containing JOIN statements.
+     * @param query E.g. "SELECT * FROM my_table WHERE id = ?"
+     * @param onSetParameters Callback to assign a value to every
+     * parameter ("?") used in the prepared statement, or null if none are present.
+     * @param onMapEntity A callback used to map all {@link ResultSet} attributes
+     * to the POJO object.
+     * @return The mapped selected objects.
+     */
+    protected List<T> select(
+        String query,
+        @Nullable Consumer<PreparedStatement> onSetParameters,
+        Function<ResultSet, T> onMapEntity
+    ) {
+        try (Connection connection = database.connect()) {
+            PreparedStatement statement = connection.prepareStatement(query);
+            if (onSetParameters != null) {
+                onSetParameters.accept(statement);
+            }
+            
+            ResultSet resultSet = statement.executeQuery();
+            
+            List<T> entities = new ArrayList<>();
+            while (resultSet.next()) {
+                T entity = onMapEntity.apply(resultSet);
+                entities.add(entity);
+            }
+            
+            return entities;
+        } catch (SQLException e) {
+        	logger.error(e);
+            return Collections.emptyList();
+        }
+    }
 
 	/**
 	 * Handles the JDBC operations to update an entity,

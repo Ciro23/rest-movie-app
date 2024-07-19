@@ -26,6 +26,14 @@ insert into people (name, birth, gender) values (
     '1970-4-29',
     'f'
 );
+insert into people (name, birth, gender) values (
+    'Quentin Tarantino',
+    '1963-3-27',
+    'm'
+);
+
+insert into movies_actors (movie_id, actor_id, role, cast_order) values (1, 1, 'Vincent Vega', 0);
+insert into movies_directors (movie_id, director_id) values (1, 3);
 
 insert into users (username, password) values ('random_user', '$2a$12$AhDZ6au1fPFhBr2OKYA95.9/3CshPd3d86XY2Kqr0kr2vDP.9eK9W');
 insert into users (username, password) values ('random_user_2', '$2a$12$YvoOvGSarvqgFQrj3/9LsuyKXYgDVWcqXl3M3ZIzbfSxfQkLl0HmC');
@@ -35,3 +43,11 @@ insert into reviews (movie_id, user_id, creation_date, vote, review) values (
 );
 
 insert into genres (name) values ('Comedy');
+insert into genres (name) values ('Horror');
+insert into genres (name) values ('Romance');
+insert into genres (name) values ('Crime');
+insert into genres (name) values ('Thriller');
+insert into genres (name) values ('Biography');
+
+insert into movies_genres (movie_id, genre_id) values (1, 1);
+insert into movies_genres (movie_id, genre_id) values (1, 5);

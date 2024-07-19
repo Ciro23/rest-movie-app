@@ -14,12 +14,12 @@ public class H2TestUtil {
 	private static final String USER = "sa";
 	private static final String PASSWORD = "";
 	
-	public static Database getDatabase() {
-		return new Database(URL, USER, PASSWORD);
+	public static JdbcManager getDatabase() {
+		return new JdbcManager(URL, USER, PASSWORD);
 	}
 	
 	public static void createTables() {
-		Database database = getDatabase();
+		JdbcManager database = getDatabase();
         try (Connection connection = database.connect()) {
             executeSqlFile(connection, "/schema.sql");
             executeSqlFile(connection, "/data.sql");
@@ -29,7 +29,7 @@ public class H2TestUtil {
     }
 	
 	public static void dropTables() {
-		Database database = getDatabase();
+		JdbcManager database = getDatabase();
         try (Connection connection = database.connect();
              Statement statement = connection.createStatement()) {
             statement.execute("DROP ALL OBJECTS;");

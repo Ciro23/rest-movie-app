@@ -8,12 +8,12 @@ import java.util.function.Function;
 
 import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Dao;
-import it.tino.postgres.database.Database;
+import it.tino.postgres.database.JdbcManager;
 import it.tino.postgres.database.SimpleDao;
 
 public class UserDao extends SimpleDao<User, Integer> implements Dao<User, Integer> {
 
-	public UserDao(Database database) {
+	public UserDao(JdbcManager database) {
 		super(database);
 	}
 

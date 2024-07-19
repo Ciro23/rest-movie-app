@@ -37,8 +37,8 @@ create table genres (
 );
 
 create table movies_genres (
-    movie_id int references movies(id),
-    genre_id int references genres(id),
+    movie_id int references movies(id) on delete cascade,
+    genre_id int references genres(id) on delete cascade,
     primary key (movie_id, genre_id)
 );
 

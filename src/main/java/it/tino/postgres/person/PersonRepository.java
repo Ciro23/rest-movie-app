@@ -7,5 +7,5 @@ import it.tino.postgres.Repository;
 public interface PersonRepository extends Repository<Person, Integer>{
 
     List<Person> findDirectorsByMovieId(int movieId);
-    List<ActorRole> findActorsByMovieId(int movieId);
+    List<MovieActor> findActorsByMovieId(int movieId);
 }

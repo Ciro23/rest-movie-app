@@ -1,6 +1,6 @@
 package it.tino.postgres.person;
 
-public class ActorRole extends Person {
+public class MovieActor extends Person {
     
     private int movieId;
     private String roleName;

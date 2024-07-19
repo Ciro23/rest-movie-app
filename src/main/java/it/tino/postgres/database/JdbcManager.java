@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class Database {
+public class JdbcManager {
 
     /**
      * The URL to connect to the database of the form
@@ -17,7 +17,7 @@ public class Database {
     private final String username;
     private final String password;
     
-    public Database(
+    public JdbcManager(
         String url,
         String username,
         String password
@@ -28,6 +28,6 @@ public class Database {
     }
     
     public Connection connect() throws SQLException {
-        return DriverManager.getConnection(url, username, password);
+    	return DriverManager.getConnection(url, username, password);
     }
 }

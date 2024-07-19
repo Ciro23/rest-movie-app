@@ -55,7 +55,7 @@ public class Person implements Identifiable<Integer> {
         return builder.toString();
     }
 
-    enum Gender {
+    public enum Gender {
         MALE("m"),
         FEMALE("f");
         

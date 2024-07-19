@@ -47,7 +47,7 @@ public class PersonRepositoryTester extends RepositoryTester<Person, Integer> {
     public List<Person> getActorsOfMovie() {
         int movieId = 1;
         System.out.println("------- SELECT ACTORS OF MOVIE -------");
-        List<ActorRole> allRows = ((PersonRepository) repository).findActorsByMovieId(movieId);
+        List<MovieActor> allRows = ((PersonRepository) repository).findActorsByMovieId(movieId);
         System.out.println("Movie id: " + movieId);
         System.out.println(allRows);
         System.out.println("---------------------------------------");

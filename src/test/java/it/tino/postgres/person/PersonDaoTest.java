@@ -7,13 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Date;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.Database;
+import it.tino.postgres.database.JdbcManager;
 import it.tino.postgres.database.H2TestUtil;
 import it.tino.postgres.person.Person.Gender;
 
@@ -30,7 +31,7 @@ public class PersonDaoTest {
 	void setUp() {
 		H2TestUtil.createTables();
 
-		Database database = H2TestUtil.getDatabase();
+		JdbcManager database = H2TestUtil.getDatabase();
 		personDao = new PersonDao(database);
 	}
 	
@@ -102,6 +103,54 @@ public class PersonDaoTest {
 	void deleteUnexistentPersonTest() {
 		boolean result = personDao.delete(100);
 		assertFalse(result);
+	}
+	
+	@Test
+	void insertDirectorOfMovieTest() {
+		boolean result = personDao.insertDirectorOfMovie(1, 1);
+		assertTrue(result);
+	}
+	
+	@Test
+	void insertUnexistentDirectorOfMovieTest() {
+		boolean result = personDao.insertDirectorOfMovie(1, 100);
+		assertFalse(result);
+	}
+	
+	@Test
+	void selectDirectorsByMovieTest() {
+		List<Person> directors = personDao.selectDirectorsByMovieId(1);
+		assertEquals(1, directors.size());
+	}
+	
+	@Test
+	void insertActorOfMovieTest() {
+		MovieActor actor = new MovieActor();
+		actor.setId(2);
+		actor.setRoleName("Spiderman");
+		actor.setCastOrder(1);
+		
+		boolean result = personDao.insertActorOfMovie(1, actor);
+		assertTrue(result);
+	}
+	
+	@Test
+	void insertUnexistentActorOfMovieTest() {
+		MovieActor actor = new MovieActor();
+		actor.setId(100);
+		actor.setRoleName("Spiderman");
+		actor.setCastOrder(1);
+		
+		boolean result = personDao.insertActorOfMovie(1, actor);
+		assertFalse(result);
+	}
+	
+	@Test
+	void selectActorsByMovieTest() {
+		List<MovieActor> actors = personDao.selectActorsByMovieId(1);
+		assertEquals(2, actors.size());
+		assertEquals("Vincent Vega", actors.get(0).getRoleName());
+		assertEquals(0, actors.get(0).getCastOrder());
 	}
 	
 	private Person createPersonObject() {

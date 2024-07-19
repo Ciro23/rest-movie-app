@@ -11,14 +11,14 @@ import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Dao;
-import it.tino.postgres.database.Database;
+import it.tino.postgres.database.JdbcManager;
 import it.tino.postgres.database.SimpleDao;
 
 public class MovieDao extends SimpleDao<Movie, Integer> implements Dao<Movie, Integer>  {
 	
 	protected static final Logger logger = LogManager.getLogger();
 	
-	public MovieDao(Database database) {
+	public MovieDao(JdbcManager database) {
 		super(database);
 	}
 	

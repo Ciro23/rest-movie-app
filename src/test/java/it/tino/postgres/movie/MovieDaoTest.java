@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.Database;
+import it.tino.postgres.database.JdbcManager;
 import it.tino.postgres.database.H2TestUtil;
 
 public class MovieDaoTest {
@@ -32,7 +32,7 @@ public class MovieDaoTest {
 	void setUp() {
 		H2TestUtil.createTables();
 
-		Database database = H2TestUtil.getDatabase();
+		JdbcManager database = H2TestUtil.getDatabase();
 		movieDao = new MovieDao(database);
 	}
 	

@@ -7,13 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Date;
+import java.sql.SQLException;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.JdbcManager;
+import it.tino.postgres.database.DaoManager;
 import it.tino.postgres.database.H2TestUtil;
 
 public class MovieDaoTest {
@@ -29,11 +30,11 @@ public class MovieDaoTest {
 	private String overview = "A newly created movie";
 
 	@BeforeEach
-	void setUp() {
+	void setUp() throws SQLException {
 		H2TestUtil.createTables();
 
-		JdbcManager database = H2TestUtil.getDatabase();
-		movieDao = new MovieDao(database);
+		DaoManager daoManager = H2TestUtil.getDaoManager();
+		movieDao = daoManager.getMovieDao();
 	}
 	
 	@AfterEach

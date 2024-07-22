@@ -1,5 +1,6 @@
 package it.tino.postgres.movie;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,17 +10,17 @@ import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import it.tino.postgres.DaoException;
 import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Dao;
-import it.tino.postgres.database.JdbcManager;
 import it.tino.postgres.database.SimpleDao;
 
 public class MovieDao extends SimpleDao<Movie, Integer> implements Dao<Movie, Integer>  {
 	
 	protected static final Logger logger = LogManager.getLogger();
 	
-	public MovieDao(JdbcManager database) {
-		super(database);
+	public MovieDao(Connection connection) {
+		super(connection);
 	}
 	
 	@Override
@@ -49,7 +50,7 @@ public class MovieDao extends SimpleDao<Movie, Integer> implements Dao<Movie, In
 	}
 
 	@Override
-	public Movie insert(Movie movie) {
+	public Movie insert(Movie movie)  {
 		String query = "insert into movies (title, release_date, budget, box_office, runtime, overview)"
 				+ " values (?, ?, ?, ?, ?, ?)";
 		
@@ -64,7 +65,7 @@ public class MovieDao extends SimpleDao<Movie, Integer> implements Dao<Movie, In
                 stmt.setString(++index, entity.getOverview());
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new MovieAppException(e);
+            	throw new DaoException(e);
             }
         };
 		
@@ -88,7 +89,7 @@ public class MovieDao extends SimpleDao<Movie, Integer> implements Dao<Movie, In
                 stmt.setInt(++index, entity.getId());
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new MovieAppException(e);
+            	throw new DaoException(e);
             }
         };
 		

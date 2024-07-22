@@ -11,13 +11,12 @@ import java.util.function.Function;
 
 import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Dao;
-import it.tino.postgres.database.JdbcManager;
 import it.tino.postgres.database.SimpleDao;
 
 public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person, Integer> {
 
-	public PersonDao(JdbcManager database) {
-		super(database);
+	public PersonDao(Connection connection) {
+		super(connection);
 	}
 	
 	@Override
@@ -88,8 +87,7 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
 		String query = "insert into movies_directors (movie_id, director_id)"
 				+ " values (?, ?)";
 		
-		try (Connection connection = database.connect()) {
-	        PreparedStatement statement = connection.prepareStatement(query);
+		try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, movieId);
             statement.setInt(2, personId);
 
@@ -125,8 +123,7 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
 		String query = "insert into movies_actors (movie_id, actor_id, role,"
 				+ " cast_order) values (?, ?, ?, ?)";
 		
-		try (Connection connection = database.connect()) {
-	        PreparedStatement statement = connection.prepareStatement(query);
+		try (PreparedStatement statement = connection.prepareStatement(query)) {
 	        int index = 0;
             statement.setInt(++index, movieId);
             statement.setInt(++index, actor.getId());

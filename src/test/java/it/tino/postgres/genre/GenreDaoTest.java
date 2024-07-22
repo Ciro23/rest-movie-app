@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.JdbcManager;
+import it.tino.postgres.database.DaoManager;
 import it.tino.postgres.database.H2TestUtil;
 
 public class GenreDaoTest {
@@ -24,11 +25,11 @@ public class GenreDaoTest {
 	private String name = "New genre";
 	
 	@BeforeEach
-	void setUp() {
+	void setUp() throws SQLException {
 		H2TestUtil.createTables();
 
-		JdbcManager database = H2TestUtil.getDatabase();
-		genreDao = new GenreDao(database);
+		DaoManager daoManager = H2TestUtil.getDaoManager();
+		genreDao = daoManager.getGenreDao();
 	}
 	
 	@AfterEach

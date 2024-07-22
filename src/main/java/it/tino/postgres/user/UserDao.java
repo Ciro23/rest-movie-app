@@ -1,5 +1,6 @@
 package it.tino.postgres.user;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,13 +9,12 @@ import java.util.function.Function;
 
 import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Dao;
-import it.tino.postgres.database.JdbcManager;
 import it.tino.postgres.database.SimpleDao;
 
 public class UserDao extends SimpleDao<User, Integer> implements Dao<User, Integer> {
 
-	public UserDao(JdbcManager database) {
-		super(database);
+	public UserDao(Connection connection) {
+		super(connection);
 	}
 
 	@Override

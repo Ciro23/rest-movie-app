@@ -6,12 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.sql.SQLException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.JdbcManager;
+import it.tino.postgres.database.DaoManager;
 import it.tino.postgres.database.H2TestUtil;
 
 public class UserDaoTest {
@@ -23,11 +25,11 @@ public class UserDaoTest {
 	private String password = "new_password";
 	
 	@BeforeEach
-	void setUp() {
+	void setUp() throws SQLException {
 		H2TestUtil.createTables();
 
-		JdbcManager database = H2TestUtil.getDatabase();
-		userDao = new UserDao(database);
+		DaoManager daoManager = H2TestUtil.getDaoManager();
+		userDao = daoManager.getUserDao();
 	}
 	
 	@AfterEach

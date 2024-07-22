@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -16,6 +15,8 @@ import javax.annotation.Nullable;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import it.tino.postgres.DaoException;
 
 /**
  * Offers simple reusable implementations of {@link Dao#selectById(Object)},
@@ -29,10 +30,10 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
 
 	protected static final Logger logger = LogManager.getLogger();
 	
-	protected final JdbcManager database;
+	protected final Connection connection;
 	
-	public SimpleDao(JdbcManager database) {
-		this.database = database;
+	public SimpleDao(Connection connection) {
+		this.connection = connection;
 	}
 	
 	abstract protected String getTableName();
@@ -64,8 +65,7 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
 			queryParameters.add(criteria.getValue());
 		}
 		
-		try (Connection connection = database.connect()) {
-            PreparedStatement statement = connection.prepareStatement(query.toString());
+		try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
             for (int i = 0; i < queryParameters.size(); i++) {
             	statement.setObject(i + 1, queryParameters.get(i));
             }
@@ -79,23 +79,23 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
             
             return entities;
         } catch (SQLException e) {
-        	logger.error(e);
+        	String message = "Error fetching entities with query"
+        			+ " '" + query + "'";
+        	logger.error(message, e);
+        	throw new DaoException(message, e);
         }
-		
-        return Collections.emptyList();
 	}
 
 	@Override
 	public boolean delete(ID id) {
 		String query = "delete from " + getTableName() + " where id = ?";
-		try (Connection connection = database.connect()) {
-            PreparedStatement statement = connection.prepareStatement(query);
+		try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setObject(1, id);
-            
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
-        	logger.error(e);
-            return false;
+        	String message = "Error deleting entity with id '" + id + "'";
+        	logger.error(message, e);
+        	throw new DaoException(message, e);
         }
 	}
 	
@@ -111,8 +111,7 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
 		String query,
 		BiConsumer<T, PreparedStatement> onSetParameters
 	) {
-		try (Connection connection = database.connect()) {
-	        PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 	        if (onSetParameters != null) {
 	            onSetParameters.accept(entity, statement);
 	        }
@@ -125,15 +124,17 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
 	        try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
 	            if (generatedKeys.next()) {
 	                Object id = generatedKeys.getObject("id");
-	                System.out.println("generated id: " + id);
+	               logger.debug("generated id: " + id);
 	                return selectById((ID) id);
 	            } else {
 	                throw new SQLException("Inserting entity failed, no ID obtained.");
 	            }
 	        }
 	    } catch (SQLException e) {
-	        logger.error(e);
-	        return null;
+	    	String message = "Error inserting entity with query"
+	    			+ " '" + query + "'";
+	        logger.error(message, e);
+	        throw new DaoException(message, e);
 	    }
 	}
 	
@@ -152,8 +153,7 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
         @Nullable Consumer<PreparedStatement> onSetParameters,
         Function<ResultSet, T> onMapEntity
     ) {
-        try (Connection connection = database.connect()) {
-            PreparedStatement statement = connection.prepareStatement(query);
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
             if (onSetParameters != null) {
                 onSetParameters.accept(statement);
             }
@@ -168,8 +168,10 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
             
             return entities;
         } catch (SQLException e) {
-        	logger.error(e);
-            return Collections.emptyList();
+        	String message = "Error fetching entities with query"
+            		+ " '" + query + "'";
+        	logger.error(message, e);
+            throw new DaoException(message, e);
         }
     }
 
@@ -184,17 +186,18 @@ abstract public class SimpleDao<T extends Identifiable<ID>, ID>
 		String query,
 		BiConsumer<T, PreparedStatement> onSetParameters
 	) {
-		try (Connection connection = database.connect()) {
-	        PreparedStatement statement = connection.prepareStatement(query);
+		try (PreparedStatement statement = connection.prepareStatement(query)) {
 	        if (onSetParameters != null) {
 	            onSetParameters.accept(entity, statement);
 	        }
 
-	        int affectedRows = statement.executeUpdate();
+	        statement.executeUpdate();
 	        return selectById(entity.getId());
 	    } catch (SQLException e) {
-	        logger.error(e);
-	        return null;
+	    	String message = "Error updating entity with query"
+            		+ " '" + query + "'";
+	        logger.error(message, e);
+	        throw new DaoException(message, e);
 	    }
 	}
 }

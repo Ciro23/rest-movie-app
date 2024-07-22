@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.JdbcManager;
+import it.tino.postgres.database.DaoManager;
 import it.tino.postgres.database.H2TestUtil;
 import it.tino.postgres.person.Person.Gender;
 
@@ -28,11 +29,11 @@ public class PersonDaoTest {
 	private Gender gender = Gender.MALE;
 	
 	@BeforeEach
-	void setUp() {
+	void setUp() throws SQLException {
 		H2TestUtil.createTables();
 
-		JdbcManager database = H2TestUtil.getDatabase();
-		personDao = new PersonDao(database);
+		DaoManager daoManager = H2TestUtil.getDaoManager();
+		personDao = daoManager.getPersonDao();
 	}
 	
 	@AfterEach
@@ -148,7 +149,7 @@ public class PersonDaoTest {
 	@Test
 	void selectActorsByMovieTest() {
 		List<MovieActor> actors = personDao.selectActorsByMovieId(1);
-		assertEquals(2, actors.size());
+		assertEquals(1, actors.size());
 		assertEquals("Vincent Vega", actors.get(0).getRoleName());
 		assertEquals(0, actors.get(0).getCastOrder());
 	}

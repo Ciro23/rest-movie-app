@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import org.junit.jupiter.api.AfterEach;
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.JdbcManager;
+import it.tino.postgres.database.DaoManager;
 import it.tino.postgres.database.H2TestUtil;
 
 public class ReviewDaoTest {
@@ -22,7 +23,7 @@ public class ReviewDaoTest {
 	
 	/**
 	 * "Double" values saved in the database may not be
-	 * totally precised when fetched, for example 7.1 is
+	 * totally accurate when fetched, for example 7.1 is
 	 * fetched as 7.099999904632568. This tolerance is needed
 	 * to discard these kind of minor discrepancies.
 	 */
@@ -36,11 +37,11 @@ public class ReviewDaoTest {
 	private String content = "My review";
 	
 	@BeforeEach
-	void setUp() {
+	void setUp() throws SQLException {
 		H2TestUtil.createTables();
 
-		JdbcManager database = H2TestUtil.getDatabase();
-		reviewDao = new ReviewDao(database);
+		DaoManager daoManager = H2TestUtil.getDaoManager();
+		reviewDao = daoManager.getReviewDao();
 	}
 	
 	@AfterEach

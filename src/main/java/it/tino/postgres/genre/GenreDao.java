@@ -1,5 +1,6 @@
 package it.tino.postgres.genre;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,13 +11,12 @@ import java.util.function.Function;
 
 import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Dao;
-import it.tino.postgres.database.JdbcManager;
 import it.tino.postgres.database.SimpleDao;
 
 public class GenreDao extends SimpleDao<Genre, Integer> implements Dao<Genre, Integer> {
 
-	public GenreDao(JdbcManager database) {
-		super(database);
+	public GenreDao(Connection connection) {
+		super(connection);
 	}
 	
 	@Override

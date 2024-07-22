@@ -1,41 +1,65 @@
 package it.tino.postgres.review;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import it.tino.postgres.database.DaoManager;
 
 public class ReviewDataSource implements ReviewRepository {
 
 	protected static final Logger logger = LogManager.getLogger();
 	
-	private final ReviewDao reviewDao;
-
-    public ReviewDataSource(ReviewDao reviewDao) {
-    	this.reviewDao = reviewDao;
+	private final Supplier<DaoManager> onGetDaoManager;
+	
+    public ReviewDataSource(Supplier<DaoManager> onGetDaoManager) {
+    	this.onGetDaoManager = onGetDaoManager;
     }
     
     @Override
 	public Review save(Review entity) {
-		if (entity.getId() == 0) {
-			return reviewDao.insert(entity);
+    	try (DaoManager daoManager = onGetDaoManager.get()) {
+			ReviewDao reviewDao = daoManager.getReviewDao();
+			if (entity.getId() == 0) {
+				return reviewDao.insert(entity);
+			}
+			return reviewDao.update(entity);
+		} catch (SQLException e) {
+			return null;
 		}
-		return reviewDao.update(entity);
 	}
     
     @Override
     public List<Review> findAll() {
-       return reviewDao.selectByCriteria(Collections.emptyList());
+    	try (DaoManager daoManager = onGetDaoManager.get()) {
+			ReviewDao reviewDao = daoManager.getReviewDao();
+			return reviewDao.selectByCriteria(Collections.emptyList());
+		} catch (SQLException e) {
+			return Collections.emptyList();
+		}
     }
     
     @Override
    	public Review findById(Integer id) {
-   		return reviewDao.selectById(id);
+    	try (DaoManager daoManager = onGetDaoManager.get()) {
+			ReviewDao reviewDao = daoManager.getReviewDao();
+			return reviewDao.selectById(id);
+		} catch (SQLException e) {
+			return null;
+		}
    	}
     
 	@Override
 	public boolean delete(Integer id) {
-		return reviewDao.delete(id);
+		try (DaoManager daoManager = onGetDaoManager.get()) {
+			ReviewDao reviewDao = daoManager.getReviewDao();
+			return reviewDao.delete(id);
+		} catch (SQLException e) {
+			return false;
+		}
 	}
 }

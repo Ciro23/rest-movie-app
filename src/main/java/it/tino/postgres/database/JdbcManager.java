@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Handles the connection to the database driver.
+ */
 public class JdbcManager {
 
     /**

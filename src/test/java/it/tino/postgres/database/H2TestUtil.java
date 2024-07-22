@@ -13,14 +13,15 @@ public class H2TestUtil {
 	private static final String URL = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1";
 	private static final String USER = "sa";
 	private static final String PASSWORD = "";
+
+	public static final JdbcManager jdbcManager = new JdbcManager(URL, USER, PASSWORD);
 	
-	public static JdbcManager getDatabase() {
-		return new JdbcManager(URL, USER, PASSWORD);
+	public static DaoManager getDaoManager() throws SQLException {
+		return new DaoManager(jdbcManager);
 	}
 	
 	public static void createTables() {
-		JdbcManager database = getDatabase();
-        try (Connection connection = database.connect()) {
+        try (Connection connection = jdbcManager.connect()) {
             executeSqlFile(connection, "/schema.sql");
             executeSqlFile(connection, "/data.sql");
         } catch (SQLException | IOException e) {
@@ -29,8 +30,7 @@ public class H2TestUtil {
     }
 	
 	public static void dropTables() {
-		JdbcManager database = getDatabase();
-        try (Connection connection = database.connect();
+        try (Connection connection = jdbcManager.connect();
              Statement statement = connection.createStatement()) {
             statement.execute("DROP ALL OBJECTS;");
         } catch (SQLException e) {

@@ -1,34 +1,32 @@
 package it.tino.postgres;
 
+import java.sql.SQLException;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import it.tino.postgres.database.DaoManager;
 import it.tino.postgres.database.JdbcManager;
 import it.tino.postgres.genre.Genre;
-import it.tino.postgres.genre.GenreDao;
 import it.tino.postgres.genre.GenreDataSource;
 import it.tino.postgres.genre.GenreRepository;
 import it.tino.postgres.genre.GenreRepositoryTester;
 import it.tino.postgres.movie.Movie;
-import it.tino.postgres.movie.MovieDao;
 import it.tino.postgres.movie.MovieDataSource;
 import it.tino.postgres.movie.MovieRepository;
 import it.tino.postgres.movie.MovieRepositoryTester;
 import it.tino.postgres.person.Person;
-import it.tino.postgres.person.PersonDao;
 import it.tino.postgres.person.PersonDataSource;
 import it.tino.postgres.person.PersonRepository;
 import it.tino.postgres.person.PersonRepositoryTester;
 import it.tino.postgres.review.Review;
-import it.tino.postgres.review.ReviewDao;
 import it.tino.postgres.review.ReviewDataSource;
 import it.tino.postgres.review.ReviewRepository;
 import it.tino.postgres.review.ReviewRepositoryTester;
 import it.tino.postgres.user.User;
-import it.tino.postgres.user.UserDao;
 import it.tino.postgres.user.UserDataSource;
 import it.tino.postgres.user.UserRepository;
 import it.tino.postgres.user.UserRepositoryTester;
@@ -45,25 +43,32 @@ public class App {
 				appProperties.getDatabasePassword()
 		);
 		
+		Supplier<DaoManager> onGetDaoManager = () -> {
+			try {
+				return new DaoManager(database);
+			} catch (SQLException e) {
+				throw new RuntimeException();
+			}
+		};
+		
 		System.out.println("##########################");
 		System.out.println("######### MOVIES #########");
 		System.out.println("##########################");
-		MovieDao moviesDao = new MovieDao(database);
-		MovieRepository movieDataSource = new MovieDataSource(moviesDao);
-		MovieRepositoryTester movieExample = new MovieRepositoryTester(movieDataSource);
-
+		MovieRepository movieRepository = new MovieDataSource(onGetDaoManager);
+		MovieRepositoryTester movieExample = new MovieRepositoryTester(movieRepository);
+		
 		List<Movie> allMovies = movieExample.getAll();
 		allMovies = movieExample.create();
 		allMovies = movieExample.update(movieExample.getLatestMovie(allMovies));
 		allMovies = movieExample.delete(movieExample.getLatestMovie(allMovies).getId());
+		//movieDataSource.createFirstMovie();
 		// -----
 
 		System.out.println("\n##########################");
 		System.out.println("######### PEOPLE #########");
 		System.out.println("##########################");
-		PersonDao personDao = new PersonDao(database);
-		PersonRepository personDataSource = new PersonDataSource(personDao);
-		PersonRepositoryTester personExample = new PersonRepositoryTester(personDataSource);
+		PersonRepository personRepository = new PersonDataSource(onGetDaoManager);
+		PersonRepositoryTester personExample = new PersonRepositoryTester(personRepository);
 
 		List<Person> allPeople = personExample.getAll();
 		allPeople = personExample.getDirectorsOfMovie();
@@ -76,8 +81,7 @@ public class App {
 		System.out.println("\n##########################");
 		System.out.println("########## USER ##########");
 		System.out.println("##########################");
-		UserDao userDao = new UserDao(database);
-		UserRepository userRepository = new UserDataSource(userDao);
+		UserRepository userRepository = new UserDataSource(onGetDaoManager);
 		UserRepositoryTester userExample = new UserRepositoryTester(userRepository);
 
 		List<User> allUsers = userExample.getAll();
@@ -89,8 +93,7 @@ public class App {
 		System.out.println("\n##########################");
 		System.out.println("######### REVIEWS ########");
 		System.out.println("##########################");
-		ReviewDao reviewDao = new ReviewDao(database);
-		ReviewRepository reviewRepository = new ReviewDataSource(reviewDao);
+		ReviewRepository reviewRepository = new ReviewDataSource(onGetDaoManager);
 		ReviewRepositoryTester reviewExample = new ReviewRepositoryTester(reviewRepository);
 
 		List<Review> allReviews = reviewExample.getAll();
@@ -102,8 +105,7 @@ public class App {
 		System.out.println("\n##########################");
 		System.out.println("######### GENRES #########");
 		System.out.println("##########################");
-		GenreDao genreDao = new GenreDao(database);
-		GenreRepository genreRepository = new GenreDataSource(genreDao);
+		GenreRepository genreRepository = new GenreDataSource(onGetDaoManager);
 		GenreRepositoryTester genresExample = new GenreRepositoryTester(genreRepository);
 
 		List<Genre> allGenres = genresExample.getAll();

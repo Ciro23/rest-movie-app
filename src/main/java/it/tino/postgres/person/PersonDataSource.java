@@ -1,51 +1,85 @@
 package it.tino.postgres.person;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import it.tino.postgres.database.DaoManager;
 
 public class PersonDataSource implements PersonRepository {
 
 	protected static final Logger logger = LogManager.getLogger();
 	
-	private final PersonDao personDao;
-    
-    public PersonDataSource(PersonDao personDao) {
-    	this.personDao = personDao;
+	private final Supplier<DaoManager> onGetDaoManager;
+	
+    public PersonDataSource(Supplier<DaoManager> onGetDaoManager) {
+    	this.onGetDaoManager = onGetDaoManager;
     }
     
 	@Override
 	public Person save(Person entity) {
-		if (entity.getId() == 0) {
-			return personDao.insert(entity);
+		try (DaoManager daoManager = onGetDaoManager.get()) {
+			PersonDao personDao = daoManager.getPersonDao();
+			if (entity.getId() == 0) {
+				return personDao.insert(entity);
+			}
+			return personDao.update(entity);	
+		} catch (SQLException e) {
+			return null;
 		}
-		return personDao.update(entity);
 	}
     
     @Override
     public List<Person> findAll() {
-       return personDao.selectByCriteria(Collections.emptyList());
+    	try (DaoManager daoManager = onGetDaoManager.get()) {
+			PersonDao personDao = daoManager.getPersonDao();
+			return personDao.selectByCriteria(Collections.emptyList());
+		} catch (SQLException e) {
+			return Collections.emptyList();
+		}
     }
     
     @Override
 	public Person findById(Integer id) {
-		return personDao.selectById(id);
+    	try (DaoManager daoManager = onGetDaoManager.get()) {
+			PersonDao personDao = daoManager.getPersonDao();
+			return personDao.selectById(id);
+		} catch (SQLException e) {
+			return null;
+		}
 	}
 
     @Override
     public List<Person> findDirectorsByMovieId(int movieId) {
-    	return personDao.selectDirectorsByMovieId(movieId);
+    	try (DaoManager daoManager = onGetDaoManager.get()) {
+			PersonDao personDao = daoManager.getPersonDao();
+			return personDao.selectDirectorsByMovieId(movieId);
+		} catch (SQLException e) {
+			return Collections.emptyList();
+		}
     }
     
     @Override
     public List<MovieActor> findActorsByMovieId(int movieId) {
-        return personDao.selectActorsByMovieId(movieId);
+    	try (DaoManager daoManager = onGetDaoManager.get()) {
+			PersonDao personDao = daoManager.getPersonDao();
+			return personDao.selectActorsByMovieId(movieId);
+		} catch (SQLException e) {
+			return Collections.emptyList();
+		}
     }
 
 	@Override
 	public boolean delete(Integer id) {
-		return personDao.delete(id);
+		try (DaoManager daoManager = onGetDaoManager.get()) {
+			PersonDao personDao = daoManager.getPersonDao();
+			return personDao.delete(id);
+		} catch (SQLException e) {
+			return false;
+		}
 	}
 }

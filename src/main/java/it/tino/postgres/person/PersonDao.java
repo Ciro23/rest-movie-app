@@ -4,27 +4,25 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import it.tino.postgres.MovieAppException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import it.tino.postgres.DaoException;
+import it.tino.postgres.database.Criteria;
 import it.tino.postgres.database.Dao;
-import it.tino.postgres.database.SimpleDao;
 
-public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person, Integer> {
+public class PersonDao implements Dao<Person, Integer> {
 
-	public PersonDao(Connection connection) {
-		super(connection);
-	}
-	
-	@Override
-	protected String getTableName() {
-		return "people";
-	}
+	protected static final Logger logger = LogManager.getLogger();
+	private static final String TABLE_NAME = "people";
 
-	@Override
 	protected Function<ResultSet, Person> getOnMapEntity() {
 		return (resultSet) -> {
             try {
@@ -37,56 +35,123 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
                 return person;
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new MovieAppException(e);
+            	throw new DaoException(e);
             }
         };
 	}
 
 	@Override
-	public Person insert(Person person) {
+	public Person insert(Person entity, Connection connection) {
 		String query = "insert into people (name, birth, gender)"
 				+ " values (?, ?, ?::gender)";
-		
-		BiConsumer<Person, PreparedStatement> onSetParameters = (entity, stmt) -> {
-            int index = 0;
-            try {
-                stmt.setString(++index, entity.getName());
-                stmt.setDate(++index, entity.getBirth());
-                stmt.setString(++index, String.valueOf(entity.getGender().getId()));
-            } catch (SQLException e) {
-            	logger.error(e);
-            	throw new MovieAppException(e);
-            }
-        };
-		
-		return insert(person, query, onSetParameters);
+		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+			int index = 0;
+			statement.setString(++index, entity.getName());
+			statement.setDate(++index, entity.getBirth());
+			statement.setString(++index, String.valueOf(entity.getGender().getId()));
+
+			int affectedRows = statement.executeUpdate();
+			if (affectedRows == 0) {
+				throw new SQLException("Inserting entity failed, no rows affected.");
+			}
+
+			try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+				if (generatedKeys.next()) {
+					Object id = generatedKeys.getObject("id");
+					logger.debug("generated id: " + id);
+					return selectById((Integer) id, connection);
+				} else {
+					throw new SQLException("Inserting entity failed, no ID obtained.");
+				}
+			}
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+			throw new DaoException(e);
+		}
 	}
 
 	@Override
-	public Person update(Person person) {
+	public Person update(Person entity, Connection connection) {
 		String query = "update people set name = ?, birth = ?,"
 				+ " gender = ?::gender where id = ?";
 		
-		BiConsumer<Person, PreparedStatement> onSetParameters = (entity, stmt) -> {
-            int index = 0;
-            try {
-                stmt.setString(++index, entity.getName());
-                stmt.setDate(++index, entity.getBirth());
-                stmt.setString(++index, String.valueOf(entity.getGender().getId()));
-                stmt.setInt(++index, entity.getId());
-            } catch (SQLException e) {
-            	logger.error(e);
-            	throw new MovieAppException(e);
-            }
-        };
+		try (PreparedStatement statement = connection.prepareStatement(query)) {
+        	int index = 0;
+        	statement.setString(++index, entity.getName());
+        	statement.setDate(++index, entity.getBirth());
+        	statement.setString(++index, String.valueOf(entity.getGender().getId()));
+        	statement.setInt(++index, entity.getId());
+
+	        statement.executeUpdate();
+	        return selectById(entity.getId(), connection);
+	    } catch (SQLException e) {
+	        logger.error(e.getMessage(), e);
+	        throw new DaoException(e);
+	    }
+	}
+
+	@Override
+	public Person selectById(Integer id, Connection connection) {
+		Criteria criteria = new Criteria("id", "=", id);
+		List<Person> entities = selectByCriteria(criteria, connection);
 		
-		return update(person, query, onSetParameters);
+		if (entities.isEmpty()) {
+			return null;
+		}
+		return entities.get(0);
+	}
+
+	@Override
+	public List<Person> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+		StringBuilder query = new StringBuilder("select * from ")
+				.append(TABLE_NAME)
+				.append(" where 1 = 1");
+		
+		List<Object> queryParameters = new ArrayList<>();
+		for (Criteria criteria : criterias) {
+			query.append(" and ");
+			query.append(criteria.getField());
+			query.append(criteria.getOperator());
+			query.append("?");
+			queryParameters.add(criteria.getValue());
+		}
+		
+		try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
+            for (int i = 0; i < queryParameters.size(); i++) {
+            	statement.setObject(i + 1, queryParameters.get(i));
+            }
+            
+            ResultSet resultSet = statement.executeQuery();
+            List<Person> entities = new ArrayList<>();
+            while (resultSet.next()) {
+            	Person entity = getOnMapEntity().apply(resultSet);
+                entities.add(entity);
+            }
+            
+            return entities;
+        } catch (SQLException e) {
+        	logger.error(e.getMessage(), e);
+        	throw new DaoException(e);
+        }
+	}
+
+	@Override
+	public boolean delete(Integer id, Connection connection) {
+		String query = "delete from " + TABLE_NAME + " where id = ?";
+		try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setObject(1, id);
+            return statement.executeUpdate() == 1;
+        } catch (SQLException e) {
+        	logger.error(e.getMessage(), e);
+        	throw new DaoException(e);
+        }
 	}
 	
 	public boolean insertDirectorOfMovie(int movieId, int personId) {
 		String query = "insert into movies_directors (movie_id, director_id)"
 				+ " values (?, ?)";
 		
+		Connection connection = null;
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, movieId);
             statement.setInt(2, personId);
@@ -109,11 +174,11 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
                 stmt.setInt(1, movieId);
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new MovieAppException(e);
+            	throw new DaoException(e);
             }
         };
-        
-        return select(sql, onSetParameters, getOnMapEntity());
+        return null;
+        //return select(sql, onSetParameters, getOnMapEntity());
 	}
 	
 	public boolean insertActorOfMovie(
@@ -123,6 +188,7 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
 		String query = "insert into movies_actors (movie_id, actor_id, role,"
 				+ " cast_order) values (?, ?, ?, ?)";
 		
+		Connection connection = null;
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
 	        int index = 0;
             statement.setInt(++index, movieId);
@@ -147,7 +213,7 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
             try {
                 stmt.setInt(1, movieId);
             } catch (SQLException e) {
-                throw new MovieAppException(e);
+                throw new DaoException(e);
             }
         };
         
@@ -166,13 +232,13 @@ public class PersonDao extends SimpleDao<Person, Integer> implements Dao<Person,
                 return actorRole;
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new MovieAppException(e);
+            	throw new DaoException(e);
             }
         };
-        
-        return select(sql, onSetParameters, onMapActorRole)
-                .stream()
-                .map(p -> (MovieActor) p)
-                .toList();
+        return null;
+//        return select(sql, onSetParameters, onMapActorRole)
+//                .stream()
+//                .map(p -> (MovieActor) p)
+//                .toList();
 	}
 }

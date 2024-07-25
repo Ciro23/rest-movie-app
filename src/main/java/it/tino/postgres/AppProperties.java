@@ -2,6 +2,9 @@ package it.tino.postgres;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
+/**
+ * Gives access to every application properties.
+ */
 public class AppProperties {
 
 	private static AppProperties instance = null;
@@ -10,15 +13,16 @@ public class AppProperties {
 	private String databaseUsername;
 	private String databasePassword;
 	
-	private AppProperties(Dotenv dotEnv) {
+	private AppProperties() {
+		Dotenv dotEnv = Dotenv.load();
 		databaseUrl = dotEnv.get("DB_URL");
 		databaseUsername = dotEnv.get("DB_USER");
 		databasePassword = dotEnv.get("DB_PASSWORD");
 	}
 	
-	public static AppProperties getInstance(Dotenv dotEnv) {
+	public static AppProperties getInstance() {
 		if (instance == null) {
-			instance = new AppProperties(dotEnv);
+			instance = new AppProperties();
 		}
 		return instance;
 	}

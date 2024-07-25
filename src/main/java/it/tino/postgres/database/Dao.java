@@ -1,18 +1,20 @@
 package it.tino.postgres.database;
 
+import java.sql.Connection;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 public interface Dao<T, ID> {
 	
-	T insert(T entity);
-	T update(T entity);
+	T insert(T entity, Connection connection);
+	T update(T entity, Connection connection);
 	
-	T selectById(ID id);
-	List<T> selectByCriteria(List<Criteria> criterias);
-	default List<T> selectByCriteria(Criteria criteria) {
-		return selectByCriteria(Collections.singletonList(criteria));
+	T selectById(ID id, Connection connection);
+	List<T> selectByCriteria(Collection<Criteria> criterias, Connection connection);
+	default List<T> selectByCriteria(Criteria criteria, Connection connection) {
+		return selectByCriteria(Collections.singletonList(criteria), connection);
 	}
 	
-	boolean delete(ID id);
+	boolean delete(ID id, Connection connection);
 }

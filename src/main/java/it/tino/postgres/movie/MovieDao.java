@@ -4,31 +4,24 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.function.BiConsumer;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.DaoException;
-import it.tino.postgres.MovieAppException;
+import it.tino.postgres.database.Criteria;
 import it.tino.postgres.database.Dao;
-import it.tino.postgres.database.SimpleDao;
 
-public class MovieDao extends SimpleDao<Movie, Integer> implements Dao<Movie, Integer>  {
+public class MovieDao implements Dao<Movie, Integer>  {
 	
 	protected static final Logger logger = LogManager.getLogger();
-	
-	public MovieDao(Connection connection) {
-		super(connection);
-	}
-	
-	@Override
-	protected String getTableName() {
-		return "movies";
-	}
+	private static final String TABLE_NAME = "movies";
 
-	@Override
 	protected Function<ResultSet, Movie> getOnMapEntity() {
 		return (resultSet) -> {
             try {
@@ -44,55 +37,121 @@ public class MovieDao extends SimpleDao<Movie, Integer> implements Dao<Movie, In
          	    return movie;
             } catch (SQLException e) {
             	logger.error(e);
-                throw new MovieAppException(e);
+                throw new DaoException(e);
             }
         };
 	}
 
 	@Override
-	public Movie insert(Movie movie)  {
-		String query = "insert into movies (title, release_date, budget, box_office, runtime, overview)"
-				+ " values (?, ?, ?, ?, ?, ?)";
-		
-		BiConsumer<Movie, PreparedStatement> onSetParameters = (entity, stmt) -> {
-            int index = 0;
-            try {
-                stmt.setString(++index, entity.getTitle());
-                stmt.setDate(++index, entity.getReleaseDate());
-                stmt.setInt(++index, entity.getBudget());
-                stmt.setInt(++index, entity.getBoxOffice());
-                stmt.setInt(++index, entity.getRuntime());
-                stmt.setString(++index, entity.getOverview());
-            } catch (SQLException e) {
-            	logger.error(e);
-            	throw new DaoException(e);
-            }
-        };
-		
-		return insert(movie, query, onSetParameters);
+	public Movie insert(Movie entity, Connection connection) {
+		String query = "insert into " + TABLE_NAME + " (title, release_date, budget,"
+				+ " box_office, runtime, overview) values (?, ?, ?, ?, ?, ?)";
+		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+        	int index = 0;
+        	statement.setString(++index, entity.getTitle());
+        	statement.setDate(++index, entity.getReleaseDate());
+        	statement.setInt(++index, entity.getBudget());
+        	statement.setInt(++index, entity.getBoxOffice());
+        	statement.setInt(++index, entity.getRuntime());
+        	statement.setString(++index, entity.getOverview());
+
+	        int affectedRows = statement.executeUpdate();
+	        if (affectedRows == 0) {
+	            throw new SQLException("Inserting entity failed, no rows affected.");
+	        }
+
+	        try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+	            if (generatedKeys.next()) {
+	                Object id = generatedKeys.getObject("id");
+	               logger.debug("generated id: " + id);
+	                return selectById((Integer) id, connection);
+	            } else {
+	                throw new SQLException("Inserting entity failed, no ID obtained.");
+	            }
+	        }
+	    } catch (SQLException e) {
+	        logger.error(e.getMessage(), e);
+	        throw new DaoException(e);
+	    }
 	}
 
 	@Override
-	public Movie update(Movie movie) {
-		String query = "update movies set title = ?, release_date = ?, budget = ?, box_office = ?,"
-                + " runtime = ?, overview = ? where id = ?";
+	public Movie update(Movie entity, Connection connection) {
+		String query = "update " + TABLE_NAME + " set title = ?, release_date = ?,"
+				+ " budget = ?, box_office = ?, runtime = ?, overview = ?"
+				+ " where id = ?";
+		try (PreparedStatement statement = connection.prepareStatement(query)) {
+        	int index = 0;
+        	statement.setString(++index, entity.getTitle());
+        	statement.setDate(++index, entity.getReleaseDate());
+        	statement.setInt(++index, entity.getBudget());
+        	statement.setInt(++index, entity.getBoxOffice());
+        	statement.setInt(++index, entity.getRuntime());
+        	statement.setString(++index, entity.getOverview());
+        	statement.setInt(++index, entity.getId());
+
+	        statement.executeUpdate();
+	        return selectById(entity.getId(), connection);
+	    } catch (SQLException e) {
+	        logger.error(e.getMessage(), e);
+	        throw new DaoException(e);
+	    }
+	}
+
+	@Override
+	public Movie selectById(Integer id, Connection connection) {
+		Criteria criteria = new Criteria("id", "=", id);
+		List<Movie> entities = selectByCriteria(criteria, connection);
 		
-		BiConsumer<Movie, PreparedStatement> onSetParameters = (entity, stmt) -> {
-            int index = 0;
-            try {
-                stmt.setString(++index, entity.getTitle());
-                stmt.setDate(++index, entity.getReleaseDate());
-                stmt.setInt(++index, entity.getBudget());
-                stmt.setInt(++index, entity.getBoxOffice());
-                stmt.setInt(++index, entity.getRuntime());
-                stmt.setString(++index, entity.getOverview());
-                stmt.setInt(++index, entity.getId());
-            } catch (SQLException e) {
-            	logger.error(e);
-            	throw new DaoException(e);
+		if (entities.isEmpty()) {
+			return null;
+		}
+		return entities.get(0);
+	}
+
+	@Override
+	public List<Movie> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+		StringBuilder query = new StringBuilder("select * from ")
+				.append(TABLE_NAME)
+				.append(" where 1 = 1");
+		
+		List<Object> queryParameters = new ArrayList<>();
+		for (Criteria criteria : criterias) {
+			query.append(" and ");
+			query.append(criteria.getField());
+			query.append(criteria.getOperator());
+			query.append("?");
+			queryParameters.add(criteria.getValue());
+		}
+		
+		try (PreparedStatement statement = connection.prepareStatement(query.toString())) {
+            for (int i = 0; i < queryParameters.size(); i++) {
+            	statement.setObject(i + 1, queryParameters.get(i));
             }
-        };
-		
-		return update(movie, query, onSetParameters);
+            
+            ResultSet resultSet = statement.executeQuery();
+            List<Movie> entities = new ArrayList<>();
+            while (resultSet.next()) {
+                Movie entity = getOnMapEntity().apply(resultSet);
+                entities.add(entity);
+            }
+            
+            return entities;
+        } catch (SQLException e) {
+        	logger.error(e.getMessage(), e);
+        	throw new DaoException(e);
+        }
+	}
+
+	@Override
+	public boolean delete(Integer id, Connection connection) {
+		String query = "delete from " + TABLE_NAME + " where id = ?";
+		try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setObject(1, id);
+            return statement.executeUpdate() == 1;
+        } catch (SQLException e) {
+        	logger.error(e.getMessage(), e);
+        	throw new DaoException(e);
+        }
 	}
 }

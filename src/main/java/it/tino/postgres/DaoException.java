@@ -2,6 +2,9 @@ package it.tino.postgres;
 
 import java.io.Serial;
 
+/**
+ * Used for errors caused inside DAOs.
+ */
 public class DaoException extends RuntimeException {
 	
 	@Serial

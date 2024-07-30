@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import it.tino.postgres.DaoException;
 import it.tino.postgres.database.ConnectionManager;
 import it.tino.postgres.database.Criteria;
+import it.tino.postgres.review.database.ReviewDao;
 
 public class ReviewManager {
 

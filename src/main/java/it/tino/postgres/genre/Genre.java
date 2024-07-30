@@ -1,5 +1,7 @@
 package it.tino.postgres.genre;
 
+import java.util.Objects;
+
 public class Genre {
 
     private int id;
@@ -30,4 +32,21 @@ public class Genre {
         builder.append("}");
         return builder.toString();
     }
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Genre other = (Genre) obj;
+		return id == other.id;
+	}
 }

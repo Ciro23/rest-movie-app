@@ -12,7 +12,7 @@ import it.tino.postgres.DaoException;
 
 /**
  * This class allows the handling of the lifecycle of the database connection in
- * an higher layer than DAOs, to manage transactions
+ * an higher layer than DAOs, to manage transactions.
  */
 public class ConnectionManager {
 

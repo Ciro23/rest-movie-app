@@ -99,9 +99,23 @@ public class GenreDao {
 		for (Criteria criteria : criterias) {
 			query.append(" and ");
 			query.append(criteria.getField());
-			query.append(criteria.getOperator());
-			query.append("?");
-			queryParameters.add(criteria.getValue());
+			
+			if ("in".equalsIgnoreCase(criteria.getOperator()) && criteria.getValue() instanceof Collection<?>) {
+	            Collection<?> values = (Collection<?>) criteria.getValue();
+	            if (values.isEmpty()) {
+	                query.append(" in (null)");
+	            } else {
+	                query.append(" in (");
+	                String placeholders = String.join(",", Collections.nCopies(values.size(), "?"));
+	                query.append(placeholders);
+	                query.append(")");
+	                queryParameters.addAll(values);
+	            }
+	        } else {
+	            query.append(criteria.getOperator());
+	            query.append("?");
+	            queryParameters.add(criteria.getValue());
+	        }
 		}
 		
 		try (PreparedStatement statement = connection.prepareStatement(query.toString())) {

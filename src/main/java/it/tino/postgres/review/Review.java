@@ -1,6 +1,7 @@
 package it.tino.postgres.review;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
 
@@ -46,10 +47,6 @@ public class Review {
         return creationDate;
     }
 
-    /**
-     * Adding a creation date makes this object considered as
-     * already persisted in the database.
-     */
     public void setCreationDate(Timestamp creationDate) {
         this.creationDate = creationDate;
     }
@@ -72,6 +69,9 @@ public class Review {
     }
 
     public void setReview(String review) {
+    	if (review.isBlank()) {
+    		review = null;
+    	}
         this.review = review;
     }
 
@@ -86,4 +86,21 @@ public class Review {
         builder.append("}");
         return builder.toString();
     }
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Review other = (Review) obj;
+		return id == other.id;
+	}
 }

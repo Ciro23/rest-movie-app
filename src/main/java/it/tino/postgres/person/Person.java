@@ -3,6 +3,7 @@ package it.tino.postgres.person;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import it.tino.postgres.movie.MovieActor;
 import it.tino.postgres.movie.MovieDirector;
@@ -78,4 +79,21 @@ public class Person {
         builder.append("}");
         return builder.toString();
     }
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Person other = (Person) obj;
+		return id == other.id;
+	}
 }

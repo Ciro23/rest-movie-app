@@ -1,4 +1,4 @@
-package it.tino.postgres.genre;
+package it.tino.postgres.person.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.apache.logging.log4j.LogManager;
@@ -18,77 +17,68 @@ import it.tino.postgres.DaoException;
 import it.tino.postgres.database.Criteria;
 import it.tino.postgres.database.Dao;
 
-public class GenreDao implements Dao<Genre, Integer> {
+public class PersonDao implements Dao<PersonJdbc, Integer> {
 
 	protected static final Logger logger = LogManager.getLogger();
-	public static final String TABLE_NAME = "genres";
-	
-	protected Function<ResultSet, Genre> getOnMapEntity() {
+	private static final String TABLE_NAME = "people";
+
+	protected Function<ResultSet, PersonJdbc> getOnMapEntity() {
 		return (resultSet) -> {
             try {
-            	Genre genre = new Genre();
-            	genre.setId(resultSet.getInt("id"));
-            	genre.setName(resultSet.getString("name"));
-            	
-            	return genre;
+            	PersonJdbc person = new PersonJdbc();
+                person.setId(resultSet.getInt("id"));
+                person.setName(resultSet.getString("name"));
+                person.setBirth(resultSet.getDate("birth"));
+                person.setGender(PersonJdbc.Gender.fromId(resultSet.getString("gender")));
+                
+                return person;
             } catch (SQLException e) {
             	logger.error(e);
-                throw new DaoException(e);
+            	throw new DaoException(e);
             }
         };
-	}
-	
-	public List<Genre> selectByMovieId(int movieId, Connection connection) {
-		String sql = "SELECT g.id, g.name FROM genres g"
-                + " JOIN movies_genres mg ON g.id = mg.genre_id"
-                + " WHERE mg.movie_id = ?";
-        
-        Consumer<PreparedStatement> onSetParameters = (stmt) -> {
-            try {
-                stmt.setInt(1, movieId);
-            } catch (SQLException e) {
-            	logger.error(e);
-                throw new DaoException(e);
-            }
-        };
-        
-        return null;
 	}
 
 	@Override
-	public Genre insert(Genre entity, Connection connection) {
-		String query = "insert into genres (name) values (?)";
+	public PersonJdbc insert(PersonJdbc entity, Connection connection) {
+		String query = "insert into people (name, birth, gender)"
+				+ " values (?, ?, ?::gender)";
 		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-        	int index = 0;
-        	statement.setString(++index, entity.getName());
+			int index = 0;
+			statement.setString(++index, entity.getName());
+			statement.setDate(++index, entity.getBirth());
+			statement.setString(++index, String.valueOf(entity.getGender().getId()));
 
-	        int affectedRows = statement.executeUpdate();
-	        if (affectedRows == 0) {
-	            throw new SQLException("Inserting entity failed, no rows affected.");
-	        }
+			int affectedRows = statement.executeUpdate();
+			if (affectedRows == 0) {
+				throw new SQLException("Inserting entity failed, no rows affected.");
+			}
 
-	        try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-	            if (generatedKeys.next()) {
-	                Object id = generatedKeys.getObject("id");
-	               logger.debug("generated id: " + id);
-	                return selectById((Integer) id, connection);
-	            } else {
-	                throw new SQLException("Inserting entity failed, no ID obtained.");
-	            }
-	        }
-	    } catch (SQLException e) {
-	        logger.error(e.getMessage(), e);
-	        throw new DaoException(e);
-	    }
+			try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+				if (generatedKeys.next()) {
+					Object id = generatedKeys.getObject("id");
+					logger.debug("generated id: " + id);
+					return selectById((Integer) id, connection);
+				} else {
+					throw new SQLException("Inserting entity failed, no ID obtained.");
+				}
+			}
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+			throw new DaoException(e);
+		}
 	}
-	
-	@Override
-	public Genre update(Genre entity, Connection connection) {
-		String query = "update genres set name = ? where id = ?";
 
+	@Override
+	public PersonJdbc update(PersonJdbc entity, Connection connection) {
+		String query = "update people set name = ?, birth = ?,"
+				+ " gender = ?::gender where id = ?";
+		
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
         	int index = 0;
         	statement.setString(++index, entity.getName());
+        	statement.setDate(++index, entity.getBirth());
+        	statement.setString(++index, String.valueOf(entity.getGender().getId()));
         	statement.setInt(++index, entity.getId());
 
 	        statement.executeUpdate();
@@ -100,9 +90,9 @@ public class GenreDao implements Dao<Genre, Integer> {
 	}
 
 	@Override
-	public Genre selectById(Integer id, Connection connection) {
+	public PersonJdbc selectById(Integer id, Connection connection) {
 		Criteria criteria = new Criteria("id", "=", id);
-		List<Genre> entities = selectByCriteria(criteria, connection);
+		List<PersonJdbc> entities = selectByCriteria(criteria, connection);
 		
 		if (entities.isEmpty()) {
 			return null;
@@ -111,7 +101,7 @@ public class GenreDao implements Dao<Genre, Integer> {
 	}
 
 	@Override
-	public List<Genre> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public List<PersonJdbc> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -131,9 +121,9 @@ public class GenreDao implements Dao<Genre, Integer> {
             }
             
             ResultSet resultSet = statement.executeQuery();
-            List<Genre> entities = new ArrayList<>();
+            List<PersonJdbc> entities = new ArrayList<>();
             while (resultSet.next()) {
-                Genre entity = getOnMapEntity().apply(resultSet);
+            	PersonJdbc entity = getOnMapEntity().apply(resultSet);
                 entities.add(entity);
             }
             

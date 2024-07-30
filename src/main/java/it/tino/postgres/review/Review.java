@@ -3,9 +3,8 @@ package it.tino.postgres.review;
 import java.sql.Timestamp;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
-import it.tino.postgres.database.Identifiable;
 
-public class Review implements Identifiable<Integer> {
+public class Review {
     
 	private int id;
     private int movieId;
@@ -19,7 +18,7 @@ public class Review implements Identifiable<Integer> {
     @Nullable
     private String review;
     
-    public Integer getId() {
+    public int getId() {
 		return id;
 	}
 

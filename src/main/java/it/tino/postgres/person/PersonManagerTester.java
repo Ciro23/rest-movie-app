@@ -8,7 +8,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import it.tino.postgres.database.DataManagerTester;
-import it.tino.postgres.person.Person.Gender;
+import it.tino.postgres.person.database.PersonJdbc.Gender;
 
 public class PersonManagerTester extends DataManagerTester<Person, Integer> {
     
@@ -40,7 +40,7 @@ public class PersonManagerTester extends DataManagerTester<Person, Integer> {
 
     @Override
     protected Person onCreateObject() {
-        Person person = new Person();
+    	Person person = new Person();
         person.setId(0);
         person.setName("New person");
         person.setBirth(new Date(1000000));

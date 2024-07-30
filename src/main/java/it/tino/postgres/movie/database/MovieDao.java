@@ -1,4 +1,4 @@
-package it.tino.postgres.movie;
+package it.tino.postgres.movie.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,15 +17,15 @@ import it.tino.postgres.DaoException;
 import it.tino.postgres.database.Criteria;
 import it.tino.postgres.database.Dao;
 
-public class MovieDao implements Dao<Movie, Integer>  {
+public class MovieDao implements Dao<MovieJdbc, Integer>  {
 	
 	protected static final Logger logger = LogManager.getLogger();
 	private static final String TABLE_NAME = "movies";
 
-	protected Function<ResultSet, Movie> getOnMapEntity() {
+	protected Function<ResultSet, MovieJdbc> getOnMapEntity() {
 		return (resultSet) -> {
             try {
-            	Movie movie = new Movie();
+            	MovieJdbc movie = new MovieJdbc();
          	    movie.setId(resultSet.getInt("id"));
          	    movie.setTitle(resultSet.getString("title"));
          	    movie.setReleaseDate(resultSet.getDate("release_date"));
@@ -43,7 +43,7 @@ public class MovieDao implements Dao<Movie, Integer>  {
 	}
 
 	@Override
-	public Movie insert(Movie entity, Connection connection) {
+	public MovieJdbc insert(MovieJdbc entity, Connection connection) {
 		String query = "insert into " + TABLE_NAME + " (title, release_date, budget,"
 				+ " box_office, runtime, overview) values (?, ?, ?, ?, ?, ?)";
 		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -76,7 +76,7 @@ public class MovieDao implements Dao<Movie, Integer>  {
 	}
 
 	@Override
-	public Movie update(Movie entity, Connection connection) {
+	public MovieJdbc update(MovieJdbc entity, Connection connection) {
 		String query = "update " + TABLE_NAME + " set title = ?, release_date = ?,"
 				+ " budget = ?, box_office = ?, runtime = ?, overview = ?"
 				+ " where id = ?";
@@ -99,9 +99,9 @@ public class MovieDao implements Dao<Movie, Integer>  {
 	}
 
 	@Override
-	public Movie selectById(Integer id, Connection connection) {
+	public MovieJdbc selectById(Integer id, Connection connection) {
 		Criteria criteria = new Criteria("id", "=", id);
-		List<Movie> entities = selectByCriteria(criteria, connection);
+		List<MovieJdbc> entities = selectByCriteria(criteria, connection);
 		
 		if (entities.isEmpty()) {
 			return null;
@@ -110,7 +110,7 @@ public class MovieDao implements Dao<Movie, Integer>  {
 	}
 
 	@Override
-	public List<Movie> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public List<MovieJdbc> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -130,9 +130,9 @@ public class MovieDao implements Dao<Movie, Integer>  {
             }
             
             ResultSet resultSet = statement.executeQuery();
-            List<Movie> entities = new ArrayList<>();
+            List<MovieJdbc> entities = new ArrayList<>();
             while (resultSet.next()) {
-                Movie entity = getOnMapEntity().apply(resultSet);
+                MovieJdbc entity = getOnMapEntity().apply(resultSet);
                 entities.add(entity);
             }
             

@@ -1,14 +1,12 @@
 package it.tino.postgres.user;
 
-import it.tino.postgres.database.Identifiable;
-
-public class User implements Identifiable<Integer> {
+public class User {
 
     private int id;
     private String username;
     private String password;
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 

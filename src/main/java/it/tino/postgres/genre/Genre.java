@@ -1,13 +1,11 @@
 package it.tino.postgres.genre;
 
-import it.tino.postgres.database.Identifiable;
-
-public class Genre implements Identifiable<Integer> {
+public class Genre {
 
     private int id;
     private String name;
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 

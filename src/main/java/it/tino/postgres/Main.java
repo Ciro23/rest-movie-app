@@ -7,17 +7,23 @@ import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.database.ConnectionManager;
 import it.tino.postgres.genre.Genre;
-import it.tino.postgres.genre.GenreDao;
 import it.tino.postgres.genre.GenreManager;
 import it.tino.postgres.genre.GenreManagerTester;
+import it.tino.postgres.genre.database.GenreDao;
 import it.tino.postgres.movie.Movie;
-import it.tino.postgres.movie.MovieDao;
 import it.tino.postgres.movie.MovieManager;
 import it.tino.postgres.movie.MovieManagerTester;
+import it.tino.postgres.movie.database.MovieActorDao;
+import it.tino.postgres.movie.database.MovieDao;
+import it.tino.postgres.movie.database.MovieDirectorDao;
+import it.tino.postgres.movie.database.MovieGenreDao;
+import it.tino.postgres.movie.database.VMovieActorDao;
+import it.tino.postgres.movie.database.VMovieDirectorDao;
+import it.tino.postgres.movie.database.VMovieGenreDao;
 import it.tino.postgres.person.Person;
-import it.tino.postgres.person.PersonDao;
 import it.tino.postgres.person.PersonManager;
 import it.tino.postgres.person.PersonManagerTester;
+import it.tino.postgres.person.database.PersonDao;
 import it.tino.postgres.review.Review;
 import it.tino.postgres.review.ReviewDao;
 import it.tino.postgres.review.ReviewManager;
@@ -37,7 +43,22 @@ public class Main {
 		System.out.println("######### MOVIES #########");
 		System.out.println("##########################");
 		MovieDao movieDao = new MovieDao();
-		MovieManager movieManager = new MovieManager(connectionManager, movieDao);
+		MovieGenreDao movieGenreDao = new MovieGenreDao();
+		MovieDirectorDao movieDirectorDao = new MovieDirectorDao();
+		MovieActorDao movieActorDao = new MovieActorDao();
+		VMovieGenreDao vMovieGenreDao = new VMovieGenreDao();
+		VMovieDirectorDao vMovieDirectorDao = new VMovieDirectorDao();
+		VMovieActorDao vMovieActorDao = new VMovieActorDao();
+		MovieManager movieManager = new MovieManager(
+				connectionManager,
+				movieDao,
+				movieGenreDao,
+				vMovieGenreDao,
+				movieDirectorDao,
+				vMovieDirectorDao,
+				movieActorDao,
+				vMovieActorDao
+		);
 		MovieManagerTester movieExample = new MovieManagerTester(movieManager);
 		
 		List<Movie> allMovies = movieExample.getAll();
@@ -51,12 +72,16 @@ public class Main {
 		System.out.println("######### PEOPLE #########");
 		System.out.println("##########################");
 		PersonDao personDao = new PersonDao();
-		PersonManager personManager = new PersonManager(connectionManager, personDao);
+		PersonManager personManager = new PersonManager(
+				connectionManager,
+				personDao,
+				movieDirectorDao,
+				vMovieDirectorDao,
+				movieActorDao,
+				vMovieActorDao
+		);
 		PersonManagerTester personExample = new PersonManagerTester(personManager);
-
 		List<Person> allPeople = personExample.getAll();
-//		allPeople = personExample.getDirectorsOfMovie();
-//		allPeople = personExample.getActorsOfMovie();
 		allPeople = personExample.create();
 		allPeople = personExample.update(personExample.getLatestPerson(allPeople));
 		allPeople = personExample.delete(personExample.getLatestPerson(allPeople).getId());

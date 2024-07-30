@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -15,14 +16,13 @@ import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.DaoException;
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.Dao;
 
-public class UserDao implements Dao<User, Integer> {
+public class UserDao {
 
 	protected static final Logger logger = LogManager.getLogger();
 	private static final String TABLE_NAME = "users";
 
-	protected Function<ResultSet, User> getOnMapEntity() {
+	private static Function<ResultSet, User> getOnMapEntity() {
 		return (resultSet) -> {
             try {
             	User user = new User();
@@ -38,8 +38,7 @@ public class UserDao implements Dao<User, Integer> {
         };
 	}
 
-	@Override
-	public User insert(User entity, Connection connection) {
+	public static User insert(User entity, Connection connection) {
 		String query = "insert into users (username, password) values (?, ?)";
 		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 			int index = 0;
@@ -66,8 +65,7 @@ public class UserDao implements Dao<User, Integer> {
 		}
 	}
 
-	@Override
-	public User update(User entity, Connection connection) {
+	public static User update(User entity, Connection connection) {
 		String query = "update users set username = ?, password = ? where id = ?";
 		
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -84,8 +82,7 @@ public class UserDao implements Dao<User, Integer> {
 	    }
 	}
 
-	@Override
-	public User selectById(Integer id, Connection connection) {
+	public static User selectById(int id, Connection connection) {
 		Criteria criteria = new Criteria("id", "=", id);
 		List<User> entities = selectByCriteria(criteria, connection);
 		
@@ -95,8 +92,7 @@ public class UserDao implements Dao<User, Integer> {
 		return entities.get(0);
 	}
 
-	@Override
-	public List<User> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public static List<User> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -128,9 +124,12 @@ public class UserDao implements Dao<User, Integer> {
         	throw new DaoException(e);
         }
 	}
+	
+	public static List<User> selectByCriteria(Criteria criteria, Connection connection) {
+		return selectByCriteria(Collections.singleton(criteria), connection);
+	}
 
-	@Override
-	public boolean delete(Integer id, Connection connection) {
+	public static boolean delete(int id, Connection connection) {
 		String query = "delete from " + TABLE_NAME + " where id = ?";
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setObject(1, id);

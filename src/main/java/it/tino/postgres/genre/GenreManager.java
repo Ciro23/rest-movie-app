@@ -18,18 +18,16 @@ public class GenreManager {
 	protected static final Logger logger = LogManager.getLogger();
 
 	private final ConnectionManager connectionManager;
-	private final GenreDao genreDao;
 
-	public GenreManager(ConnectionManager connectionManager, GenreDao genreDao) {
+	public GenreManager(ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
-		this.genreDao = genreDao;
 	}
 
 	public Genre insert(Genre entity) {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			return genreDao.insert(entity, connection);
+			return GenreDao.insert(entity, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -44,7 +42,7 @@ public class GenreManager {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			return genreDao.update(entity, connection);
+			return GenreDao.update(entity, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -59,7 +57,7 @@ public class GenreManager {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			return genreDao.selectByCriteria(Collections.emptyList(), connection);
+			return GenreDao.selectByCriteria(Collections.emptyList(), connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return Collections.emptyList();
@@ -70,11 +68,11 @@ public class GenreManager {
 		}
 	}
 
-	public Genre selectById(Integer id) {
+	public Genre selectById(int id) {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			return genreDao.selectById(id, connection);
+			return GenreDao.selectById(id, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -89,7 +87,7 @@ public class GenreManager {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			return genreDao.selectByCriteria(criteria, connection);
+			return GenreDao.selectByCriteria(criteria, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return Collections.emptyList();
@@ -104,11 +102,11 @@ public class GenreManager {
 		return selectByCriteria(Collections.singleton(criteria));
 	}
 
-	public boolean delete(Integer id) {
+	public boolean delete(int id) {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			return genreDao.delete(id, connection);
+			return GenreDao.delete(id, connection);
 		} catch (DaoException e) {
 			logger.error(e);
 			return false;

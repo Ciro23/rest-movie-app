@@ -2,16 +2,14 @@ package it.tino.postgres.person.database;
 
 import java.sql.Date;
 
-import it.tino.postgres.database.Identifiable;
-
-public class PersonJdbc implements Identifiable<Integer> {
+public class PersonJdbc {
     
     protected int id = 0;
     protected String name;
     protected Date birth;
     protected Gender gender;
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 

@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -15,15 +16,14 @@ import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.DaoException;
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.Dao;
 import it.tino.postgres.genre.Genre;
 
-public class GenreDao implements Dao<Genre, Integer> {
+public class GenreDao {
 
 	protected static final Logger logger = LogManager.getLogger();
 	public static final String TABLE_NAME = "genres";
 	
-	protected Function<ResultSet, Genre> getOnMapEntity() {
+	private static Function<ResultSet, Genre> getOnMapEntity() {
 		return (resultSet) -> {
             try {
             	Genre genre = new Genre();
@@ -38,8 +38,7 @@ public class GenreDao implements Dao<Genre, Integer> {
         };
 	}
 
-	@Override
-	public Genre insert(Genre entity, Connection connection) {
+	public static Genre insert(Genre entity, Connection connection) {
 		String query = "insert into genres (name) values (?)";
 		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
         	int index = 0;
@@ -65,8 +64,7 @@ public class GenreDao implements Dao<Genre, Integer> {
 	    }
 	}
 	
-	@Override
-	public Genre update(Genre entity, Connection connection) {
+	public static Genre update(Genre entity, Connection connection) {
 		String query = "update genres set name = ? where id = ?";
 
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -82,8 +80,7 @@ public class GenreDao implements Dao<Genre, Integer> {
 	    }
 	}
 
-	@Override
-	public Genre selectById(Integer id, Connection connection) {
+	public static Genre selectById(int id, Connection connection) {
 		Criteria criteria = new Criteria("id", "=", id);
 		List<Genre> entities = selectByCriteria(criteria, connection);
 		
@@ -93,8 +90,7 @@ public class GenreDao implements Dao<Genre, Integer> {
 		return entities.get(0);
 	}
 
-	@Override
-	public List<Genre> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public static List<Genre> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -126,9 +122,12 @@ public class GenreDao implements Dao<Genre, Integer> {
         	throw new DaoException(e);
         }
 	}
+	
+	public static List<Genre> selectByCriteria(Criteria criteria, Connection connection) {
+		return selectByCriteria(Collections.singleton(criteria), connection);
+	}
 
-	@Override
-	public boolean delete(Integer id, Connection connection) {
+	public static boolean delete(int id, Connection connection) {
 		String query = "delete from " + TABLE_NAME + " where id = ?";
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setObject(1, id);

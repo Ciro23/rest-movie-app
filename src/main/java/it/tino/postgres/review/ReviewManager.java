@@ -17,18 +17,16 @@ public class ReviewManager {
 	protected static final Logger logger = LogManager.getLogger();
     
 	private final ConnectionManager connectionManager;
-	private final ReviewDao reviewDao;
 	
-	public ReviewManager(ConnectionManager connectionManager, ReviewDao reviewDao) {
+	public ReviewManager(ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
-		this.reviewDao = reviewDao;
 	}
 
 	public Review insert(Review entity) {
 		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-			return reviewDao.insert(entity, connection);
+			return ReviewDao.insert(entity, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -43,7 +41,7 @@ public class ReviewManager {
 		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-			return reviewDao.update(entity, connection);
+			return ReviewDao.update(entity, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -58,7 +56,7 @@ public class ReviewManager {
     	Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-			return reviewDao.selectByCriteria(Collections.emptyList(), connection);
+			return ReviewDao.selectByCriteria(Collections.emptyList(), connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return Collections.emptyList();
@@ -69,11 +67,11 @@ public class ReviewManager {
 		}
     }
     
-   	public Review selectById(Integer id) {
+   	public Review selectById(int id) {
    		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-			return reviewDao.selectById(id, connection);
+			return ReviewDao.selectById(id, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -88,7 +86,7 @@ public class ReviewManager {
    		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-			return reviewDao.selectByCriteria(criteria, connection);
+			return ReviewDao.selectByCriteria(criteria, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return Collections.emptyList();
@@ -103,11 +101,11 @@ public class ReviewManager {
     	return selectByCriteria(Collections.singleton(criteria));
     }
     
-	public boolean delete(Integer id) {
+	public boolean delete(int id) {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			return reviewDao.delete(id, connection);
+			return ReviewDao.delete(id, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return false;

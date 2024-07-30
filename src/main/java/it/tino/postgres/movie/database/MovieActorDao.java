@@ -22,7 +22,7 @@ public class MovieActorDao {
 	protected static final Logger logger = LogManager.getLogger();
 	private static final String TABLE_NAME = "movies_actors";
 	
-	protected Function<ResultSet, MovieActor> getOnMapEntity() {
+	private static Function<ResultSet, MovieActor> getOnMapEntity() {
 		return (resultSet) -> {
             try {
             	MovieActor movieActor = new MovieActor();
@@ -39,7 +39,7 @@ public class MovieActorDao {
         };
 	}
 	
-	public MovieActor insert(MovieActor entity, Connection connection) {
+	public static MovieActor insert(MovieActor entity, Connection connection) {
 		String query = "insert into " + TABLE_NAME + " (movie_id, actor_id,"
 				+ " role, cast_order) values (?, ?, ?, ?)";
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -61,7 +61,7 @@ public class MovieActorDao {
 	    }
 	}
 	
-	public List<MovieActor> insert(List<MovieActor> entities, Connection connection) {
+	public static List<MovieActor> insert(List<MovieActor> entities, Connection connection) {
 		String query = "insert into " + TABLE_NAME + " (movie_id, actor_id,"
 				+ " role, cast_order) values (?, ?, ?, ?)";
 	    
@@ -90,7 +90,7 @@ public class MovieActorDao {
 	    }
 	}
 	
-	public List<MovieActor> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public static List<MovieActor> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -137,7 +137,7 @@ public class MovieActorDao {
         }
 	}
 
-	public boolean delete(MovieActor entity, Connection connection) {
+	public static boolean delete(MovieActor entity, Connection connection) {
 		String query = "delete from " + TABLE_NAME + " where movie_id = ?"
 				+ " and actor_id = ?";
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -151,7 +151,7 @@ public class MovieActorDao {
         }
 	}
 	
-	public boolean deleteByActor(int actorId, Connection connection) {
+	public static boolean deleteByActor(int actorId, Connection connection) {
 		String query = "delete from " + TABLE_NAME + " where actor_id = ?";
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
 			int index = 0;
@@ -163,7 +163,7 @@ public class MovieActorDao {
         }
 	}
 	
-	public boolean deleteByMovie(int movieId, Connection connection) {
+	public static boolean deleteByMovie(int movieId, Connection connection) {
 		String query = "delete from " + TABLE_NAME + " where movie_id = ?";
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
 			int index = 0;

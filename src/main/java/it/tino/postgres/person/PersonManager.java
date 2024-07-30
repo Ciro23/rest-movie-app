@@ -29,28 +29,9 @@ public class PersonManager {
 	protected static final Logger logger = LogManager.getLogger();
 	
 	private final ConnectionManager connectionManager;
-	private final PersonDao personDao;
 	
-	private final MovieDirectorDao movieDirectorDao;
-	private final VMovieDirectorDao vMovieDirectorDao;
-	
-	private final MovieActorDao movieActorDao;
-	private final VMovieActorDao vMovieActorDao;
-	
-	public PersonManager(
-		ConnectionManager connectionManager,
-		PersonDao personDao,
-		MovieDirectorDao movieDirectorDao,
-		VMovieDirectorDao vMovieDirectorDao,
-		MovieActorDao movieActorDao,
-		VMovieActorDao vMovieActorDao
-	) {
+	public PersonManager(ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
-		this.personDao = personDao;
-		this.movieDirectorDao = movieDirectorDao;
-		this.vMovieDirectorDao = vMovieDirectorDao;
-		this.movieActorDao = movieActorDao;
-		this.vMovieActorDao = vMovieActorDao;
 	}
 
 	public Person insert(Person person) {
@@ -60,16 +41,16 @@ public class PersonManager {
 			connectionManager.beginTransaction(connection);
 			
 			PersonJdbc personJdbc = domainToDb(person, connection);
-			PersonJdbc insertedPersonJdbc = personDao.insert(personJdbc, connection);
+			PersonJdbc insertedPersonJdbc = PersonDao.insert(personJdbc, connection);
 			person.setId(insertedPersonJdbc.getId());
 			
 			List<MovieDirector> directedMovies = getDirectedMovies(person);
-			movieDirectorDao.deleteByDirector(person.getId(), connection);
-			movieDirectorDao.insert(directedMovies, connection);
+			MovieDirectorDao.deleteByDirector(person.getId(), connection);
+			MovieDirectorDao.insert(directedMovies, connection);
 			
 			List<MovieActor> starredMovies = getStarredMovies(person);
-			movieActorDao.deleteByActor(person.getId(), connection);
-			movieActorDao.insert(starredMovies, connection);
+			MovieActorDao.deleteByActor(person.getId(), connection);
+			MovieActorDao.insert(starredMovies, connection);
 			
 			connectionManager.commitTransaction(connection);
 			connectionManager.endTransaction(connection);
@@ -92,16 +73,16 @@ public class PersonManager {
 			connectionManager.beginTransaction(connection);
 			
 			PersonJdbc personJdbc = domainToDb(person, connection);
-			PersonJdbc insertedPersonJdbc = personDao.update(personJdbc, connection);
+			PersonJdbc insertedPersonJdbc = PersonDao.update(personJdbc, connection);
 			person.setId(insertedPersonJdbc.getId());
 			
 			List<MovieDirector> directedMovies = getDirectedMovies(person);
-			movieDirectorDao.deleteByDirector(person.getId(), connection);
-			movieDirectorDao.insert(directedMovies, connection);
+			MovieDirectorDao.deleteByDirector(person.getId(), connection);
+			MovieDirectorDao.insert(directedMovies, connection);
 			
 			List<MovieActor> starredMovies = getStarredMovies(person);
-			movieActorDao.deleteByActor(person.getId(), connection);
-			movieActorDao.insert(starredMovies, connection);
+			MovieActorDao.deleteByActor(person.getId(), connection);
+			MovieActorDao.insert(starredMovies, connection);
 			
 			connectionManager.commitTransaction(connection);
 			connectionManager.endTransaction(connection);
@@ -121,11 +102,11 @@ public class PersonManager {
     	return selectByCriteria(Collections.emptyList());
     }
     
-	public Person selectById(Integer id) {
+	public Person selectById(int id) {
 		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-    		var peopleJdbc = personDao.selectById(id, connection);
+    		var peopleJdbc = PersonDao.selectById(id, connection);
 			return dbToDomain(peopleJdbc, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
@@ -141,7 +122,7 @@ public class PersonManager {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-    		var peopleJdbc = personDao.selectByCriteria(criterias, connection);
+    		var peopleJdbc = PersonDao.selectByCriteria(criterias, connection);
     		return dbToDomain(peopleJdbc, connection);
     	} catch (DaoException e) {
     		logger.error(e.getMessage(), e);
@@ -157,11 +138,11 @@ public class PersonManager {
 		return selectByCriteria(Collections.singleton(criteria));
 	}
 
-	public boolean delete(Integer id) {
+	public boolean delete(int id) {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			return personDao.delete(id, connection);
+			return PersonDao.delete(id, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return false;
@@ -181,11 +162,11 @@ public class PersonManager {
 				.map(p -> p.getId())
 				.toList();
 		
-		List<MovieDirectorView> movieDirectors = vMovieDirectorDao.selectByCriteria(
+		List<MovieDirectorView> movieDirectors = VMovieDirectorDao.selectByCriteria(
 				new Criteria("director_id", "in", personIds),
 				connection
 		);
-		List<MovieActorView> movieActors = vMovieActorDao.selectByCriteria(
+		List<MovieActorView> movieActors = VMovieActorDao.selectByCriteria(
 				new Criteria("actor_id", "in", personIds),
 				connection
 		);

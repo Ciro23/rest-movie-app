@@ -15,15 +15,14 @@ import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.DaoException;
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.ViewDao;
 import it.tino.postgres.person.database.PersonJdbc;
 
-public class VMovieActorDao implements ViewDao<MovieActorView> {
+public class VMovieActorDao {
 
 	protected static final Logger logger = LogManager.getLogger();
 	private static final String TABLE_NAME = "v_movies_actors";
 	
-	protected Function<ResultSet, MovieActorView> getOnMapEntity() {
+	private static Function<ResultSet, MovieActorView> getOnMapEntity() {
 		return (resultSet) -> {
             try {
             	MovieActorView moviePerson = new MovieActorView();
@@ -50,8 +49,7 @@ public class VMovieActorDao implements ViewDao<MovieActorView> {
         };
 	}
 	
-	@Override
-	public List<MovieActorView> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public static List<MovieActorView> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -96,5 +94,9 @@ public class VMovieActorDao implements ViewDao<MovieActorView> {
         	logger.error(e.getMessage(), e);
         	throw new DaoException(e);
         }
+	}
+	
+	public static List<MovieActorView> selectByCriteria(Criteria criteria, Connection connection) {
+		return selectByCriteria(Collections.singleton(criteria), connection);
 	}
 }

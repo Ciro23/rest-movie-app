@@ -17,18 +17,16 @@ public class UserManager {
 	protected static final Logger logger = LogManager.getLogger();
 
 	private final ConnectionManager connectionManager;
-	private final UserDao userDao;
 	
-	public UserManager(ConnectionManager connectionManager, UserDao userDao) {
+	public UserManager(ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
-		this.userDao = userDao;
 	}
 
 	public User insert(User entity) {
 		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-			return userDao.insert(entity, connection);
+			return UserDao.insert(entity, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -43,7 +41,7 @@ public class UserManager {
 		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-			return userDao.update(entity, connection);
+			return UserDao.update(entity, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -58,7 +56,7 @@ public class UserManager {
     	Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-			return userDao.selectByCriteria(Collections.emptyList(), connection);
+			return UserDao.selectByCriteria(Collections.emptyList(), connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return Collections.emptyList();
@@ -69,11 +67,11 @@ public class UserManager {
 		}
     }
     
-   	public User selectById(Integer id) {
+   	public User selectById(int id) {
    		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-			return userDao.selectById(id, connection);
+			return UserDao.selectById(id, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -88,7 +86,7 @@ public class UserManager {
     	Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-			return userDao.selectByCriteria(criteria, connection);
+			return UserDao.selectByCriteria(criteria, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return Collections.emptyList();
@@ -103,11 +101,11 @@ public class UserManager {
     	return selectByCriteria(Collections.singleton(criteria));
     }
 
-	public boolean delete(Integer id) {
+	public boolean delete(int id) {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			return userDao.delete(id, connection);
+			return UserDao.delete(id, connection);
 		} catch (DaoException e) {
 			logger.error(e.getMessage(), e);
 			return false;

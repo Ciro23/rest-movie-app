@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -15,14 +16,13 @@ import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.DaoException;
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.Dao;
 
-public class PersonDao implements Dao<PersonJdbc, Integer> {
+public class PersonDao {
 
 	protected static final Logger logger = LogManager.getLogger();
 	private static final String TABLE_NAME = "people";
 
-	protected Function<ResultSet, PersonJdbc> getOnMapEntity() {
+	private static Function<ResultSet, PersonJdbc> getOnMapEntity() {
 		return (resultSet) -> {
             try {
             	PersonJdbc person = new PersonJdbc();
@@ -39,8 +39,7 @@ public class PersonDao implements Dao<PersonJdbc, Integer> {
         };
 	}
 
-	@Override
-	public PersonJdbc insert(PersonJdbc entity, Connection connection) {
+	public static PersonJdbc insert(PersonJdbc entity, Connection connection) {
 		String query = "insert into people (name, birth, gender)"
 				+ " values (?, ?, ?::gender)";
 		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -69,8 +68,7 @@ public class PersonDao implements Dao<PersonJdbc, Integer> {
 		}
 	}
 
-	@Override
-	public PersonJdbc update(PersonJdbc entity, Connection connection) {
+	public static PersonJdbc update(PersonJdbc entity, Connection connection) {
 		String query = "update people set name = ?, birth = ?,"
 				+ " gender = ?::gender where id = ?";
 		
@@ -89,8 +87,7 @@ public class PersonDao implements Dao<PersonJdbc, Integer> {
 	    }
 	}
 
-	@Override
-	public PersonJdbc selectById(Integer id, Connection connection) {
+	public static PersonJdbc selectById(int id, Connection connection) {
 		Criteria criteria = new Criteria("id", "=", id);
 		List<PersonJdbc> entities = selectByCriteria(criteria, connection);
 		
@@ -100,8 +97,7 @@ public class PersonDao implements Dao<PersonJdbc, Integer> {
 		return entities.get(0);
 	}
 
-	@Override
-	public List<PersonJdbc> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public static List<PersonJdbc> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -133,9 +129,12 @@ public class PersonDao implements Dao<PersonJdbc, Integer> {
         	throw new DaoException(e);
         }
 	}
+	
+	public static List<PersonJdbc> selectByCriteria(Criteria criteria, Connection connection) {
+		return selectByCriteria(Collections.singleton(criteria), connection);
+	}
 
-	@Override
-	public boolean delete(Integer id, Connection connection) {
+	public static boolean delete(int id, Connection connection) {
 		String query = "delete from " + TABLE_NAME + " where id = ?";
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setObject(1, id);

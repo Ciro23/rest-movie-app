@@ -29,35 +29,9 @@ public class MovieManager {
 	protected static final Logger logger = LogManager.getLogger();
 	
 	private final ConnectionManager connectionManager;
-	private final MovieDao movieDao;
 	
-	private final MovieGenreDao movieGenreDao;
-	private final VMovieGenreDao vMovieGenreDao;
-	
-	private final MovieDirectorDao movieDirectorDao;
-	private final VMovieDirectorDao vMovieDirectorDao;
-	
-	private final MovieActorDao movieActorDao;
-	private final VMovieActorDao vMovieActorDao;
-	
-    public MovieManager(
-		ConnectionManager connectionManager,
-		MovieDao movieDao,
-		MovieGenreDao movieGenreDao,
-		VMovieGenreDao vMovieGenreDao,
-		MovieDirectorDao movieDirectorDao,
-		VMovieDirectorDao vMovieDirectorDao,
-		MovieActorDao movieActorDao,
-		VMovieActorDao vMovieActorDao
-	) {
+    public MovieManager(ConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
-		this.movieDao = movieDao;
-		this.movieGenreDao = movieGenreDao;
-		this.vMovieGenreDao = vMovieGenreDao;
-		this.movieDirectorDao = movieDirectorDao;
-		this.vMovieDirectorDao = vMovieDirectorDao;
-		this.movieActorDao = movieActorDao;
-		this.vMovieActorDao = vMovieActorDao;
 	}
 
 	public Movie insert(Movie movie) {
@@ -67,20 +41,20 @@ public class MovieManager {
 			connectionManager.beginTransaction(connection);
 			
 			MovieJdbc movieJdbc = domainToDb(movie, connection);
-			MovieJdbc insertedMovieJdbc = movieDao.insert(movieJdbc, connection);
+			MovieJdbc insertedMovieJdbc = MovieDao.insert(movieJdbc, connection);
 			movie.setId(insertedMovieJdbc.getId());
 			
 			List<MovieGenre> genres = getGenres(movie);
-			movieGenreDao.deleteByMovie(movie.getId(), connection);
-			movieGenreDao.insert(genres, connection);
+			MovieGenreDao.deleteByMovie(movie.getId(), connection);
+			MovieGenreDao.insert(genres, connection);
 			
 			List<MovieDirector> directors = getDirectors(movie);
-			movieDirectorDao.deleteByDirector(movie.getId(), connection);
-			movieDirectorDao.insert(directors, connection);
+			MovieDirectorDao.deleteByDirector(movie.getId(), connection);
+			MovieDirectorDao.insert(directors, connection);
 			
 			List<MovieActor> actors = getActors(movie);
-			movieActorDao.deleteByActor(movie.getId(), connection);
-			movieActorDao.insert(actors, connection);
+			MovieActorDao.deleteByActor(movie.getId(), connection);
+			MovieActorDao.insert(actors, connection);
 			
 			connectionManager.commitTransaction(connection);
 			connectionManager.endTransaction(connection);
@@ -103,20 +77,20 @@ public class MovieManager {
 			connectionManager.beginTransaction(connection);
 			
 			MovieJdbc movieJdbc = domainToDb(movie, connection);
-			MovieJdbc insertedMovieJdbc = movieDao.update(movieJdbc, connection);
+			MovieJdbc insertedMovieJdbc = MovieDao.update(movieJdbc, connection);
 			movie.setId(insertedMovieJdbc.getId());
 			
 			List<MovieGenre> genres = getGenres(movie);
-			movieGenreDao.deleteByMovie(movie.getId(), connection);
-			movieGenreDao.insert(genres, connection);
+			MovieGenreDao.deleteByMovie(movie.getId(), connection);
+			MovieGenreDao.insert(genres, connection);
 			
 			List<MovieDirector> directors = getDirectors(movie);
-			movieDirectorDao.deleteByDirector(movie.getId(), connection);
-			movieDirectorDao.insert(directors, connection);
+			MovieDirectorDao.deleteByDirector(movie.getId(), connection);
+			MovieDirectorDao.insert(directors, connection);
 			
 			List<MovieActor> actors = getActors(movie);
-			movieActorDao.deleteByActor(movie.getId(), connection);
-			movieActorDao.insert(actors, connection);
+			MovieActorDao.deleteByActor(movie.getId(), connection);
+			MovieActorDao.insert(actors, connection);
 			
 			connectionManager.commitTransaction(connection);
 			connectionManager.endTransaction(connection);
@@ -136,7 +110,7 @@ public class MovieManager {
     	Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-    		var moviesJdbc = movieDao.selectByCriteria(Collections.emptyList(), connection);
+    		var moviesJdbc = MovieDao.selectByCriteria(Collections.emptyList(), connection);
     		return dbToDomain(moviesJdbc, connection);
     	} catch (DaoException e) {
     		logger.error(e.getMessage(), e);
@@ -148,11 +122,11 @@ public class MovieManager {
 		}
     }
     
-	public Movie selectById(Integer id) {
+	public Movie selectById(int id) {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			var moviesJdbc = movieDao.selectById(id, connection);
+			var moviesJdbc = MovieDao.selectById(id, connection);
 			return dbToDomain(moviesJdbc, connection);
     	} catch (DaoException e) {
     		logger.error(e.getMessage(), e);
@@ -168,7 +142,7 @@ public class MovieManager {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			var moviesJdbc = movieDao.selectByCriteria(criterias, connection);
+			var moviesJdbc = MovieDao.selectByCriteria(criterias, connection);
     		return dbToDomain(moviesJdbc, connection);
     	} catch (DaoException e) {
     		logger.error(e.getMessage(), e);
@@ -184,11 +158,11 @@ public class MovieManager {
 		return selectByCriteria(Collections.singleton(criteria));
 	}
 
-	public boolean delete(Integer id) {
+	public boolean delete(int id) {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-    		return movieDao.delete(id, connection);
+    		return MovieDao.delete(id, connection);
     	} catch (DaoException e) {
     		logger.error(e.getMessage(), e);
 			return false;
@@ -205,15 +179,15 @@ public class MovieManager {
 				.map(m -> m.getId())
 				.toList();
 		
-		List<MovieGenreView> movieGenres = vMovieGenreDao.selectByCriteria(
+		List<MovieGenreView> movieGenres = VMovieGenreDao.selectByCriteria(
 				new Criteria("movie_id", "in", movieIds),
 				connection
 		);
-		List<MovieDirectorView> movieDirectors = vMovieDirectorDao.selectByCriteria(
+		List<MovieDirectorView> movieDirectors = VMovieDirectorDao.selectByCriteria(
 				new Criteria("movie_id", "in", movieIds),
 				connection
 		);
-		List<MovieActorView> movieActors = vMovieActorDao.selectByCriteria(
+		List<MovieActorView> movieActors = VMovieActorDao.selectByCriteria(
 				new Criteria("movie_id", "in", movieIds),
 				connection
 		);

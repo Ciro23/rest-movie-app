@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -15,14 +16,13 @@ import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.DaoException;
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.database.Dao;
 
-public class ReviewDao implements Dao<Review, Integer> {
+public class ReviewDao {
 
 	protected static final Logger logger = LogManager.getLogger();
 	private static final String TABLE_NAME = "reviews";
 
-	protected Function<ResultSet, Review> getOnMapEntity() {
+	private static Function<ResultSet, Review> getOnMapEntity() {
 		return (resultSet) -> {
             try {
             	Review review = new Review();
@@ -41,8 +41,7 @@ public class ReviewDao implements Dao<Review, Integer> {
         };
 	}
 
-	@Override
-	public Review insert(Review entity, Connection connection) {
+	public static Review insert(Review entity, Connection connection) {
 		String query = "insert into reviews (movie_id, user_id,"
 		 		+ " creation_date, vote, review) values (?, ?, ?, ?, ?)";
 		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -73,8 +72,7 @@ public class ReviewDao implements Dao<Review, Integer> {
 		}
 	}
 
-	@Override
-	public Review update(Review entity, Connection connection) {
+	public static Review update(Review entity, Connection connection) {
 		String query = "update reviews set movie_id = ?, user_id = ?,"
 				+ " creation_date = ?, vote = ?, review = ? where id = ?";
 		
@@ -95,8 +93,7 @@ public class ReviewDao implements Dao<Review, Integer> {
 	    }
 	}
 
-	@Override
-	public Review selectById(Integer id, Connection connection) {
+	public static Review selectById(int id, Connection connection) {
 		Criteria criteria = new Criteria("id", "=", id);
 		List<Review> entities = selectByCriteria(criteria, connection);
 		
@@ -106,8 +103,7 @@ public class ReviewDao implements Dao<Review, Integer> {
 		return entities.get(0);
 	}
 
-	@Override
-	public List<Review> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public static List<Review> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -139,9 +135,12 @@ public class ReviewDao implements Dao<Review, Integer> {
         	throw new DaoException(e);
         }
 	}
+	
+	public static List<Review> selectByCriteria(Criteria criteria, Connection connection) {
+		return selectByCriteria(Collections.singleton(criteria), connection);
+	}
 
-	@Override
-	public boolean delete(Integer id, Connection connection) {
+	public static boolean delete(int id, Connection connection) {
 		String query = "delete from " + TABLE_NAME + " where id = ?";
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setObject(1, id);

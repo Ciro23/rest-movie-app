@@ -5,16 +5,16 @@ import java.io.Serial;
 /**
  * Used for errors caused inside DAOs.
  */
-public class DaoException extends RuntimeException {
+public class MovieAppException extends RuntimeException {
 	
 	@Serial
     private static final long serialVersionUID = 6957668932886965668L;
 
-    public DaoException() {
+    public MovieAppException() {
 		super();
 	}
 
-	public DaoException(
+	public MovieAppException(
 		String message,
 		Throwable cause,
 		boolean enableSuppression,
@@ -23,15 +23,15 @@ public class DaoException extends RuntimeException {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
-	public DaoException(String message, Throwable cause) {
+	public MovieAppException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public DaoException(String message) {
+	public MovieAppException(String message) {
 		super(message);
 	}
 
-	public DaoException(Throwable cause) {
+	public MovieAppException(Throwable cause) {
 		super(cause);
 	}
 }

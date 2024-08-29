@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.AppProperties;
-import it.tino.postgres.DaoException;
+import it.tino.postgres.MovieAppException;
 
 /**
  * This class allows the handling of the lifecycle of the database connection in
@@ -42,7 +42,7 @@ public class ConnectionManager {
 			return DriverManager.getConnection(url, username, password);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			throw new DaoException(e);
+			throw new MovieAppException(e);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class ConnectionManager {
 			connection.setAutoCommit(false);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			throw new DaoException(e);
+			throw new MovieAppException(e);
 		}
 	}
 
@@ -60,7 +60,7 @@ public class ConnectionManager {
 			connection.commit();
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			throw new DaoException(e);
+			throw new MovieAppException(e);
 		}
 	}
 
@@ -69,7 +69,7 @@ public class ConnectionManager {
 			connection.rollback();
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			throw new DaoException(e);
+			throw new MovieAppException(e);
 		}
 	}
 	
@@ -78,7 +78,7 @@ public class ConnectionManager {
 			connection.setAutoCommit(true);
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			throw new DaoException(e);
+			throw new MovieAppException(e);
 		}
 	}
 
@@ -87,7 +87,7 @@ public class ConnectionManager {
 			connection.close();
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			throw new DaoException(e);
+			throw new MovieAppException(e);
 		}
 	}
 }

@@ -9,7 +9,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import it.tino.postgres.DaoException;
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.ConnectionManager;
 import it.tino.postgres.database.Criteria;
 import it.tino.postgres.movie.database.MovieActorDao;
@@ -45,26 +45,24 @@ public class MovieManager {
 			movie.setId(insertedMovieJdbc.getId());
 			
 			List<MovieGenre> genres = getGenres(movie);
-			MovieGenreDao.deleteByMovie(movie.getId(), connection);
 			MovieGenreDao.insert(genres, connection);
 			
 			List<MovieDirector> directors = getDirectors(movie);
-			MovieDirectorDao.deleteByDirector(movie.getId(), connection);
 			MovieDirectorDao.insert(directors, connection);
 			
 			List<MovieActor> actors = getActors(movie);
-			MovieActorDao.deleteByActor(movie.getId(), connection);
 			MovieActorDao.insert(actors, connection);
 			
 			connectionManager.commitTransaction(connection);
-			connectionManager.endTransaction(connection);
-			
 			return dbToDomain(insertedMovieJdbc, connection);
-    	} catch (DaoException e) {
+    	} catch (MovieAppException e) {
     		logger.error(e.getMessage(), e);
-			return null;
+    		connectionManager.rollbackTransaction(connection);
+    		
+    		throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
+				connectionManager.endTransaction(connection);
 				connectionManager.close(connection);
 			}
 		}
@@ -93,14 +91,15 @@ public class MovieManager {
 			MovieActorDao.insert(actors, connection);
 			
 			connectionManager.commitTransaction(connection);
-			connectionManager.endTransaction(connection);
-			
 			return dbToDomain(insertedMovieJdbc, connection);
-    	} catch (DaoException e) {
+    	} catch (MovieAppException e) {
     		logger.error(e.getMessage(), e);
-			return null;
+    		connectionManager.rollbackTransaction(connection);
+    		
+    		throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
+				connectionManager.endTransaction(connection);
 				connectionManager.close(connection);
 			}
 		}
@@ -112,9 +111,9 @@ public class MovieManager {
     		connection = connectionManager.connect();
     		var moviesJdbc = MovieDao.selectByCriteria(Collections.emptyList(), connection);
     		return dbToDomain(moviesJdbc, connection);
-    	} catch (DaoException e) {
+    	} catch (MovieAppException e) {
     		logger.error(e.getMessage(), e);
-			return Collections.emptyList();
+    		throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -128,7 +127,7 @@ public class MovieManager {
 			connection = connectionManager.connect();
 			var moviesJdbc = MovieDao.selectById(id, connection);
 			return dbToDomain(moviesJdbc, connection);
-    	} catch (DaoException e) {
+    	} catch (MovieAppException e) {
     		logger.error(e.getMessage(), e);
 			return null;
 		} finally {
@@ -144,9 +143,9 @@ public class MovieManager {
 			connection = connectionManager.connect();
 			var moviesJdbc = MovieDao.selectByCriteria(criterias, connection);
     		return dbToDomain(moviesJdbc, connection);
-    	} catch (DaoException e) {
+    	} catch (MovieAppException e) {
     		logger.error(e.getMessage(), e);
-			return Collections.emptyList();
+    		throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -163,7 +162,7 @@ public class MovieManager {
 		try {
 			connection = connectionManager.connect();
     		return MovieDao.delete(id, connection);
-    	} catch (DaoException e) {
+    	} catch (MovieAppException e) {
     		logger.error(e.getMessage(), e);
 			return false;
 		} finally {

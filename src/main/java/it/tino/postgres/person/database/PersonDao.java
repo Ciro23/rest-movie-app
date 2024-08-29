@@ -14,7 +14,7 @@ import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import it.tino.postgres.DaoException;
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Criteria;
 
 public class PersonDao {
@@ -34,7 +34,7 @@ public class PersonDao {
                 return person;
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new DaoException(e);
+            	throw new MovieAppException(e);
             }
         };
 	}
@@ -64,7 +64,7 @@ public class PersonDao {
 			}
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			throw new DaoException(e);
+			throw new MovieAppException(e);
 		}
 	}
 
@@ -83,7 +83,7 @@ public class PersonDao {
 	        return selectById(entity.getId(), connection);
 	    } catch (SQLException e) {
 	        logger.error(e.getMessage(), e);
-	        throw new DaoException(e);
+	        throw new MovieAppException(e);
 	    }
 	}
 
@@ -140,7 +140,7 @@ public class PersonDao {
             return entities;
         } catch (SQLException e) {
         	logger.error(e.getMessage(), e);
-        	throw new DaoException(e);
+        	throw new MovieAppException(e);
         }
 	}
 	
@@ -155,7 +155,7 @@ public class PersonDao {
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
         	logger.error(e.getMessage(), e);
-        	throw new DaoException(e);
+        	throw new MovieAppException(e);
         }
 	}
 }

@@ -10,7 +10,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import it.tino.postgres.DaoException;
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.ConnectionManager;
 import it.tino.postgres.database.Criteria;
 import it.tino.postgres.movie.MovieActor;
@@ -53,14 +53,15 @@ public class PersonManager {
 			MovieActorDao.insert(starredMovies, connection);
 			
 			connectionManager.commitTransaction(connection);
-			connectionManager.endTransaction(connection);
-			
 			return dbToDomain(insertedPersonJdbc, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			return null;
+			connectionManager.rollbackTransaction(connection);
+			
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
+				connectionManager.endTransaction(connection);
 				connectionManager.close(connection);
 			}
 		}
@@ -85,14 +86,15 @@ public class PersonManager {
 			MovieActorDao.insert(starredMovies, connection);
 			
 			connectionManager.commitTransaction(connection);
-			connectionManager.endTransaction(connection);
-			
 			return dbToDomain(insertedPersonJdbc, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			return null;
+			connectionManager.rollbackTransaction(connection);
+			
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
+				connectionManager.endTransaction(connection);
 				connectionManager.close(connection);
 			}
 		}
@@ -108,7 +110,7 @@ public class PersonManager {
     		connection = connectionManager.connect();
     		var peopleJdbc = PersonDao.selectById(id, connection);
 			return dbToDomain(peopleJdbc, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
 			return null;
 		} finally {
@@ -124,9 +126,9 @@ public class PersonManager {
 			connection = connectionManager.connect();
     		var peopleJdbc = PersonDao.selectByCriteria(criterias, connection);
     		return dbToDomain(peopleJdbc, connection);
-    	} catch (DaoException e) {
+    	} catch (MovieAppException e) {
     		logger.error(e.getMessage(), e);
-			return Collections.emptyList();
+    		throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -143,7 +145,7 @@ public class PersonManager {
 		try {
 			connection = connectionManager.connect();
 			return PersonDao.delete(id, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
 			return false;
 		} finally {

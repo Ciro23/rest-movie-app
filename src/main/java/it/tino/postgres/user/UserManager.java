@@ -9,7 +9,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import it.tino.postgres.DaoException;
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.ConnectionManager;
 import it.tino.postgres.database.Criteria;
 import it.tino.postgres.user.database.UserDao;
@@ -32,9 +32,9 @@ public class UserManager {
     		UserJdbc userJdbc = domainToDb(user);
 			UserJdbc insertedUserJdbc = UserDao.insert(userJdbc, connection);
 			return dbToDomain(insertedUserJdbc, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			return null;
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -49,9 +49,9 @@ public class UserManager {
     		UserJdbc userJdbc = domainToDb(user);
 			UserJdbc insertedUserJdbc = UserDao.update(userJdbc, connection);
 			return dbToDomain(insertedUserJdbc, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			return null;
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -65,9 +65,9 @@ public class UserManager {
     		connection = connectionManager.connect();
 			var usersJdbc = UserDao.selectByCriteria(Collections.emptyList(), connection);
 			return dbToDomain(usersJdbc, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			return Collections.emptyList();
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -81,7 +81,7 @@ public class UserManager {
     		connection = connectionManager.connect();
 			var userJdbc = UserDao.selectById(id, connection);
 			return dbToDomain(userJdbc, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
 			return null;
 		} finally {
@@ -97,9 +97,9 @@ public class UserManager {
     		connection = connectionManager.connect();
     		var usersJdbc =  UserDao.selectByCriteria(criteria, connection);
     		return dbToDomain(usersJdbc, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			return Collections.emptyList();
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -116,7 +116,7 @@ public class UserManager {
 		try {
 			connection = connectionManager.connect();
 			return UserDao.delete(id, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
 			return false;
 		} finally {

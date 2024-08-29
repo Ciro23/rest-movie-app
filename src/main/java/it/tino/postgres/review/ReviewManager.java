@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import it.tino.postgres.DaoException;
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.ConnectionManager;
 import it.tino.postgres.database.Criteria;
 import it.tino.postgres.review.database.ReviewDao;
@@ -28,9 +28,9 @@ public class ReviewManager {
     	try {
     		connection = connectionManager.connect();
 			return ReviewDao.insert(entity, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			return null;
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -43,9 +43,9 @@ public class ReviewManager {
     	try {
     		connection = connectionManager.connect();
 			return ReviewDao.update(entity, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			return null;
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -58,9 +58,9 @@ public class ReviewManager {
     	try {
     		connection = connectionManager.connect();
 			return ReviewDao.selectByCriteria(Collections.emptyList(), connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			return Collections.emptyList();
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -73,7 +73,7 @@ public class ReviewManager {
     	try {
     		connection = connectionManager.connect();
 			return ReviewDao.selectById(id, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
 			return null;
 		} finally {
@@ -88,9 +88,9 @@ public class ReviewManager {
     	try {
     		connection = connectionManager.connect();
 			return ReviewDao.selectByCriteria(criteria, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			return Collections.emptyList();
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -107,7 +107,7 @@ public class ReviewManager {
 		try {
 			connection = connectionManager.connect();
 			return ReviewDao.delete(id, connection);
-		} catch (DaoException e) {
+		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
 			return false;
 		} finally {

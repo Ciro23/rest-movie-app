@@ -14,7 +14,7 @@ import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import it.tino.postgres.DaoException;
+import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Criteria;
 import it.tino.postgres.review.Review;
 
@@ -37,7 +37,7 @@ public class ReviewDao {
             	return review;
             } catch (SQLException e) {
             	logger.error(e);
-            	throw new DaoException(e);
+            	throw new MovieAppException(e);
             }
         };
 	}
@@ -69,7 +69,7 @@ public class ReviewDao {
 			}
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
-			throw new DaoException(e);
+			throw new MovieAppException(e);
 		}
 	}
 
@@ -90,7 +90,7 @@ public class ReviewDao {
 	        return selectById(entity.getId(), connection);
 	    } catch (SQLException e) {
 	        logger.error(e.getMessage(), e);
-	        throw new DaoException(e);
+	        throw new MovieAppException(e);
 	    }
 	}
 
@@ -147,7 +147,7 @@ public class ReviewDao {
             return entities;
         } catch (SQLException e) {
         	logger.error(e.getMessage(), e);
-        	throw new DaoException(e);
+        	throw new MovieAppException(e);
         }
 	}
 	
@@ -162,7 +162,7 @@ public class ReviewDao {
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
         	logger.error(e.getMessage(), e);
-        	throw new DaoException(e);
+        	throw new MovieAppException(e);
         }
 	}
 }

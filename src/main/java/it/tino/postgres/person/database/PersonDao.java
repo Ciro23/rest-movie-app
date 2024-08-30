@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import it.tino.postgres.person.Person;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,14 +23,14 @@ public class PersonDao {
 	protected static final Logger logger = LogManager.getLogger();
 	private static final String TABLE_NAME = "people";
 
-	private static Function<ResultSet, PersonJdbc> getOnMapEntity() {
+	private static Function<ResultSet, PersonDb> getOnMapEntity() {
 		return (resultSet) -> {
             try {
-            	PersonJdbc person = new PersonJdbc();
+            	PersonDb person = new PersonDb();
                 person.setId(resultSet.getInt("id"));
                 person.setName(resultSet.getString("name"));
                 person.setBirth(resultSet.getDate("birth"));
-                person.setGender(PersonJdbc.Gender.fromId(resultSet.getString("gender")));
+                person.setGender(Person.Gender.fromId(resultSet.getString("gender")));
                 
                 return person;
             } catch (SQLException e) {
@@ -39,7 +40,7 @@ public class PersonDao {
         };
 	}
 
-	public static PersonJdbc insert(PersonJdbc entity, Connection connection) {
+	public static PersonDb insert(PersonDb entity, Connection connection) {
 		String query = "insert into people (name, birth, gender)"
 				+ " values (?, ?, ?::gender)";
 		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -68,7 +69,7 @@ public class PersonDao {
 		}
 	}
 
-	public static PersonJdbc update(PersonJdbc entity, Connection connection) {
+	public static PersonDb update(PersonDb entity, Connection connection) {
 		String query = "update people set name = ?, birth = ?,"
 				+ " gender = ?::gender where id = ?";
 		
@@ -87,9 +88,9 @@ public class PersonDao {
 	    }
 	}
 
-	public static PersonJdbc selectById(int id, Connection connection) {
+	public static PersonDb selectById(int id, Connection connection) {
 		Criteria criteria = new Criteria("id", "=", id);
-		List<PersonJdbc> entities = selectByCriteria(criteria, connection);
+		List<PersonDb> entities = selectByCriteria(criteria, connection);
 		
 		if (entities.isEmpty()) {
 			return null;
@@ -97,7 +98,7 @@ public class PersonDao {
 		return entities.get(0);
 	}
 
-	public static List<PersonJdbc> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public static List<PersonDb> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -131,9 +132,9 @@ public class PersonDao {
             }
             
             ResultSet resultSet = statement.executeQuery();
-            List<PersonJdbc> entities = new ArrayList<>();
+            List<PersonDb> entities = new ArrayList<>();
             while (resultSet.next()) {
-            	PersonJdbc entity = getOnMapEntity().apply(resultSet);
+            	PersonDb entity = getOnMapEntity().apply(resultSet);
                 entities.add(entity);
             }
             
@@ -144,7 +145,7 @@ public class PersonDao {
         }
 	}
 	
-	public static List<PersonJdbc> selectByCriteria(Criteria criteria, Connection connection) {
+	public static List<PersonDb> selectByCriteria(Criteria criteria, Connection connection) {
 		return selectByCriteria(Collections.singleton(criteria), connection);
 	}
 

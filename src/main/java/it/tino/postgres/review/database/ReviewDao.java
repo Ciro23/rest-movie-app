@@ -44,12 +44,11 @@ public class ReviewDao {
 
 	public static Review insert(Review entity, Connection connection) {
 		String query = "insert into reviews (movie_id, user_id,"
-		 		+ " creation_date, vote, review) values (?, ?, ?, ?, ?)";
+		 		+ " vote, review) values (?, ?, ?, ?)";
 		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 			int index = 0;
 			statement.setInt(++index, entity.getMovieId());
 			statement.setInt(++index, entity.getUserId());
-			statement.setTimestamp(++index, entity.getCreationDate());
 			statement.setDouble(++index, entity.getVote());
 			statement.setString(++index, entity.getReview());
 

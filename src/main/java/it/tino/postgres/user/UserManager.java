@@ -13,7 +13,7 @@ import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.ConnectionManager;
 import it.tino.postgres.database.Criteria;
 import it.tino.postgres.user.database.UserDao;
-import it.tino.postgres.user.database.UserJdbc;
+import it.tino.postgres.user.database.UserDb;
 
 public class UserManager {
 
@@ -29,9 +29,9 @@ public class UserManager {
 		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-    		UserJdbc userJdbc = domainToDb(user);
-			UserJdbc insertedUserJdbc = UserDao.insert(userJdbc, connection);
-			return dbToDomain(insertedUserJdbc, connection);
+    		UserDb userDb = domainToDb(user);
+			UserDb insertedUserDb = UserDao.insert(userDb, connection);
+			return dbToDomain(insertedUserDb, connection);
 		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
 			throw new MovieAppException(e);
@@ -46,9 +46,9 @@ public class UserManager {
 		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-    		UserJdbc userJdbc = domainToDb(user);
-			UserJdbc insertedUserJdbc = UserDao.update(userJdbc, connection);
-			return dbToDomain(insertedUserJdbc, connection);
+    		UserDb userDb = domainToDb(user);
+			UserDb insertedUserDb = UserDao.update(userDb, connection);
+			return dbToDomain(insertedUserDb, connection);
 		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
 			throw new MovieAppException(e);
@@ -80,6 +80,10 @@ public class UserManager {
     	try {
     		connection = connectionManager.connect();
 			var userJdbc = UserDao.selectById(id, connection);
+			if (userJdbc == null) {
+				return null;
+			}
+
 			return dbToDomain(userJdbc, connection);
 		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
@@ -126,16 +130,16 @@ public class UserManager {
 		}
 	}
 	
-	private UserJdbc domainToDb(User user) {
-		UserJdbc userJdbc = new UserJdbc();
-		userJdbc.setId(user.getId());
-		userJdbc.setUsername(user.getUsername());
-		userJdbc.setPassword(user.getPassword());
+	private UserDb domainToDb(User user) {
+		UserDb userDb = new UserDb();
+		userDb.setId(user.getId());
+		userDb.setUsername(user.getUsername());
+		userDb.setPassword(user.getPassword());
 		
-		return userJdbc;
+		return userDb;
 	}
 	
-	private List<User> dbToDomain(Collection<UserJdbc> usersJdbc, Connection connection) {
+	private List<User> dbToDomain(Collection<UserDb> usersJdbc, Connection connection) {
 //		List<Integer> userIds = usersJdbc
 //				.stream()
 //				.map(u -> u.getId())
@@ -147,11 +151,11 @@ public class UserManager {
 //		);
 		
 		List<User> users = new ArrayList<>();
-		for (UserJdbc userJdbc : usersJdbc) {
+		for (UserDb userDb : usersJdbc) {
 			User user = new User();
-			user.setId(userJdbc.getId());
-			user.setUsername(userJdbc.getUsername());
-			user.setPassword(userJdbc.getPassword());
+			user.setId(userDb.getId());
+			user.setUsername(userDb.getUsername());
+			user.setPassword(userDb.getPassword());
 			
 			users.add(user);
 		}
@@ -159,8 +163,8 @@ public class UserManager {
 		return users;
 	}
 	
-	private User dbToDomain(UserJdbc userJdbc, Connection connection) {
-		var users = dbToDomain(Collections.singleton(userJdbc), connection);
+	private User dbToDomain(UserDb userDb, Connection connection) {
+		var users = dbToDomain(Collections.singleton(userDb), connection);
 		if (users.isEmpty()) {
 			return null;
 		}

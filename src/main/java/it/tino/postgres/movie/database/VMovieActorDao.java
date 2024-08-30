@@ -10,12 +10,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import it.tino.postgres.person.Person;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.person.database.PersonJdbc;
 
 public class VMovieActorDao {
 
@@ -37,7 +37,7 @@ public class VMovieActorDao {
             	moviePerson.setPersonId(resultSet.getInt("actor_id"));
             	moviePerson.setName(resultSet.getString("name"));
             	moviePerson.setBirth(resultSet.getDate("birth"));
-            	moviePerson.setGender(PersonJdbc.Gender.fromId(resultSet.getString("gender")));
+            	moviePerson.setGender(Person.Gender.fromId(resultSet.getString("gender")));
             	moviePerson.setRoleName(resultSet.getString("role"));
             	moviePerson.setCastOrder(resultSet.getInt("cast_order"));
             	

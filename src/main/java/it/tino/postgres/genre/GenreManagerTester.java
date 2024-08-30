@@ -18,22 +18,22 @@ public class GenreManagerTester extends DataManagerTester<Genre, Integer> {
     
     @Override
 	protected Supplier<List<Genre>> onSelectAll() {
-		return () -> genreManager.selectAll();
+		return genreManager::selectAll;
 	}
 
 	@Override
 	protected Function<Genre, Genre> onInsert() {
-		return (toInsert) -> genreManager.insert(toInsert);
+		return genreManager::insert;
 	}
 
 	@Override
 	protected Function<Genre, Genre> onUpdate() {
-		return (toUpdate) -> genreManager.update(toUpdate);
+		return genreManager::update;
 	}
 
 	@Override
 	protected Function<Integer, Boolean> onDelete() {
-		return (id) -> genreManager.delete(id);
+		return genreManager::delete;
 	}
 
     @Override
@@ -48,17 +48,6 @@ public class GenreManagerTester extends DataManagerTester<Genre, Integer> {
     protected void onUpdateObject(Genre objectToUpdate) {
         objectToUpdate.setName("New genre (updated)");
     }
-    
-//    public List<Genre> getGenresOfMovie() {
-//        int movieId = 1;
-//        System.out.println("------- SELECT GENRES OF MOVIE -------");
-//        List<Genre> allRows = genreManager.selectByMovieId(movieId);
-//        System.out.println("Movie id: " + movieId);
-//        System.out.println(allRows);
-//        System.out.println("--------------------------");
-//        
-//        return allRows;
-//    }
     
     public Genre getLatestGenre(Collection<Genre> genres) {
         return genres

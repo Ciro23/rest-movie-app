@@ -11,23 +11,31 @@ import it.tino.postgres.AppProperties;
 import it.tino.postgres.MovieAppException;
 
 /**
- * This class allows the handling of the lifecycle of the database connection in
- * an higher layer than DAOs, to manage transactions.
+ * Offers all the methods to handle the complete lifecycle of the
+ * database connection and its transactions.
  */
 public class ConnectionManager {
 
 	private static ConnectionManager instance;
 	protected static final Logger logger = LogManager.getLogger();
 
-	private String url;
-	private String username;
-	private String password;
+	private final String url;
+	private final String username;
+	private final String password;
 
 	private ConnectionManager() {
 		AppProperties appProperties = AppProperties.getInstance();
 		url = appProperties.getDatabaseUrl();
 		username = appProperties.getDatabaseUsername();
 		password = appProperties.getDatabasePassword();
+
+		// https://www.postgresql.org/docs/7.4/jdbc-use.html
+		try {
+			Class.forName("org.postgresql.Driver");
+		} catch (ClassNotFoundException e) {
+			throw new MovieAppException("Errore durante il caricamento del driver per la connessione" +
+					" a PostgreSQL", e);
+		}
 	}
 
 	public static ConnectionManager getInstance() {

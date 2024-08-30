@@ -3,6 +3,7 @@ package it.tino.postgres.review;
 import java.sql.Timestamp;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 public class Review {
@@ -10,7 +11,8 @@ public class Review {
 	private int id;
     private int movieId;
     private int userId;
-    
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     @Nullable
     private Timestamp creationDate;
     
@@ -43,11 +45,12 @@ public class Review {
         this.userId = userId;
     }
 
+    @Nullable
     public Timestamp getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Timestamp creationDate) {
+    public void setCreationDate(@Nullable Timestamp creationDate) {
         this.creationDate = creationDate;
     }
 
@@ -56,20 +59,16 @@ public class Review {
     }
 
     public void setVote(double vote) {
-        if (vote < 0 || vote > 10) {
-            throw new IllegalArgumentException("Movie vote '" + vote + "' is not within"
-                    + " legal values (0-10");
-        }
-        
         this.vote = vote;
     }
 
+    @Nullable
     public String getReview() {
         return review;
     }
 
-    public void setReview(String review) {
-    	if (review.isBlank()) {
+    public void setReview(@Nullable String review) {
+    	if (review != null && review.isBlank()) {
     		review = null;
     	}
         this.review = review;
@@ -81,6 +80,7 @@ public class Review {
         builder.append("{\n");
         builder.append("  \"movieId\": ").append(movieId).append(",\n");
         builder.append("  \"userId\": \"").append(userId).append("\",\n");
+        builder.append("  \"creationDate\": \"").append(creationDate).append("\",\n");
         builder.append("  \"vote\": \"").append(vote).append("\",\n");
         builder.append("  \"review\": ").append(review).append(",\n");
         builder.append("}");

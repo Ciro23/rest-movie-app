@@ -17,22 +17,22 @@ public class ReviewManagerTester extends DataManagerTester<Review, Integer> {
     
     @Override
 	protected Supplier<List<Review>> onSelectAll() {
-		return () -> reviewManager.selectAll();
+		return reviewManager::selectAll;
 	}
 
 	@Override
 	protected Function<Review, Review> onInsert() {
-		return (toInsert) -> reviewManager.insert(toInsert);
+		return reviewManager::insert;
 	}
 
 	@Override
 	protected Function<Review, Review> onUpdate() {
-		return (toUpdate) -> reviewManager.update(toUpdate);
+		return reviewManager::update;
 	}
 
 	@Override
 	protected Function<Integer, Boolean> onDelete() {
-		return (id) -> reviewManager.delete(id);
+		return reviewManager::delete;
 	}
 
     @Override

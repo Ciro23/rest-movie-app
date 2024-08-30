@@ -1,9 +1,20 @@
 package it.tino.postgres.database;
 
+/**
+ * Used to apply custom criteria in the WHERE clause of queries.
+ */
 public class Criteria {
-	
+
+	/**
+	 * The name of the column to operate on.
+	 */
 	private String field;
+
+	/**
+	 * E.g. "=", ">", "LIKE"...
+	 */
 	private String operator;
+
 	private Object value;
 	
 	public Criteria(String field, String operator, Object value) {

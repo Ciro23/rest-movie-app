@@ -2,7 +2,7 @@ package it.tino.postgres.movie.database;
 
 import java.sql.Date;
 
-public class MovieJdbc {
+public class MovieDb {
     
     private int id;
     private String title;

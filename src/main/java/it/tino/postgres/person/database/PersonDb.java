@@ -1,13 +1,15 @@
 package it.tino.postgres.person.database;
 
+import it.tino.postgres.person.Person;
+
 import java.sql.Date;
 
-public class PersonJdbc {
+public class PersonDb {
     
     protected int id = 0;
     protected String name;
     protected Date birth;
-    protected Gender gender;
+    protected Person.Gender gender;
 
     public int getId() {
         return id;
@@ -33,14 +35,36 @@ public class PersonJdbc {
         this.birth = birth;
     }
 
-    public Gender getGender() {
+    public Person.Gender getGender() {
         return gender;
     }
 
-    public void setGender(Gender gender) {
+    public void setGender(Person.Gender gender) {
         this.gender = gender;
     }
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PersonDb personDb = (PersonDb) o;
+
+        if (id != personDb.id) return false;
+        if (!name.equals(personDb.name)) return false;
+        if (!birth.equals(personDb.birth)) return false;
+        return gender == personDb.gender;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + birth.hashCode();
+        result = 31 * result + gender.hashCode();
+        return result;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -51,35 +75,5 @@ public class PersonJdbc {
         builder.append("  \"gender\": ").append(gender).append(",\n");
         builder.append("}");
         return builder.toString();
-    }
-
-    public enum Gender {
-        MALE("m"),
-        FEMALE("f");
-        
-        private final String id;
-
-        private Gender(String id) {
-            this.id = id.toLowerCase();
-        }
-        
-        public String getId() {
-            return id;
-        }
-
-        public static Gender fromId(String id) {
-            String lowerCaseId = id.toLowerCase().trim();
-            
-            if (lowerCaseId.equals(MALE.id)) {
-                return MALE;
-            }
-            
-            if (lowerCaseId.equals(FEMALE.id)) {
-                return FEMALE;
-            }
-            
-            throw new IllegalArgumentException("Gender with id '" + id + "' is not"
-                    + " within supported values ('m', 'f')");
-        }
     }
 }

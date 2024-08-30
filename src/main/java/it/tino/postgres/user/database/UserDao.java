@@ -22,10 +22,10 @@ public class UserDao {
 	protected static final Logger logger = LogManager.getLogger();
 	private static final String TABLE_NAME = "users";
 
-	private static Function<ResultSet, UserJdbc> getOnMapEntity() {
+	private static Function<ResultSet, UserDb> getOnMapEntity() {
 		return (resultSet) -> {
             try {
-            	UserJdbc user = new UserJdbc();
+            	UserDb user = new UserDb();
             	user.setId(resultSet.getInt("id"));
             	user.setUsername(resultSet.getString("username"));
             	user.setPassword(resultSet.getString("password"));
@@ -38,7 +38,7 @@ public class UserDao {
         };
 	}
 
-	public static UserJdbc insert(UserJdbc entity, Connection connection) {
+	public static UserDb insert(UserDb entity, Connection connection) {
 		String query = "insert into users (username, password) values (?, ?)";
 		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 			int index = 0;
@@ -65,7 +65,7 @@ public class UserDao {
 		}
 	}
 
-	public static UserJdbc update(UserJdbc entity, Connection connection) {
+	public static UserDb update(UserDb entity, Connection connection) {
 		String query = "update users set username = ?, password = ? where id = ?";
 		
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -82,9 +82,9 @@ public class UserDao {
 	    }
 	}
 
-	public static UserJdbc selectById(int id, Connection connection) {
+	public static UserDb selectById(int id, Connection connection) {
 		Criteria criteria = new Criteria("id", "=", id);
-		List<UserJdbc> entities = selectByCriteria(criteria, connection);
+		List<UserDb> entities = selectByCriteria(criteria, connection);
 		
 		if (entities.isEmpty()) {
 			return null;
@@ -92,7 +92,7 @@ public class UserDao {
 		return entities.get(0);
 	}
 
-	public static List<UserJdbc> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public static List<UserDb> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -126,9 +126,9 @@ public class UserDao {
             }
             
             ResultSet resultSet = statement.executeQuery();
-            List<UserJdbc> entities = new ArrayList<>();
+            List<UserDb> entities = new ArrayList<>();
             while (resultSet.next()) {
-            	UserJdbc entity = getOnMapEntity().apply(resultSet);
+            	UserDb entity = getOnMapEntity().apply(resultSet);
                 entities.add(entity);
             }
             
@@ -139,7 +139,7 @@ public class UserDao {
         }
 	}
 	
-	public static List<UserJdbc> selectByCriteria(Criteria criteria, Connection connection) {
+	public static List<UserDb> selectByCriteria(Criteria criteria, Connection connection) {
 		return selectByCriteria(Collections.singleton(criteria), connection);
 	}
 

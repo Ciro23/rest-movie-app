@@ -1,6 +1,6 @@
 package it.tino.postgres.user.database;
 
-public class UserJdbc {
+public class UserDb {
 
     private int id;
     private String username;

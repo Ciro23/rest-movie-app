@@ -34,10 +34,9 @@ public class Main {
 		MovieManager movieManager = new MovieManager(connectionManager);
 		MovieManagerTester movieExample = new MovieManagerTester(movieManager);
 		
-		List<Movie> allMovies = movieExample.getAll();
-		allMovies = movieExample.create();
+		List<Movie> allMovies = movieExample.create();
 		allMovies = movieExample.update(movieExample.getLatestMovie(allMovies));
-		allMovies = movieExample.delete(movieExample.getLatestMovie(allMovies).getId());
+		movieExample.delete(movieExample.getLatestMovie(allMovies).getId());
 		// -----
 
 		System.out.println("\n##########################");
@@ -46,10 +45,9 @@ public class Main {
 		PersonManager personManager = new PersonManager(connectionManager);
 		PersonManagerTester personExample = new PersonManagerTester(personManager);
 		
-		List<Person> allPeople = personExample.getAll();
-		allPeople = personExample.create();
+		List<Person> allPeople = personExample.create();
 		allPeople = personExample.update(personExample.getLatestPerson(allPeople));
-		allPeople = personExample.delete(personExample.getLatestPerson(allPeople).getId());
+		personExample.delete(personExample.getLatestPerson(allPeople).getId());
 		// -----
 
 		System.out.println("\n##########################");
@@ -58,10 +56,9 @@ public class Main {
 		UserManager userManager = new UserManager(connectionManager);
 		UserManagerTester userExample = new UserManagerTester(userManager);
 
-		List<User> allUsers = userExample.getAll();
-		allUsers = userExample.create();
+		List<User> allUsers = userExample.create();
 		allUsers = userExample.update(allUsers.getLast());
-		allUsers = userExample.delete(allUsers.getLast().getId());
+		userExample.delete(allUsers.getLast().getId());
 		// -----
 
 		System.out.println("\n##########################");
@@ -70,10 +67,9 @@ public class Main {
 		ReviewManager reviewManager = new ReviewManager(connectionManager);
 		ReviewManagerTester reviewExample = new ReviewManagerTester(reviewManager);
 
-		List<Review> allReviews = reviewExample.getAll();
-		allReviews = reviewExample.create();
+		List<Review> allReviews = reviewExample.create();
 		allReviews = reviewExample.update(allReviews.getLast());
-		allReviews = reviewExample.delete(allReviews.getLast().getId());
+		reviewExample.delete(allReviews.getLast().getId());
 		// -----
 
 		System.out.println("\n##########################");
@@ -82,10 +78,9 @@ public class Main {
 		GenreManager genreManager = new GenreManager(connectionManager);
 		GenreManagerTester genresExample = new GenreManagerTester(genreManager);
 
-		List<Genre> allGenres = genresExample.getAll();
-		allGenres = genresExample.create();
+		List<Genre> allGenres = genresExample.create();
 		allGenres = genresExample.update(genresExample.getLatestGenre(allGenres));
-		allGenres = genresExample.delete(genresExample.getLatestGenre(allGenres).getId());
+		genresExample.delete(genresExample.getLatestGenre(allGenres).getId());
 		// -----
 	}
 }

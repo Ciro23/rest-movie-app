@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 /**
  * Utility to help manually test data managers.
  * Each method executes an action (save, find...) and prints
- * all the entities afterwards to manually check that everything
+ * all the entities afterward to manually check that everything
  * works as expected.
  * @param <T> Data type handled by the manager.
  * @param <ID> Id type for the data handled by the manager.

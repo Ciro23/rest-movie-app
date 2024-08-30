@@ -1,6 +1,6 @@
 package it.tino.postgres.person;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -8,7 +8,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import it.tino.postgres.database.DataManagerTester;
-import it.tino.postgres.person.database.PersonJdbc.Gender;
 
 public class PersonManagerTester extends DataManagerTester<Person, Integer> {
     
@@ -20,22 +19,22 @@ public class PersonManagerTester extends DataManagerTester<Person, Integer> {
     
     @Override
 	protected Supplier<List<Person>> onSelectAll() {
-		return () -> personManager.selectAll();
+		return personManager::selectAll;
 	}
 
 	@Override
 	protected Function<Person, Person> onInsert() {
-		return (toInsert) -> personManager.insert(toInsert);
+		return personManager::insert;
 	}
 
 	@Override
 	protected Function<Person, Person> onUpdate() {
-		return (toUpdate) -> personManager.update(toUpdate);
+		return personManager::update;
 	}
 
 	@Override
 	protected Function<Integer, Boolean> onDelete() {
-		return (id) -> personManager.delete(id);
+		return personManager::delete;
 	}
 
     @Override
@@ -43,8 +42,8 @@ public class PersonManagerTester extends DataManagerTester<Person, Integer> {
     	Person person = new Person();
         person.setId(0);
         person.setName("New person");
-        person.setBirth(new Date(1000000));
-        person.setGender(Gender.MALE);
+        person.setBirth(LocalDate.of(1998, 6, 3));
+        person.setGender(Person.Gender.MALE);
         
         return person;
     }
@@ -52,8 +51,8 @@ public class PersonManagerTester extends DataManagerTester<Person, Integer> {
     @Override
     protected void onUpdateObject(Person objectToUpdate) {
         objectToUpdate.setName("New person (updated)");
-        objectToUpdate.setBirth(new Date(8000000));
-        objectToUpdate.setGender(Gender.FEMALE);
+        objectToUpdate.setBirth(LocalDate.of(1998, 7, 4));
+        objectToUpdate.setGender(Person.Gender.FEMALE);
     }
     
 //    public List<Person> getDirectorsOfMovie() {

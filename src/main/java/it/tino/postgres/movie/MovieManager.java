@@ -1,28 +1,19 @@
 package it.tino.postgres.movie;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import it.tino.postgres.movie.database.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.ConnectionManager;
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.movie.database.MovieActorDao;
-import it.tino.postgres.movie.database.MovieActorView;
-import it.tino.postgres.movie.database.MovieDao;
-import it.tino.postgres.movie.database.MovieDirectorDao;
-import it.tino.postgres.movie.database.MovieDirectorView;
-import it.tino.postgres.movie.database.MovieGenreDao;
-import it.tino.postgres.movie.database.MovieGenreView;
-import it.tino.postgres.movie.database.MovieJdbc;
-import it.tino.postgres.movie.database.VMovieActorDao;
-import it.tino.postgres.movie.database.VMovieDirectorDao;
-import it.tino.postgres.movie.database.VMovieGenreDao;
 
 public class MovieManager {
     
@@ -40,9 +31,9 @@ public class MovieManager {
     		connection = connectionManager.connect();
 			connectionManager.beginTransaction(connection);
 			
-			MovieJdbc movieJdbc = domainToDb(movie, connection);
-			MovieJdbc insertedMovieJdbc = MovieDao.insert(movieJdbc, connection);
-			movie.setId(insertedMovieJdbc.getId());
+			MovieDb movieDb = domainToDb(movie);
+			MovieDb insertedMovieDb = MovieDao.insert(movieDb, connection);
+			movie.setId(insertedMovieDb.getId());
 			
 			List<MovieGenre> genres = getGenres(movie);
 			MovieGenreDao.insert(genres, connection);
@@ -54,11 +45,12 @@ public class MovieManager {
 			MovieActorDao.insert(actors, connection);
 			
 			connectionManager.commitTransaction(connection);
-			return dbToDomain(insertedMovieJdbc, connection);
+			return dbToDomain(insertedMovieDb, connection);
     	} catch (MovieAppException e) {
     		logger.error(e.getMessage(), e);
-    		connectionManager.rollbackTransaction(connection);
-    		
+			if (connection != null) {
+				connectionManager.rollbackTransaction(connection);
+			}
     		throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
@@ -74,28 +66,29 @@ public class MovieManager {
     		connection = connectionManager.connect();
 			connectionManager.beginTransaction(connection);
 			
-			MovieJdbc movieJdbc = domainToDb(movie, connection);
-			MovieJdbc insertedMovieJdbc = MovieDao.update(movieJdbc, connection);
-			movie.setId(insertedMovieJdbc.getId());
+			MovieDb movieDb = domainToDb(movie);
+			MovieDb insertedMovieDb = MovieDao.update(movieDb, connection);
+			movie.setId(insertedMovieDb.getId());
 			
 			List<MovieGenre> genres = getGenres(movie);
 			MovieGenreDao.deleteByMovie(movie.getId(), connection);
 			MovieGenreDao.insert(genres, connection);
 			
 			List<MovieDirector> directors = getDirectors(movie);
-			MovieDirectorDao.deleteByDirector(movie.getId(), connection);
+			MovieDirectorDao.deleteByMovie(movie.getId(), connection);
 			MovieDirectorDao.insert(directors, connection);
 			
 			List<MovieActor> actors = getActors(movie);
-			MovieActorDao.deleteByActor(movie.getId(), connection);
+			MovieActorDao.deleteByMovie(movie.getId(), connection);
 			MovieActorDao.insert(actors, connection);
 			
 			connectionManager.commitTransaction(connection);
-			return dbToDomain(insertedMovieJdbc, connection);
+			return dbToDomain(insertedMovieDb, connection);
     	} catch (MovieAppException e) {
     		logger.error(e.getMessage(), e);
-    		connectionManager.rollbackTransaction(connection);
-    		
+			if (connection != null) {
+				connectionManager.rollbackTransaction(connection);
+			}
     		throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
@@ -125,11 +118,15 @@ public class MovieManager {
 		Connection connection = null;
 		try {
 			connection = connectionManager.connect();
-			var moviesJdbc = MovieDao.selectById(id, connection);
-			return dbToDomain(moviesJdbc, connection);
+			var movieJdbc = MovieDao.selectById(id, connection);
+			if (movieJdbc == null) {
+				return null;
+			}
+
+			return dbToDomain(movieJdbc, connection);
     	} catch (MovieAppException e) {
     		logger.error(e.getMessage(), e);
-			return null;
+			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
 				connectionManager.close(connection);
@@ -157,6 +154,72 @@ public class MovieManager {
 		return selectByCriteria(Collections.singleton(criteria));
 	}
 
+	public List<Movie> selectByDirectorId(int directorId) {
+		Connection connection = null;
+		try {
+			connection = connectionManager.connect();
+			List<MovieView> movieDirectors = new ArrayList<>(
+					VMovieDirectorDao.selectByCriteria(
+							new Criteria("director_id", "=", directorId),
+							connection
+					)
+			);
+			List<MovieDb> movies = mapViewToDbEntity(movieDirectors);
+			return dbToDomain(movies, connection);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new MovieAppException(e);
+		} finally {
+			if (connection != null) {
+				connectionManager.close(connection);
+			}
+		}
+	}
+
+	public List<Movie> selectByActorId(int actorId) {
+		Connection connection = null;
+		try {
+			connection = connectionManager.connect();
+			List<MovieView> movieActors = new ArrayList<>(
+					VMovieActorDao.selectByCriteria(
+							new Criteria("actor_id", "=", actorId),
+							connection
+					)
+			);
+			List<MovieDb> movies = mapViewToDbEntity(movieActors);
+			return dbToDomain(movies, connection);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new MovieAppException(e);
+        } finally {
+			if (connection != null) {
+				connectionManager.close(connection);
+			}
+		}
+	}
+
+	public List<Movie> selectByGenreId(int genreId) {
+		Connection connection = null;
+		try {
+			connection = connectionManager.connect();
+			List<MovieView> movieGenres = new ArrayList<>(
+					VMovieGenreDao.selectByCriteria(
+							new Criteria("genre_id", "=", genreId),
+							connection
+					)
+			);
+			List<MovieDb> movies = mapViewToDbEntity(movieGenres);
+			return dbToDomain(movies, connection);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new MovieAppException(e);
+		} finally {
+			if (connection != null) {
+				connectionManager.close(connection);
+			}
+		}
+	}
+
 	public boolean delete(int id) {
 		Connection connection = null;
 		try {
@@ -172,10 +235,10 @@ public class MovieManager {
 		}
 	}
 	
-	private List<Movie> dbToDomain(Collection<MovieJdbc> moviesJdbc, Connection connection) {
+	private List<Movie> dbToDomain(Collection<MovieDb> moviesJdbc, Connection connection) {
 		List<Integer> movieIds = moviesJdbc
 				.stream()
-				.map(m -> m.getId())
+				.map(MovieDb::getId)
 				.toList();
 		
 		List<MovieGenreView> movieGenres = VMovieGenreDao.selectByCriteria(
@@ -192,10 +255,10 @@ public class MovieManager {
 		);
 		
 		List<Movie> movies = new ArrayList<>();
-		for (MovieJdbc movieJdbc : moviesJdbc) {
+		for (MovieDb movieDb : moviesJdbc) {
 			List<MovieGenre> genres = movieGenres
 					.stream()
-					.filter(mg -> mg.getMovieId() == movieJdbc.getId())
+					.filter(mg -> mg.getMovieId() == movieDb.getId())
 					.map(mg -> {
 						MovieGenre movieGenre = new MovieGenre();
 						movieGenre.setMovieId(mg.getMovieId());
@@ -205,7 +268,7 @@ public class MovieManager {
 					.toList();
 			List<MovieDirector> directors = movieDirectors
 					.stream()
-					.filter(md -> md.getMovieId() == movieJdbc.getId())
+					.filter(md -> md.getMovieId() == movieDb.getId())
 					.map(md -> {
 						MovieDirector directedMovie = new MovieDirector();
 						directedMovie.setMovieId(md.getMovieId());
@@ -215,7 +278,7 @@ public class MovieManager {
 					.toList();
 			List<MovieActor> actors = movieActors
 					.stream()
-					.filter(ma -> ma.getPersonId() == movieJdbc.getId())
+					.filter(ma -> ma.getMovieId() == movieDb.getId())
 					.map(ma -> {
 						MovieActor starredMovie = new MovieActor();
 						starredMovie.setMovieId(ma.getMovieId());
@@ -227,13 +290,13 @@ public class MovieManager {
 					.toList();
 			
 			Movie movie = new Movie();
-			movie.setId(movieJdbc.getId());
-			movie.setTitle(movieJdbc.getTitle());
-			movie.setReleaseDate(movieJdbc.getReleaseDate());
-			movie.setBudget(movieJdbc.getBudget());
-			movie.setBoxOffice(movieJdbc.getBoxOffice());
-			movie.setRuntime(movieJdbc.getRuntime());
-			movie.setOverview(movieJdbc.getOverview());
+			movie.setId(movieDb.getId());
+			movie.setTitle(movieDb.getTitle());
+			movie.setReleaseDate(movieDb.getReleaseDate().toLocalDate());
+			movie.setBudget(movieDb.getBudget());
+			movie.setBoxOffice(movieDb.getBoxOffice());
+			movie.setRuntime(movieDb.getRuntime());
+			movie.setOverview(movieDb.getOverview());
 			movie.setGenres(genres);
 			movie.setDirectors(directors);
 			movie.setActors(actors);
@@ -244,25 +307,25 @@ public class MovieManager {
 		return movies;
 	}
 	
-	private Movie dbToDomain(MovieJdbc movieJdbc, Connection connection) {
-		var movies = dbToDomain(Collections.singleton(movieJdbc), connection);
+	private Movie dbToDomain(MovieDb movieDb, Connection connection) {
+		var movies = dbToDomain(Collections.singleton(movieDb), connection);
 		if (movies.isEmpty()) {
 			return null;
 		}
 		return movies.getFirst();
 	}
 	
-	private MovieJdbc domainToDb(Movie movie, Connection connection) {
-		MovieJdbc movieJdbc = new MovieJdbc();
-		movieJdbc.setId(movie.getId());
-		movieJdbc.setTitle(movie.getTitle());
-		movieJdbc.setReleaseDate(movie.getReleaseDate());
-		movieJdbc.setBudget(movie.getBudget());
-		movieJdbc.setBoxOffice(movie.getBoxOffice());
-		movieJdbc.setRuntime(movie.getRuntime());
-		movieJdbc.setOverview(movie.getOverview());
+	private MovieDb domainToDb(Movie movie) {
+		MovieDb movieDb = new MovieDb();
+		movieDb.setId(movie.getId());
+		movieDb.setTitle(movie.getTitle());
+		movieDb.setReleaseDate(Date.valueOf(movie.getReleaseDate()));
+		movieDb.setBudget(movie.getBudget());
+		movieDb.setBoxOffice(movie.getBoxOffice());
+		movieDb.setRuntime(movie.getRuntime());
+		movieDb.setOverview(movie.getOverview());
 		
-		return movieJdbc;
+		return movieDb;
 	}
 	
 	private List<MovieGenre> getGenres(Movie movie) {
@@ -299,6 +362,23 @@ public class MovieManager {
 					movieActor.setRoleName(starredMovie.getRoleName());
 					movieActor.setCastOrder(starredMovie.getCastOrder());
 					return movieActor;
+				})
+				.toList();
+	}
+
+	private List<MovieDb> mapViewToDbEntity(Collection<MovieView> movieViews) {
+		return movieViews
+				.stream()
+				.map(m -> {
+					MovieDb movie = new MovieDb();
+					movie.setId(m.getMovieId());
+					movie.setTitle(m.getTitle());
+					movie.setReleaseDate(m.getReleaseDate());
+					movie.setBudget(m.getBudget());
+					movie.setBoxOffice(m.getBoxOffice());
+					movie.setRuntime(m.getRuntime());
+					movie.setOverview(m.getOverview());
+					return movie;
 				})
 				.toList();
 	}

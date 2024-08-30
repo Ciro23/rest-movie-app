@@ -16,22 +16,22 @@ public class UserManagerTester extends DataManagerTester<User, Integer> {
     
     @Override
 	protected Supplier<List<User>> onSelectAll() {
-		return () -> userManager.selectAll();
+		return userManager::selectAll;
 	}
 
 	@Override
 	protected Function<User, User> onInsert() {
-		return (toInsert) -> userManager.insert(toInsert);
+		return userManager::insert;
 	}
 
 	@Override
 	protected Function<User, User> onUpdate() {
-		return (toUpdate) -> userManager.update(toUpdate);
+		return userManager::update;
 	}
 
 	@Override
 	protected Function<Integer, Boolean> onDelete() {
-		return (id) -> userManager.delete(id);
+		return userManager::delete;
 	}
 
     @Override

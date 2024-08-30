@@ -2,11 +2,11 @@ package it.tino.postgres.person;
 
 import java.sql.Connection;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import it.tino.postgres.movie.database.*;
+import it.tino.postgres.person.database.PersonView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,14 +15,8 @@ import it.tino.postgres.database.ConnectionManager;
 import it.tino.postgres.database.Criteria;
 import it.tino.postgres.movie.MovieActor;
 import it.tino.postgres.movie.MovieDirector;
-import it.tino.postgres.movie.database.MovieActorDao;
-import it.tino.postgres.movie.database.MovieActorView;
-import it.tino.postgres.movie.database.MovieDirectorDao;
-import it.tino.postgres.movie.database.MovieDirectorView;
-import it.tino.postgres.movie.database.VMovieActorDao;
-import it.tino.postgres.movie.database.VMovieDirectorDao;
 import it.tino.postgres.person.database.PersonDao;
-import it.tino.postgres.person.database.PersonJdbc;
+import it.tino.postgres.person.database.PersonDb;
 
 public class PersonManager {
 
@@ -40,9 +34,9 @@ public class PersonManager {
 			connection = connectionManager.connect();
 			connectionManager.beginTransaction(connection);
 			
-			PersonJdbc personJdbc = domainToDb(person, connection);
-			PersonJdbc insertedPersonJdbc = PersonDao.insert(personJdbc, connection);
-			person.setId(insertedPersonJdbc.getId());
+			PersonDb personDb = domainToDb(person);
+			PersonDb insertedPersonDb = PersonDao.insert(personDb, connection);
+			person.setId(insertedPersonDb.getId());
 			
 			List<MovieDirector> directedMovies = getDirectedMovies(person);
 			MovieDirectorDao.deleteByDirector(person.getId(), connection);
@@ -53,11 +47,12 @@ public class PersonManager {
 			MovieActorDao.insert(starredMovies, connection);
 			
 			connectionManager.commitTransaction(connection);
-			return dbToDomain(insertedPersonJdbc, connection);
+			return dbToDomain(insertedPersonDb, connection);
 		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			connectionManager.rollbackTransaction(connection);
-			
+			if (connection != null) {
+				connectionManager.rollbackTransaction(connection);
+			}
 			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
@@ -73,9 +68,9 @@ public class PersonManager {
 			connection = connectionManager.connect();
 			connectionManager.beginTransaction(connection);
 			
-			PersonJdbc personJdbc = domainToDb(person, connection);
-			PersonJdbc insertedPersonJdbc = PersonDao.update(personJdbc, connection);
-			person.setId(insertedPersonJdbc.getId());
+			PersonDb personDb = domainToDb(person);
+			PersonDb insertedPersonDb = PersonDao.update(personDb, connection);
+			person.setId(insertedPersonDb.getId());
 			
 			List<MovieDirector> directedMovies = getDirectedMovies(person);
 			MovieDirectorDao.deleteByDirector(person.getId(), connection);
@@ -86,11 +81,12 @@ public class PersonManager {
 			MovieActorDao.insert(starredMovies, connection);
 			
 			connectionManager.commitTransaction(connection);
-			return dbToDomain(insertedPersonJdbc, connection);
+			return dbToDomain(insertedPersonDb, connection);
 		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
-			connectionManager.rollbackTransaction(connection);
-			
+			if (connection != null) {
+				connectionManager.rollbackTransaction(connection);
+			}
 			throw new MovieAppException(e);
 		} finally {
 			if (connection != null) {
@@ -108,8 +104,12 @@ public class PersonManager {
 		Connection connection = null;
     	try {
     		connection = connectionManager.connect();
-    		var peopleJdbc = PersonDao.selectById(id, connection);
-			return dbToDomain(peopleJdbc, connection);
+    		var personJdbc = PersonDao.selectById(id, connection);
+			if (personJdbc == null) {
+				return null;
+			}
+
+			return dbToDomain(personJdbc, connection);
 		} catch (MovieAppException e) {
 			logger.error(e.getMessage(), e);
 			return null;
@@ -140,6 +140,47 @@ public class PersonManager {
 		return selectByCriteria(Collections.singleton(criteria));
 	}
 
+	public List<Person> selectByMovieId(int movieId) {
+		Connection connection = null;
+		try {
+			connection = connectionManager.connect();
+			Set<PersonView> moviePeople = new HashSet<>(
+					VMovieActorDao.selectByCriteria(
+							new Criteria("movie_id", "=", movieId),
+							connection
+					)
+			);
+
+			moviePeople.addAll(
+					VMovieDirectorDao.selectByCriteria(
+							new Criteria("movie_id", "=", movieId),
+							connection
+					)
+			);
+
+			Set<PersonDb> people = moviePeople
+					.stream()
+					.map(m -> {
+						PersonDb person = new PersonDb();
+						person.setId(m.getPersonId());
+						person.setName(m.getName());
+						person.setBirth(m.getBirth());
+						person.setGender(m.getGender());
+						return person;
+					})
+					.collect(Collectors.toSet());
+
+			return dbToDomain(people, connection);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new MovieAppException(e);
+		} finally {
+			if (connection != null) {
+				connectionManager.close(connection);
+			}
+		}
+	}
+
 	public boolean delete(int id) {
 		Connection connection = null;
 		try {
@@ -156,12 +197,12 @@ public class PersonManager {
 	}
 	
 	private List<Person> dbToDomain(
-		Collection<PersonJdbc> peopleJdbc,
+		Collection<PersonDb> peopleJdbc,
 		Connection connection
 	) {
 		List<Integer> personIds = peopleJdbc
 				.stream()
-				.map(p -> p.getId())
+				.map(PersonDb::getId)
 				.toList();
 		
 		List<MovieDirectorView> movieDirectors = VMovieDirectorDao.selectByCriteria(
@@ -173,11 +214,11 @@ public class PersonManager {
 				connection
 		);
 		
-		List<Person> people = new ArrayList<Person>();
-		for (PersonJdbc personJdbc : peopleJdbc) {
+		List<Person> people = new ArrayList<>();
+		for (PersonDb personDb : peopleJdbc) {
 			List<MovieDirector> directedMovies = movieDirectors
 					.stream()
-					.filter(md -> md.getPersonId() == personJdbc.getId())
+					.filter(md -> md.getPersonId() == personDb.getId())
 					.map(md -> {
 						MovieDirector directedMovie = new MovieDirector();
 						directedMovie.setMovieId(md.getMovieId());
@@ -187,7 +228,7 @@ public class PersonManager {
 					.toList();
 			List<MovieActor> starredMovies = movieActors
 					.stream()
-					.filter(ma -> ma.getPersonId() == personJdbc.getId())
+					.filter(ma -> ma.getPersonId() == personDb.getId())
 					.map(ma -> {
 						MovieActor starredMovie = new MovieActor();
 						starredMovie.setMovieId(ma.getMovieId());
@@ -199,10 +240,10 @@ public class PersonManager {
 					.toList();
 
 			Person person = new Person();
-			person.setId(personJdbc.getId());
-			person.setName(personJdbc.getName());
-			person.setBirth(personJdbc.getBirth());
-			person.setGender(personJdbc.getGender());
+			person.setId(personDb.getId());
+			person.setName(personDb.getName());
+			person.setBirth(personDb.getBirth().toLocalDate());
+			person.setGender(personDb.getGender());
 			person.setDirectedMovies(directedMovies);
 			person.setStarredMovies(starredMovies);
 			
@@ -212,21 +253,21 @@ public class PersonManager {
 		return people;
 	}
 	
-	private Person dbToDomain(PersonJdbc personJdbc, Connection connection) {
-		var people = dbToDomain(Collections.singleton(personJdbc), connection);
+	private Person dbToDomain(PersonDb personDb, Connection connection) {
+		var people = dbToDomain(Collections.singleton(personDb), connection);
 		if (people.isEmpty()) {
 			return null;
 		}
 		return people.getFirst();
 	}
 	
-	private PersonJdbc domainToDb(Person person, Connection connection) {
-		PersonJdbc personJdbc = new PersonJdbc();
-		personJdbc.setId(person.getId());
-		personJdbc.setName(person.getName());
-		personJdbc.setBirth(new Date(person.getBirth().getTime()));
-		personJdbc.setGender(person.getGender());
-		return personJdbc;
+	private PersonDb domainToDb(Person person) {
+		PersonDb personDb = new PersonDb();
+		personDb.setId(person.getId());
+		personDb.setName(person.getName());
+		personDb.setBirth(Date.valueOf(person.getBirth()));
+		personDb.setGender(person.getGender());
+		return personDb;
 	}
 	
 	private List<MovieDirector> getDirectedMovies(Person person) {

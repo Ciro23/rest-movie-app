@@ -1,6 +1,7 @@
 package it.tino.postgres.movie;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -19,29 +20,29 @@ public class MovieManagerTester extends DataManagerTester<Movie, Integer> {
     
     @Override
 	protected Supplier<List<Movie>> onSelectAll() {
-		return () -> movieManager.selectAll();
+		return movieManager::selectAll;
 	}
 
 	@Override
 	protected Function<Movie, Movie> onInsert() {
-		return (toInsert) -> movieManager.insert(toInsert);
+		return movieManager::insert;
 	}
 
 	@Override
 	protected Function<Movie, Movie> onUpdate() {
-		return (toUpdate) -> movieManager.update(toUpdate);
+		return movieManager::update;
 	}
 
 	@Override
 	protected Function<Integer, Boolean> onDelete() {
-		return (id) -> movieManager.delete(id);
+		return movieManager::delete;
 	}
 
     @Override
     protected Movie onCreateObject() {
     	Movie movie = new Movie();
     	movie.setTitle("New movie");
-    	movie.setReleaseDate(new Date(7000000));
+    	movie.setReleaseDate(LocalDate.of(2024, 1, 1));
     	movie.setBudget(150);
     	movie.setBoxOffice(300);
     	movie.setRuntime(90);
@@ -53,7 +54,7 @@ public class MovieManagerTester extends DataManagerTester<Movie, Integer> {
     @Override
     protected void onUpdateObject(Movie objectToUpdate) {
         objectToUpdate.setTitle("New movie (updated)");
-        objectToUpdate.setReleaseDate(new Date(8000000));
+        objectToUpdate.setReleaseDate(LocalDate.of(2024, 2, 10));
         objectToUpdate.setBudget(400);
         objectToUpdate.setBoxOffice(550);
         objectToUpdate.setRuntime(95);

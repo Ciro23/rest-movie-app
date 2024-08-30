@@ -1,6 +1,8 @@
 package it.tino.postgres.movie;
 
-import java.sql.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,7 +11,10 @@ public class Movie {
 
 	private int id;
     private String title;
-    private Date releaseDate;
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate releaseDate;
+
     private int budget;
     private int boxOffice;
     private int runtime;
@@ -34,11 +39,11 @@ public class Movie {
 		this.title = title;
 	}
 	
-	public Date getReleaseDate() {
+	public LocalDate getReleaseDate() {
 		return releaseDate;
 	}
 	
-	public void setReleaseDate(Date releaseDate) {
+	public void setReleaseDate(LocalDate releaseDate) {
 		this.releaseDate = releaseDate;
 	}
 	

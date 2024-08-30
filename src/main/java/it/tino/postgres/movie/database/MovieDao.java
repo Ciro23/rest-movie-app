@@ -22,10 +22,10 @@ public class MovieDao {
 	protected static final Logger logger = LogManager.getLogger();
 	private static final String TABLE_NAME = "movies";
 
-	private static Function<ResultSet, MovieJdbc> getOnMapEntity() {
+	private static Function<ResultSet, MovieDb> getOnMapEntity() {
 		return (resultSet) -> {
             try {
-            	MovieJdbc movie = new MovieJdbc();
+            	MovieDb movie = new MovieDb();
          	    movie.setId(resultSet.getInt("id"));
          	    movie.setTitle(resultSet.getString("title"));
          	    movie.setReleaseDate(resultSet.getDate("release_date"));
@@ -42,7 +42,7 @@ public class MovieDao {
         };
 	}
 
-	public static MovieJdbc insert(MovieJdbc entity, Connection connection) {
+	public static MovieDb insert(MovieDb entity, Connection connection) {
 		String query = "insert into " + TABLE_NAME + " (title, release_date, budget,"
 				+ " box_office, runtime, overview) values (?, ?, ?, ?, ?, ?)";
 		try (PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -74,7 +74,7 @@ public class MovieDao {
 	    }
 	}
 
-	public static MovieJdbc update(MovieJdbc entity, Connection connection) {
+	public static MovieDb update(MovieDb entity, Connection connection) {
 		String query = "update " + TABLE_NAME + " set title = ?, release_date = ?,"
 				+ " budget = ?, box_office = ?, runtime = ?, overview = ?"
 				+ " where id = ?";
@@ -96,9 +96,9 @@ public class MovieDao {
 	    }
 	}
 
-	public static MovieJdbc selectById(int id, Connection connection) {
+	public static MovieDb selectById(int id, Connection connection) {
 		Criteria criteria = new Criteria("id", "=", id);
-		List<MovieJdbc> entities = selectByCriteria(criteria, connection);
+		List<MovieDb> entities = selectByCriteria(criteria, connection);
 		
 		if (entities.isEmpty()) {
 			return null;
@@ -106,7 +106,7 @@ public class MovieDao {
 		return entities.get(0);
 	}
 
-	public static List<MovieJdbc> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
+	public static List<MovieDb> selectByCriteria(Collection<Criteria> criterias, Connection connection) {
 		StringBuilder query = new StringBuilder("select * from ")
 				.append(TABLE_NAME)
 				.append(" where 1 = 1");
@@ -140,9 +140,9 @@ public class MovieDao {
             }
             
             ResultSet resultSet = statement.executeQuery();
-            List<MovieJdbc> entities = new ArrayList<>();
+            List<MovieDb> entities = new ArrayList<>();
             while (resultSet.next()) {
-                MovieJdbc entity = getOnMapEntity().apply(resultSet);
+                MovieDb entity = getOnMapEntity().apply(resultSet);
                 entities.add(entity);
             }
             
@@ -153,7 +153,7 @@ public class MovieDao {
         }
 	}
 	
-	public static List<MovieJdbc> selectByCriteria(Criteria criteria, Connection connection) {
+	public static List<MovieDb> selectByCriteria(Criteria criteria, Connection connection) {
 		return selectByCriteria(Collections.singleton(criteria), connection);
 	}
 

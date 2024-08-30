@@ -10,12 +10,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import it.tino.postgres.person.Person;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import it.tino.postgres.MovieAppException;
 import it.tino.postgres.database.Criteria;
-import it.tino.postgres.person.database.PersonJdbc;
 
 public class VMovieDirectorDao {
 
@@ -37,7 +37,7 @@ public class VMovieDirectorDao {
             	moviePerson.setPersonId(resultSet.getInt("director_id"));
             	moviePerson.setName(resultSet.getString("name"));
             	moviePerson.setBirth(resultSet.getDate("birth"));
-            	moviePerson.setGender(PersonJdbc.Gender.fromId(resultSet.getString("gender")));
+            	moviePerson.setGender(Person.Gender.fromId(resultSet.getString("gender")));
   
                 return moviePerson;
             } catch (SQLException e) {
@@ -57,9 +57,8 @@ public class VMovieDirectorDao {
 			query.append(" and ");
 			query.append(criteria.getField());
 			
-			if ("in".equalsIgnoreCase(criteria.getOperator()) && criteria.getValue() instanceof Collection<?>) {
-	            Collection<?> values = (Collection<?>) criteria.getValue();
-	            if (values.isEmpty()) {
+			if ("in".equalsIgnoreCase(criteria.getOperator()) && criteria.getValue() instanceof Collection<?> values) {
+				if (values.isEmpty()) {
 	                query.append(" in (null)");
 	            } else {
 	                query.append(" in (");

@@ -1,15 +1,16 @@
 package it.tino.postgres.review;
 
 
-import it.tino.postgres.ErrorResponse;
+import it.tino.postgres.error.ErrorResponse;
 import it.tino.postgres.MovieApp;
-import it.tino.postgres.database.ConnectionManager;
-import it.tino.postgres.database.Criteria;
+import it.tino.postgres.mybatis.mapper.ReviewDbDynamicSqlSupport;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import org.mybatis.dynamic.sql.SqlBuilder;
 
 import java.util.List;
 
@@ -18,8 +19,9 @@ public class ReviewController {
 
     private final ReviewManager reviewManager;
 
-    public ReviewController() {
-        reviewManager = new ReviewManager(ConnectionManager.getInstance());
+    @Inject
+    public ReviewController(ReviewManager reviewManager) {
+        this.reviewManager = reviewManager;
     }
 
     @GET
@@ -28,7 +30,8 @@ public class ReviewController {
         if (userId == 0) {
             return reviewManager.selectAll();
         }
-        return reviewManager.selectByCriteria(new Criteria("user_id", "=", userId));
+
+        return reviewManager.selectByCriteria(c -> c.where(ReviewDbDynamicSqlSupport.id, SqlBuilder.isEqualTo(userId)));
     }
 
     @GET
@@ -112,11 +115,8 @@ public class ReviewController {
      * @return true if the user already reviewed the movie, false otherwise.
      */
     private boolean hasUserAlreadyReviewed(Review review) {
-        List<Criteria> criteria = List.of(
-                new Criteria("user_id", "=", review.getUserId()),
-                new Criteria("movie_id", "=", review.getMovieId())
-        );
-        return !reviewManager.selectByCriteria(criteria).isEmpty();
+        return !reviewManager.selectByCriteria(c -> c.where(ReviewDbDynamicSqlSupport.userId, SqlBuilder.isEqualTo(review.getUserId()))
+                .and(ReviewDbDynamicSqlSupport.movieId, SqlBuilder.isEqualTo(review.getMovieId()))).isEmpty();
     }
 
     private Response userAlreadyReviewedMovieResponse(Review review, @Context UriInfo uriInfo) {

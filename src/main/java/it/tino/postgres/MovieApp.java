@@ -1,5 +1,8 @@
 package it.tino.postgres;
 
+import it.tino.postgres.error.ErrorResponse;
+import it.tino.postgres.error.NotFoundExceptionMapper;
+import it.tino.postgres.error.UnexpectedExceptionMapper;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
@@ -9,7 +12,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 public class MovieApp extends ResourceConfig {
     public MovieApp() {
         packages("it.tino.postgres");
+        register(new CustomBinder());
         register(NotFoundExceptionMapper.class);
+        register(UnexpectedExceptionMapper.class);
     }
 
     public static Response serverError(UriInfo uriInfo) {

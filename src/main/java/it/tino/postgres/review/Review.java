@@ -1,10 +1,10 @@
 package it.tino.postgres.review;
 
-import java.sql.Timestamp;
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import edu.umd.cs.findbugs.annotations.Nullable;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Review {
     
@@ -14,9 +14,9 @@ public class Review {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     @Nullable
-    private Timestamp creationDate;
+    private LocalDateTime creationDate;
     
-    private double vote;
+    private float vote;
     
     @Nullable
     private String review;
@@ -46,19 +46,19 @@ public class Review {
     }
 
     @Nullable
-    public Timestamp getCreationDate() {
+    public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(@Nullable Timestamp creationDate) {
+    public void setCreationDate(@Nullable LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
 
-    public double getVote() {
+    public float getVote() {
         return vote;
     }
 
-    public void setVote(double vote) {
+    public void setVote(float vote) {
         this.vote = vote;
     }
 

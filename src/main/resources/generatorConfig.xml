@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <context id="PostgreSQLTables" targetRuntime="MyBatis3DynamicSql">
+        <!-- JDBC connection configuration -->
+        <jdbcConnection driverClass="org.postgresql.Driver"
+                        connectionURL="jdbc:postgresql://127.0.0.1:5432/movie_app"
+                        userId="postgres"
+                        password="root">
+        </jdbcConnection>
+
+        <!-- Java models package -->
+        <javaModelGenerator targetPackage="it.tino.postgres.mybatis.model" targetProject="src/main/java">
+            <property name="enableSubPackages" value="false"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- Java Mappers (DAOs) package (using Dynamic SQL) -->
+        <javaClientGenerator type="MyBatis3DynamicSql" targetPackage="it.tino.postgres.mybatis.mapper" targetProject="src/main/java">
+            <property name="enableSubPackages" value="false"/>
+        </javaClientGenerator>
+
+        <!-- Table mappings -->
+        <table tableName="users" domainObjectName="UserDb">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="reviews" domainObjectName="ReviewDb">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="genres" domainObjectName="GenreDb">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="people" domainObjectName="PersonDb">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="movies" domainObjectName="MovieDb">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="movies_directors" domainObjectName="MovieDirectorDb"/>
+        <table tableName="movies_actors" domainObjectName="MovieActorDb"/>
+        <table tableName="movies_genres" domainObjectName="MovieGenreDb"/>
+
+        <table tableName="v_movies_directors" domainObjectName="VMovieDirectorDb"/>
+        <table tableName="v_movies_actors" domainObjectName="VMovieActorDb"/>
+        <table tableName="v_movies_genres" domainObjectName="VMovieGenreDb"/>
+    </context>
+</generatorConfiguration>

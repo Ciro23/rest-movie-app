@@ -1,280 +1,192 @@
 package it.tino.postgres.person;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import it.tino.postgres.movie.database.*;
-import it.tino.postgres.person.database.PersonView;
+import it.tino.postgres.error.MovieAppException;
+import it.tino.postgres.SimpleManager;
+import it.tino.postgres.mybatis.mapper.*;
+import it.tino.postgres.mybatis.model.*;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mybatis.dynamic.sql.SqlBuilder;
+import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
-import it.tino.postgres.MovieAppException;
-import it.tino.postgres.database.ConnectionManager;
-import it.tino.postgres.database.Criteria;
-import it.tino.postgres.movie.MovieActor;
-import it.tino.postgres.movie.MovieDirector;
-import it.tino.postgres.person.database.PersonDao;
-import it.tino.postgres.person.database.PersonDb;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PersonManager {
 
 	protected static final Logger logger = LogManager.getLogger();
+
+	private final SqlSessionFactory sqlSessionFactory;
+	private final PersonMapper personMapper;
+	private final SimpleManager<Person, PersonDb, Integer> simpleManager;
 	
-	private final ConnectionManager connectionManager;
-	
-	public PersonManager(ConnectionManager connectionManager) {
-		this.connectionManager = connectionManager;
+	public PersonManager(SqlSessionFactory sqlSessionFactory, PersonMapper personMapper) {
+		this.sqlSessionFactory = sqlSessionFactory;
+		this.personMapper = personMapper;
+
+		SimpleManager.InsertFunction<PersonDb> onInsert = (sqlSession, key) -> {
+			PersonDbMapper dao = sqlSession.getMapper(PersonDbMapper.class);
+			return dao.insert(key);
+		};
+		SimpleManager.UpdateFunction<PersonDb> onUpdate = (sqlSession, key) -> {
+			PersonDbMapper dao = sqlSession.getMapper(PersonDbMapper.class);
+			return dao.updateByPrimaryKey(key);
+		};
+		SimpleManager.SelectFunction<PersonDb> onSelect = (sqlSession, key) -> {
+			PersonDbMapper dao = sqlSession.getMapper(PersonDbMapper.class);
+			return dao.select(key);
+		};
+		SimpleManager.SelectByIdFunction<PersonDb, Integer> onSelectById = (sqlSession, key) -> {
+			PersonDbMapper dao = sqlSession.getMapper(PersonDbMapper.class);
+			return dao.selectByPrimaryKey(key);
+		};
+		SimpleManager.DeleteFunction<Integer> onDelete = (sqlSession, key) -> {
+			PersonDbMapper dao = sqlSession.getMapper(PersonDbMapper.class);
+			return dao.deleteByPrimaryKey(key);
+		};
+		this.simpleManager = new SimpleManager<>(
+				sqlSessionFactory,
+				personMapper,
+				onInsert,
+				onUpdate,
+				onSelect,
+				onSelectById,
+				onDelete
+		);
 	}
 
 	public Person insert(Person person) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			connectionManager.beginTransaction(connection);
-			
-			PersonDb personDb = domainToDb(person);
-			PersonDb insertedPersonDb = PersonDao.insert(personDb, connection);
-			person.setId(insertedPersonDb.getId());
-			
-			List<MovieDirector> directedMovies = getDirectedMovies(person);
-			MovieDirectorDao.deleteByDirector(person.getId(), connection);
-			MovieDirectorDao.insert(directedMovies, connection);
-			
-			List<MovieActor> starredMovies = getStarredMovies(person);
-			MovieActorDao.deleteByActor(person.getId(), connection);
-			MovieActorDao.insert(starredMovies, connection);
-			
-			connectionManager.commitTransaction(connection);
-			return dbToDomain(insertedPersonDb, connection);
-		} catch (MovieAppException e) {
+		try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+			PersonDb dbEntity = personMapper.domainToDb(person);
+
+			PersonDbMapper personDao = sqlSession.getMapper(PersonDbMapper.class);
+			MovieDirectorDbMapper movieDirectorDao = sqlSession.getMapper(MovieDirectorDbMapper.class);
+			MovieActorDbMapper movieActorDao = sqlSession.getMapper(MovieActorDbMapper.class);
+
+			int affectedRows = personDao.insert(dbEntity);
+			person.setId(dbEntity.getId());
+
+			movieDirectorDao.insertMultiple(getDirectedMovies(person));
+			movieActorDao.insertMultiple(getStarredMovies(person));
+
+			if (affectedRows == 1) {
+				Person insertedPerson = personMapper.dbToDomain(dbEntity);
+				sqlSession.commit();
+
+				return insertedPerson;
+			}
+			throw new MovieAppException("No affected rows on insert");
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			if (connection != null) {
-				connectionManager.rollbackTransaction(connection);
-			}
 			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.endTransaction(connection);
-				connectionManager.close(connection);
-			}
 		}
 	}
 	
 	public Person update(Person person) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			connectionManager.beginTransaction(connection);
-			
-			PersonDb personDb = domainToDb(person);
-			PersonDb insertedPersonDb = PersonDao.update(personDb, connection);
-			person.setId(insertedPersonDb.getId());
-			
-			List<MovieDirector> directedMovies = getDirectedMovies(person);
-			MovieDirectorDao.deleteByDirector(person.getId(), connection);
-			MovieDirectorDao.insert(directedMovies, connection);
-			
-			List<MovieActor> starredMovies = getStarredMovies(person);
-			MovieActorDao.deleteByActor(person.getId(), connection);
-			MovieActorDao.insert(starredMovies, connection);
-			
-			connectionManager.commitTransaction(connection);
-			return dbToDomain(insertedPersonDb, connection);
-		} catch (MovieAppException e) {
+		try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+			PersonDb dbEntity = personMapper.domainToDb(person);
+
+			PersonDbMapper personDao = sqlSession.getMapper(PersonDbMapper.class);
+			MovieDirectorDbMapper movieDirectorDao = sqlSession.getMapper(MovieDirectorDbMapper.class);
+			MovieActorDbMapper movieActorDao = sqlSession.getMapper(MovieActorDbMapper.class);
+
+			int affectedRows = personDao.updateByPrimaryKey(dbEntity);
+
+			movieDirectorDao.delete(c -> c.where(
+					MovieDirectorDbDynamicSqlSupport.directorId,
+					SqlBuilder.isEqualTo(dbEntity.getId())
+			));
+			movieDirectorDao.insertMultiple(getDirectedMovies(person));
+
+			movieActorDao.delete(c -> c.where(
+					MovieActorDbDynamicSqlSupport.actorId,
+					SqlBuilder.isEqualTo(dbEntity.getId())
+			));
+			movieActorDao.insertMultiple(getStarredMovies(person));
+
+			if (affectedRows == 1) {
+				Person updatedPerson = personMapper.dbToDomain(dbEntity);
+				sqlSession.commit();
+
+				return updatedPerson;
+			}
+			throw new MovieAppException("No affected rows on insert");
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			if (connection != null) {
-				connectionManager.rollbackTransaction(connection);
-			}
 			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.endTransaction(connection);
-				connectionManager.close(connection);
-			}
 		}
 	}
     
     public List<Person> selectAll() {
-    	return selectByCriteria(Collections.emptyList());
+    	return simpleManager.selectAll();
     }
     
 	public Person selectById(int id) {
-		Connection connection = null;
-    	try {
-    		connection = connectionManager.connect();
-    		var personJdbc = PersonDao.selectById(id, connection);
-			if (personJdbc == null) {
-				return null;
-			}
-
-			return dbToDomain(personJdbc, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			return null;
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+		return simpleManager.selectById(id);
 	}
 	
-	public List<Person> selectByCriteria(Collection<Criteria> criterias) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-    		var peopleJdbc = PersonDao.selectByCriteria(criterias, connection);
-    		return dbToDomain(peopleJdbc, connection);
-    	} catch (MovieAppException e) {
-    		logger.error(e.getMessage(), e);
-    		throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+	public List<Person> selectByCriteria(SelectDSLCompleter selectDSLCompleter) {
+		return simpleManager.selectByCriteria(selectDSLCompleter);
 	}
 	
-	public List<Person> selectByCriteria(Criteria criteria) {
-		return selectByCriteria(Collections.singleton(criteria));
-	}
-
 	public List<Person> selectByMovieId(int movieId) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			Set<PersonView> moviePeople = new HashSet<>(
-					VMovieActorDao.selectByCriteria(
-							new Criteria("movie_id", "=", movieId),
-							connection
-					)
-			);
+		try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+			VMovieDirectorDbMapper vMovieDirectorDao = sqlSession.getMapper(VMovieDirectorDbMapper.class);
+			VMovieActorDbMapper vMovieActorDao = sqlSession.getMapper(VMovieActorDbMapper.class);
 
-			moviePeople.addAll(
-					VMovieDirectorDao.selectByCriteria(
-							new Criteria("movie_id", "=", movieId),
-							connection
-					)
-			);
+			List<VMovieDirectorDb> vMovieDirectorDbList = vMovieDirectorDao.select(c -> c.where(
+					VMovieDirectorDbDynamicSqlSupport.movieId,
+					SqlBuilder.isEqualTo(movieId)
+			));
+			List<VMovieActorDb> vMovieActorDbList = vMovieActorDao.select(c -> c.where(
+					VMovieActorDbDynamicSqlSupport.movieId,
+					SqlBuilder.isEqualTo(movieId)
+			));
 
-			Set<PersonDb> people = moviePeople
+			Set<PersonDb> peopleDb = vMovieDirectorDbList
 					.stream()
 					.map(m -> {
 						PersonDb person = new PersonDb();
-						person.setId(m.getPersonId());
+						person.setId(m.getDirectorId());
 						person.setName(m.getName());
 						person.setBirth(m.getBirth());
 						person.setGender(m.getGender());
 						return person;
 					})
 					.collect(Collectors.toSet());
+			peopleDb.addAll(
+					vMovieActorDbList
+							.stream()
+							.map(m -> {
+								PersonDb person = new PersonDb();
+								person.setId(m.getActorId());
+								person.setName(m.getName());
+								person.setBirth(m.getBirth());
+								person.setGender(m.getGender());
+								return person;
+							})
+							.collect(Collectors.toSet())
+			);
 
-			return dbToDomain(people, connection);
+			return personMapper.dbToDomain(peopleDb);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
 		}
 	}
 
 	public boolean delete(int id) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			return PersonDao.delete(id, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			return false;
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+		return simpleManager.delete(id);
 	}
 	
-	private List<Person> dbToDomain(
-		Collection<PersonDb> peopleJdbc,
-		Connection connection
-	) {
-		List<Integer> personIds = peopleJdbc
-				.stream()
-				.map(PersonDb::getId)
-				.toList();
-		
-		List<MovieDirectorView> movieDirectors = VMovieDirectorDao.selectByCriteria(
-				new Criteria("director_id", "in", personIds),
-				connection
-		);
-		List<MovieActorView> movieActors = VMovieActorDao.selectByCriteria(
-				new Criteria("actor_id", "in", personIds),
-				connection
-		);
-		
-		List<Person> people = new ArrayList<>();
-		for (PersonDb personDb : peopleJdbc) {
-			List<MovieDirector> directedMovies = movieDirectors
-					.stream()
-					.filter(md -> md.getPersonId() == personDb.getId())
-					.map(md -> {
-						MovieDirector directedMovie = new MovieDirector();
-						directedMovie.setMovieId(md.getMovieId());
-						directedMovie.setDirectorId(md.getPersonId());
-						return directedMovie;
-					})
-					.toList();
-			List<MovieActor> starredMovies = movieActors
-					.stream()
-					.filter(ma -> ma.getPersonId() == personDb.getId())
-					.map(ma -> {
-						MovieActor starredMovie = new MovieActor();
-						starredMovie.setMovieId(ma.getMovieId());
-						starredMovie.setActorId(ma.getPersonId());
-						starredMovie.setRoleName(ma.getRoleName());
-						starredMovie.setCastOrder(ma.getCastOrder());
-						return starredMovie;
-					})
-					.toList();
-
-			Person person = new Person();
-			person.setId(personDb.getId());
-			person.setName(personDb.getName());
-			person.setBirth(personDb.getBirth().toLocalDate());
-			person.setGender(personDb.getGender());
-			person.setDirectedMovies(directedMovies);
-			person.setStarredMovies(starredMovies);
-			
-			people.add(person);
-		}
-		
-		return people;
-	}
-	
-	private Person dbToDomain(PersonDb personDb, Connection connection) {
-		var people = dbToDomain(Collections.singleton(personDb), connection);
-		if (people.isEmpty()) {
-			return null;
-		}
-		return people.getFirst();
-	}
-	
-	private PersonDb domainToDb(Person person) {
-		PersonDb personDb = new PersonDb();
-		personDb.setId(person.getId());
-		personDb.setName(person.getName());
-		personDb.setBirth(Date.valueOf(person.getBirth()));
-		personDb.setGender(person.getGender());
-		return personDb;
-	}
-	
-	private List<MovieDirector> getDirectedMovies(Person person) {
+	private List<MovieDirectorDb> getDirectedMovies(Person person) {
 		return person.getDirectedMovies()
 				.stream()
 				.map(directedMovie -> {
-					MovieDirector movieDirector = new MovieDirector();
+					MovieDirectorDb movieDirector = new MovieDirectorDb();
 					movieDirector.setMovieId(directedMovie.getMovieId());
 					movieDirector.setDirectorId(person.getId());
 					return movieDirector;
@@ -282,14 +194,14 @@ public class PersonManager {
 				.toList();
 	}
 	
-	private List<MovieActor> getStarredMovies(Person person) {
+	private List<MovieActorDb> getStarredMovies(Person person) {
 		return person.getStarredMovies()
 				.stream()
 				.map(starredMovie -> {
-					MovieActor movieActor = new MovieActor();
+					MovieActorDb movieActor = new MovieActorDb();
 					movieActor.setMovieId(starredMovie.getMovieId());
 					movieActor.setActorId(person.getId());
-					movieActor.setRoleName(starredMovie.getRoleName());
+					movieActor.setRole(starredMovie.getRoleName());
 					movieActor.setCastOrder(starredMovie.getCastOrder());
 					return movieActor;
 				})

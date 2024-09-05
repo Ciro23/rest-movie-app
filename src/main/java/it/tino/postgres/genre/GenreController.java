@@ -1,9 +1,9 @@
 package it.tino.postgres.genre;
 
 
-import it.tino.postgres.ErrorResponse;
+import it.tino.postgres.error.ErrorResponse;
 import it.tino.postgres.MovieApp;
-import it.tino.postgres.database.ConnectionManager;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -17,8 +17,9 @@ public class GenreController {
 
     private final GenreManager genreManager;
 
-    public GenreController() {
-        genreManager = new GenreManager(ConnectionManager.getInstance());
+    @Inject
+    public GenreController(GenreManager genreManager) {
+        this.genreManager = genreManager;
     }
 
     @GET

@@ -1,9 +1,8 @@
 package it.tino.postgres.movie;
 
-import it.tino.postgres.ErrorResponse;
+import it.tino.postgres.error.ErrorResponse;
 import it.tino.postgres.MovieApp;
-import it.tino.postgres.database.ConnectionManager;
-import it.tino.postgres.database.Criteria;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -18,8 +17,9 @@ public class MovieController {
 
     private final MovieManager movieManager;
 
-    public MovieController() {
-        movieManager = new MovieManager(ConnectionManager.getInstance());
+    @Inject
+    public MovieController(MovieManager movieManager) {
+        this.movieManager = movieManager;
     }
 
     @GET

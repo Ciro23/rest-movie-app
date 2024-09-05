@@ -1,119 +1,76 @@
 package it.tino.postgres.review;
 
-import java.sql.Connection;
-import java.util.Collection;
-import java.util.Collections;
+import it.tino.postgres.SimpleManager;
+import it.tino.postgres.mybatis.mapper.ReviewDbMapper;
+import it.tino.postgres.mybatis.model.ReviewDb;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
+
+import java.time.LocalDateTime;
 import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import it.tino.postgres.MovieAppException;
-import it.tino.postgres.database.ConnectionManager;
-import it.tino.postgres.database.Criteria;
-import it.tino.postgres.review.database.ReviewDao;
 
 public class ReviewManager {
 
-	protected static final Logger logger = LogManager.getLogger();
-    
-	private final ConnectionManager connectionManager;
-	
-	public ReviewManager(ConnectionManager connectionManager) {
-		this.connectionManager = connectionManager;
+	private final SimpleManager<Review, ReviewDb, Integer> simpleManager;
+
+	public ReviewManager(SqlSessionFactory sqlSessionFactory, ReviewMapper reviewMapper) {
+		SimpleManager.InsertFunction<ReviewDb> onInsert = (sqlSession, key) -> {
+			ReviewDbMapper dao = sqlSession.getMapper(ReviewDbMapper.class);
+			return dao.insert(key);
+		};
+		SimpleManager.UpdateFunction<ReviewDb> onUpdate = (sqlSession, key) -> {
+			ReviewDbMapper dao = sqlSession.getMapper(ReviewDbMapper.class);
+			return dao.updateByPrimaryKey(key);
+		};
+		SimpleManager.SelectFunction<ReviewDb> onSelect = (sqlSession, key) -> {
+			ReviewDbMapper dao = sqlSession.getMapper(ReviewDbMapper.class);
+			return dao.select(key);
+		};
+		SimpleManager.SelectByIdFunction<ReviewDb, Integer> onSelectById = (sqlSession, key) -> {
+			ReviewDbMapper dao = sqlSession.getMapper(ReviewDbMapper.class);
+			return dao.selectByPrimaryKey(key);
+		};
+		SimpleManager.DeleteFunction<Integer> onDelete = (sqlSession, key) -> {
+			ReviewDbMapper dao = sqlSession.getMapper(ReviewDbMapper.class);
+			return dao.deleteByPrimaryKey(key);
+		};
+		this.simpleManager = new SimpleManager<>(
+				sqlSessionFactory,
+				reviewMapper,
+				onInsert,
+				onUpdate,
+				onSelect,
+				onSelectById,
+				onDelete
+		);
 	}
 
-	public Review insert(Review entity) {
-		Connection connection = null;
-    	try {
-    		connection = connectionManager.connect();
-			return ReviewDao.insert(entity, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+	/**
+	 * The current date time is saved using {@link Review#setCreationDate(LocalDateTime)}
+	 * before insert, even if it already has a value.
+	 */
+	public Review insert(Review review) {
+		review.setCreationDate(LocalDateTime.now());
+		return simpleManager.insert(review);
 	}
 	
-	public Review update(Review entity) {
-		Connection connection = null;
-    	try {
-    		connection = connectionManager.connect();
-			return ReviewDao.update(entity, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+	public Review update(Review review) {
+		return simpleManager.update(review);
 	}
     
     public List<Review> selectAll() {
-    	Connection connection = null;
-    	try {
-    		connection = connectionManager.connect();
-			return ReviewDao.selectByCriteria(Collections.emptyList(), connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
-    }
+		return simpleManager.selectAll();
+	}
     
    	public Review selectById(int id) {
-   		Connection connection = null;
-    	try {
-    		connection = connectionManager.connect();
-			return ReviewDao.selectById(id, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			return null;
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
-   	}
-   	
-   	public List<Review> selectByCriteria(Collection<Criteria> criteria) {
-   		Connection connection = null;
-    	try {
-    		connection = connectionManager.connect();
-			return ReviewDao.selectByCriteria(criteria, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
-    }
-    
-    public List<Review> selectByCriteria(Criteria criteria) {
-    	return selectByCriteria(Collections.singleton(criteria));
-    }
-    
+		return simpleManager.selectById(id);
+	}
+
+    public List<Review> selectByCriteria(SelectDSLCompleter selectDSLCompleter) {
+		return simpleManager.selectByCriteria(selectDSLCompleter);
+	}
+
 	public boolean delete(int id) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			return ReviewDao.delete(id, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			return false;
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+		return simpleManager.delete(id);
 	}
 }

@@ -1,119 +1,73 @@
 package it.tino.postgres.genre;
 
-import java.sql.Connection;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
+import it.tino.postgres.SimpleManager;
+import it.tino.postgres.mybatis.model.GenreDb;
+import it.tino.postgres.mybatis.mapper.GenreDbMapper;
+import jakarta.inject.Inject;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
-import it.tino.postgres.MovieAppException;
-import it.tino.postgres.database.ConnectionManager;
-import it.tino.postgres.database.Criteria;
-import it.tino.postgres.genre.database.GenreDao;
+import java.util.List;
 
 public class GenreManager {
 
-	protected static final Logger logger = LogManager.getLogger();
+	private final SimpleManager<Genre, GenreDb, Integer> simpleManager;
 
-	private final ConnectionManager connectionManager;
-
-	public GenreManager(ConnectionManager connectionManager) {
-		this.connectionManager = connectionManager;
+	public GenreManager(SqlSessionFactory sqlSessionFactory, GenreMapper genreMapper) {
+		SimpleManager.InsertFunction<GenreDb> onInsert = (sqlSession, key) -> {
+			GenreDbMapper dao = sqlSession.getMapper(GenreDbMapper.class);
+			return dao.insert(key);
+		};
+		SimpleManager.UpdateFunction<GenreDb> onUpdate = (sqlSession, key) -> {
+			GenreDbMapper dao = sqlSession.getMapper(GenreDbMapper.class);
+			return dao.updateByPrimaryKey(key);
+		};
+		SimpleManager.SelectFunction<GenreDb> onSelect = (sqlSession, key) -> {
+			GenreDbMapper dao = sqlSession.getMapper(GenreDbMapper.class);
+			return dao.select(key);
+		};
+		SimpleManager.SelectByIdFunction<GenreDb, Integer> onSelectById = (sqlSession, key) -> {
+			GenreDbMapper dao = sqlSession.getMapper(GenreDbMapper.class);
+			return dao.selectByPrimaryKey(key);
+		};
+		SimpleManager.DeleteFunction<Integer> onDelete = (sqlSession, key) -> {
+			GenreDbMapper dao = sqlSession.getMapper(GenreDbMapper.class);
+			return dao.deleteByPrimaryKey(key);
+		};
+		this.simpleManager = new SimpleManager<>(
+				sqlSessionFactory,
+				genreMapper,
+				onInsert,
+				onUpdate,
+				onSelect,
+				onSelectById,
+				onDelete
+		);
 	}
 
-	public Genre insert(Genre entity) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			return GenreDao.insert(entity, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+	public Genre insert(Genre genre) {
+		return simpleManager.insert(genre);
 	}
 
-	public Genre update(Genre entity) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			return GenreDao.update(entity, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+	public Genre update(Genre genre) {
+		return simpleManager.update(genre);
 	}
 
 	public List<Genre> selectAll() {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			return GenreDao.selectByCriteria(Collections.emptyList(), connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+		return simpleManager.selectAll();
 	}
 
 	public Genre selectById(int id) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			return GenreDao.selectById(id, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			return null;
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+		return simpleManager.selectById(id);
 	}
 
-	public List<Genre> selectByCriteria(Collection<Criteria> criteria) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			return GenreDao.selectByCriteria(criteria, connection);
-		} catch (MovieAppException e) {
-			logger.error(e.getMessage(), e);
-			throw new MovieAppException(e);
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
-	}
-
-	public List<Genre> selectByCriteria(Criteria criteria) {
-		return selectByCriteria(Collections.singleton(criteria));
+	public List<Genre> selectByCriteria(SelectDSLCompleter selectDSLCompleter) {
+		return simpleManager.selectByCriteria(selectDSLCompleter);
 	}
 
 	public boolean delete(int id) {
-		Connection connection = null;
-		try {
-			connection = connectionManager.connect();
-			return GenreDao.delete(id, connection);
-		} catch (MovieAppException e) {
-			logger.error(e);
-			return false;
-		} finally {
-			if (connection != null) {
-				connectionManager.close(connection);
-			}
-		}
+		return simpleManager.delete(id);
 	}
 }

@@ -5,9 +5,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>it.tino</groupId>
-  <artifactId>postgres</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>movie_app</name>
+  <artifactId>rest-movie-app</artifactId>
+  <version>1.0</version>
+  <name>rest-movie_app</name>
   <packaging>war</packaging>
 
   <properties>

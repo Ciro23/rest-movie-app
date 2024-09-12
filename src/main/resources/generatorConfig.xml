@@ -13,13 +13,13 @@
         </jdbcConnection>
 
         <!-- Java models package -->
-        <javaModelGenerator targetPackage="it.tino.postgres.mybatis.model" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="it.tino.restmovieapp.mybatis.model" targetProject="src/main/java">
             <property name="enableSubPackages" value="false"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
 
         <!-- Java Mappers (DAOs) package (using Dynamic SQL) -->
-        <javaClientGenerator type="MyBatis3DynamicSql" targetPackage="it.tino.postgres.mybatis.mapper" targetProject="src/main/java">
+        <javaClientGenerator type="MyBatis3DynamicSql" targetPackage="it.tino.restmovieapp.mybatis.mapper" targetProject="src/main/java">
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
 

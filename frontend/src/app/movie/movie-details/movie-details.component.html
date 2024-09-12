@@ -1,0 +1,82 @@
+<div class="d-flex justify-content-between">
+  <app-back-button></app-back-button>
+  <app-action-buttons
+    class="align-self-end"
+    [onEdit]="getOnEdit(movie.id!)"
+    [onDownloadPdf]="getOnDownloadPdf(movie.id!)"
+    [onDelete]="getOnDelete(movie.id!)"></app-action-buttons>
+</div>
+
+<div class="container mt-5 d-flex flex-column gap-3">
+  <div class="row">
+    <!-- Title and Overview Section -->
+    <div class="col-12 d-flex flex-column gap-2">
+      <h1>{{ movie.title }}</h1>
+
+      <div class="d-flex gap-2">
+        <a *ngFor="let genre of genres"
+           routerLink="/genres/{{ genre.id }}"
+           class="rounded bg-secondary px-2 py-1 text-light text-decoration-none">
+          {{ genre.name }}
+        </a>
+      </div>
+
+      <p>{{ movie.overview }}</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Release Date -->
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h5>Release Date</h5>
+        <p>{{ movie.releaseDate | date:'longDate' }}</p>
+      </div>
+    </div>
+
+    <!-- Budget -->
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h5>Budget</h5>
+        <p>{{ movie.budget | currency:'USD':'symbol':'1.0-0' }}</p>
+      </div>
+    </div>
+
+    <!-- Box Office -->
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h5>Box Office</h5>
+        <p *ngIf="movie.boxOffice">
+          {{ movie.boxOffice | currency:'USD':'symbol':'1.0-0' }}
+        </p>
+        <p *ngIf="!movie.boxOffice">N/A</p>
+      </div>
+    </div>
+
+    <!-- Runtime -->
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h5>Runtime</h5>
+        <p>{{ formatRuntime(movie.runtime) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <p>
+      <strong>Directed by: </strong>
+      <ng-container *ngFor="let director of directors; let isLast = last">
+        <a [routerLink]="['/people', director.id]">{{ director.name }}</a>{{ isLast ? '' : ', ' }}
+      </ng-container>
+    </p>
+    <p>
+      <strong>Starring: </strong>
+      <ng-container *ngFor="let actor of actors; let isLast = last">
+        <a [routerLink]="['/people', actor.id]">{{ actor.name }}</a>{{ isLast ? '' : ', ' }}
+      </ng-container>
+    </p>
+  </div>
+
+</div>

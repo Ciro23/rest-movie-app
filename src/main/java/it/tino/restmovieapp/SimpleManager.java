@@ -50,11 +50,11 @@ public class SimpleManager<D, E, ID> {
 
     public D insert(D entity) {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-            E dbEntity = objectMapper.domainToDb(entity);
+            E dbEntity = objectMapper.domainToTarget(entity);
             int affectedRows = onInsert.apply(sqlSession, dbEntity);
 
             if (affectedRows == 1) {
-                D domainEntity = objectMapper.dbToDomain(dbEntity);
+                D domainEntity = objectMapper.sourceToDomain(dbEntity);
                 sqlSession.commit();
 
                 return domainEntity;
@@ -68,11 +68,11 @@ public class SimpleManager<D, E, ID> {
 
     public D update(D entity) {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-            E dbEntity = objectMapper.domainToDb(entity);
+            E dbEntity = objectMapper.domainToTarget(entity);
             int affectedRows = onUpdate.apply(sqlSession, dbEntity);
 
             if (affectedRows == 1) {
-                D domainEntity = objectMapper.dbToDomain(dbEntity);
+                D domainEntity = objectMapper.sourceToDomain(dbEntity);
                 sqlSession.commit();
 
                 return domainEntity;
@@ -87,7 +87,7 @@ public class SimpleManager<D, E, ID> {
     public List<D> selectAll() {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             List<E> dbEntities = onSelect.apply(sqlSession, SelectDSLCompleter.allRows());
-            return objectMapper.dbToDomain(dbEntities);
+            return objectMapper.sourceToDomain(dbEntities);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new MovieAppException(e);
@@ -97,7 +97,7 @@ public class SimpleManager<D, E, ID> {
     public D selectById(ID id) {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             Optional<E> optionalReviewDb = onSelectById.apply(sqlSession, id);
-            return optionalReviewDb.map(objectMapper::dbToDomain).orElse(null);
+            return optionalReviewDb.map(objectMapper::sourceToDomain).orElse(null);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new MovieAppException(e);
@@ -107,7 +107,7 @@ public class SimpleManager<D, E, ID> {
     public List<D> selectByCriteria(SelectDSLCompleter selectDSLCompleter) {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             List<E> dbEntities = onSelect.apply(sqlSession, selectDSLCompleter);
-            return objectMapper.dbToDomain(dbEntities);
+            return objectMapper.sourceToDomain(dbEntities);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new MovieAppException(e);

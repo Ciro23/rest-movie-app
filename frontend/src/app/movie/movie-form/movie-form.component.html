@@ -1,0 +1,131 @@
+<app-back-button></app-back-button>
+
+<h2 *ngIf="movieId" class="text-center">Edit movie</h2>
+<h2 *ngIf="!movieId" class="text-center">Add a new movie</h2>
+
+<form
+  class="d-flex flex-column w-50 m-auto px-5 mt-4 gap-4"
+  (ngSubmit)="save(form)"
+  #form="ngForm">
+
+  <div class="d-flex flex-column gap-3">
+    <label class="d-flex flex-column">
+      Title*
+      <input
+        [(ngModel)]="movieForm.title"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['title']?.invalid}"
+        class="form-control"
+        name="title"
+        type="text"
+        minlength="4"
+        required>
+    </label>
+
+    <label class="d-flex flex-column">
+      Directors*
+      <app-autocomplete-field
+        [isInvalid]="form.submitted && (!movieForm.directors || movieForm.directors?.length == 0)"
+        [placeholder]="'Search by name'"
+        [allowMultipleSelections]="true"
+        [getDisplayValue]="getPersonName"
+        [onSearch]="searchPeopleByName"
+        [selectedItems]="movieForm.directors ?? []"
+        (onSelectedItems)="onSelectDirectors($event)"></app-autocomplete-field>
+    </label>
+
+    <label class="d-flex flex-column">
+      Actors*
+      <app-autocomplete-field
+        [isInvalid]="form.submitted && (!movieForm.actors || movieForm.actors?.length == 0)"
+        [placeholder]="'Search by name'"
+        [allowMultipleSelections]="true"
+        [getDisplayValue]="getPersonName"
+        [onSearch]="searchPeopleByName"
+        [selectedItems]="movieForm.actors ?? []"
+        (onSelectedItems)="onSelectActors($event)"></app-autocomplete-field>
+    </label>
+
+    <label class="d-flex flex-column">
+      Genres*
+      <app-autocomplete-field
+        [isInvalid]="form.submitted && (!movieForm.genres || movieForm.genres?.length == 0)"
+        [placeholder]="'Search by name'"
+        [allowMultipleSelections]="true"
+        [getDisplayValue]="getGenreName"
+        [onSearch]="searchGenreByName"
+        [selectedItems]="movieForm.genres ?? []"
+        [defaultResults]="allGenres"
+        (onSelectedItems)="onSelectedGenresChange($event)"></app-autocomplete-field>
+    </label>
+
+    <div class="d-flex gap-3">
+      <label class="d-flex flex-column flex-grow-1">
+        Budget*
+        <input
+          [(ngModel)]="movieForm.budget"
+          [ngClass]="{'is-invalid': form.submitted && form.controls['budget']?.invalid}"
+          class="form-control"
+          name="budget"
+          type="number"
+          min="0"
+          step="1000"
+          required>
+      </label>
+
+      <label class="d-flex flex-column flex-grow-1">
+        Box office
+        <input
+          [(ngModel)]="movieForm.boxOffice"
+          class="form-control"
+          name="box office"
+          min="0"
+          step="1000"
+          type="number">
+      </label>
+    </div>
+
+    <div class="d-flex gap-3">
+      <label class="d-flex flex-column flex-grow-1 w-100">
+        Release date*
+        <input
+          [(ngModel)]="releaseDate"
+          [ngClass]="{'is-invalid': form.submitted && form.controls['release date']?.invalid}"
+          class="form-control"
+          name="release date"
+          type="date"
+          required>
+      </label>
+
+      <label class="d-flex flex-column flex-grow-1 w-100">
+        Runtime*
+        <input
+          [(ngModel)]="movieForm.runtime"
+          [ngClass]="{'is-invalid': form.submitted && form.controls['runtime']?.invalid}"
+          class="form-control"
+          name="runtime"
+          type="number"
+          min="0"
+          step="5"
+          required>
+      </label>
+    </div>
+  </div>
+
+  <label class="d-flex flex-column">
+    Overview
+    <textarea
+      [(ngModel)]="movieForm.overview"
+      class="form-control"
+      name="overview"
+      type="text"
+      rows="7"></textarea>
+  </label>
+
+  <app-save-and-cancel-buttons></app-save-and-cancel-buttons>
+</form>
+
+<ul *ngIf="errorMessages.length !== 0" class="w-75 m-auto alert alert-danger mt-4">
+  <li *ngFor="let errorMessage of errorMessages" class="ms-4">
+    {{ errorMessage }}
+  </li>
+</ul>

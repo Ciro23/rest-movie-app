@@ -1,0 +1,11 @@
+<app-table
+  [rows]="reviews"
+  [fields]="fields"
+  [sortedField]="fields[2]"
+  [sortOrder]="'desc'"
+  [onView]="view"
+  [onCreateNew]="createNew"
+  [onEdit]="edit"
+  [onDelete]="delete"
+  [onDownloadPdf]="downloadPdf"
+  [onDownloadXlsx]="downloadXlsx"></app-table>

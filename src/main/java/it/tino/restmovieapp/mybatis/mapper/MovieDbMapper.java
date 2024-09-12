@@ -34,20 +34,20 @@ import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 
 @Mapper
 public interface MovieDbMapper extends CommonCountMapper, CommonDeleteMapper, CommonUpdateMapper {
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440841792+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260848515+02:00", comments="Source Table: movies")
     BasicColumn[] selectList = BasicColumn.columnList(id, title, releaseDate, budget, boxOffice, runtime, overview);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440268886+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260299443+02:00", comments="Source Table: movies")
     @InsertProvider(type=SqlProviderAdapter.class, method="insert")
     @Options(useGeneratedKeys=true,keyProperty="row.id")
     int insert(InsertStatementProvider<MovieDb> insertStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440333937+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260358292+02:00", comments="Source Table: movies")
     @InsertProvider(type=SqlProviderAdapter.class, method="insertMultipleWithGeneratedKeys")
     @Options(useGeneratedKeys=true,keyProperty="records.id")
     int insertMultiple(@Param("insertStatement") String insertStatement, @Param("records") List<MovieDb> records);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440402334+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260424946+02:00", comments="Source Table: movies")
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @Results(id="MovieDbResult", value = {
         @Result(column="id", property="id", jdbcType=JdbcType.INTEGER, id=true),
@@ -60,29 +60,29 @@ public interface MovieDbMapper extends CommonCountMapper, CommonDeleteMapper, Co
     })
     List<MovieDb> selectMany(SelectStatementProvider selectStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440489126+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260508332+02:00", comments="Source Table: movies")
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @ResultMap("MovieDbResult")
     Optional<MovieDb> selectOne(SelectStatementProvider selectStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.44053447+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260549358+02:00", comments="Source Table: movies")
     default long count(CountDSLCompleter completer) {
         return MyBatis3Utils.countFrom(this::count, movieDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.44057205+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260583371+02:00", comments="Source Table: movies")
     default int delete(DeleteDSLCompleter completer) {
         return MyBatis3Utils.deleteFrom(this::delete, movieDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440623476+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260617875+02:00", comments="Source Table: movies")
     default int deleteByPrimaryKey(Integer id_) {
         return delete(c -> 
             c.where(id, isEqualTo(id_))
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440655806+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.26064717+02:00", comments="Source Table: movies")
     default int insert(MovieDb row) {
         return MyBatis3Utils.insert(this::insert, row, movieDb, c ->
             c.map(title).toProperty("title")
@@ -94,7 +94,7 @@ public interface MovieDbMapper extends CommonCountMapper, CommonDeleteMapper, Co
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440698215+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260691232+02:00", comments="Source Table: movies")
     default int insertMultiple(Collection<MovieDb> records) {
         return MyBatis3Utils.insertMultipleWithGeneratedKeys(this::insertMultiple, records, movieDb, c ->
             c.map(title).toProperty("title")
@@ -106,7 +106,7 @@ public interface MovieDbMapper extends CommonCountMapper, CommonDeleteMapper, Co
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440752997+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260748579+02:00", comments="Source Table: movies")
     default int insertSelective(MovieDb row) {
         return MyBatis3Utils.insert(this::insert, row, movieDb, c ->
             c.map(title).toPropertyWhenPresent("title", row::getTitle)
@@ -118,34 +118,34 @@ public interface MovieDbMapper extends CommonCountMapper, CommonDeleteMapper, Co
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440875735+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260887537+02:00", comments="Source Table: movies")
     default Optional<MovieDb> selectOne(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectOne(this::selectOne, selectList, movieDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440912674+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260924225+02:00", comments="Source Table: movies")
     default List<MovieDb> select(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectList(this::selectMany, selectList, movieDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440946026+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260960803+02:00", comments="Source Table: movies")
     default List<MovieDb> selectDistinct(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectDistinct(this::selectMany, selectList, movieDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.440980961+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.260988806+02:00", comments="Source Table: movies")
     default Optional<MovieDb> selectByPrimaryKey(Integer id_) {
         return selectOne(c ->
             c.where(id, isEqualTo(id_))
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.441017228+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.261023139+02:00", comments="Source Table: movies")
     default int update(UpdateDSLCompleter completer) {
         return MyBatis3Utils.update(this::update, movieDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.441059357+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.261066009+02:00", comments="Source Table: movies")
     static UpdateDSL<UpdateModel> updateAllColumns(MovieDb row, UpdateDSL<UpdateModel> dsl) {
         return dsl.set(title).equalTo(row::getTitle)
                 .set(releaseDate).equalTo(row::getReleaseDate)
@@ -155,7 +155,7 @@ public interface MovieDbMapper extends CommonCountMapper, CommonDeleteMapper, Co
                 .set(overview).equalTo(row::getOverview);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.441127834+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.261134477+02:00", comments="Source Table: movies")
     static UpdateDSL<UpdateModel> updateSelectiveColumns(MovieDb row, UpdateDSL<UpdateModel> dsl) {
         return dsl.set(title).equalToWhenPresent(row::getTitle)
                 .set(releaseDate).equalToWhenPresent(row::getReleaseDate)
@@ -165,7 +165,7 @@ public interface MovieDbMapper extends CommonCountMapper, CommonDeleteMapper, Co
                 .set(overview).equalToWhenPresent(row::getOverview);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.441211339+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.261201612+02:00", comments="Source Table: movies")
     default int updateByPrimaryKey(MovieDb row) {
         return update(c ->
             c.set(title).equalTo(row::getTitle)
@@ -178,7 +178,7 @@ public interface MovieDbMapper extends CommonCountMapper, CommonDeleteMapper, Co
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.441286299+02:00", comments="Source Table: movies")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.261262936+02:00", comments="Source Table: movies")
     default int updateByPrimaryKeySelective(MovieDb row) {
         return update(c ->
             c.set(title).equalToWhenPresent(row::getTitle)

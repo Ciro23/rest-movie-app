@@ -48,7 +48,9 @@ create table movies_genres (
 create table users (
     id serial primary key,
     username varchar(32) not null,
-    password varchar(128) not null
+    email varchar(254) not null,
+    password varchar(128) not null,
+    unique (email)
 );
 
 create table reviews (
@@ -57,6 +59,6 @@ create table reviews (
     user_id int references users(id) on delete cascade,
     creation_date timestamp default now(),
     vote real not null check (vote >= 0 and vote <= 10),
-    review text not null default '',
+    review text,
     unique (movie_id, user_id)
 );

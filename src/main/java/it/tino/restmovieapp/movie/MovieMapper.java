@@ -15,10 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.mybatis.dynamic.sql.SqlBuilder;
 
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class MovieMapper implements ObjectMapper<Movie, MovieDb> {
 
@@ -30,11 +27,15 @@ public class MovieMapper implements ObjectMapper<Movie, MovieDb> {
     }
 
     @Override
-    public List<Movie> dbToDomain(Collection<MovieDb> dbEntities) {
-        List<Integer> movieIds = dbEntities
+    public List<Movie> sourceToDomain(Collection<MovieDb> source) {
+        List<Integer> movieIds = source
                 .stream()
                 .map(MovieDb::getId)
                 .toList();
+
+        if (movieIds.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         List<VMovieDirectorDb> vMovieDirectorDbList;
         List<VMovieActorDb> vMovieActorDbList;
@@ -60,16 +61,11 @@ public class MovieMapper implements ObjectMapper<Movie, MovieDb> {
         }
 
         List<Movie> movies = new ArrayList<>();
-        for (MovieDb movieDb : dbEntities) {
-            List<MovieDirector> directors = vMovieDirectorDbList
+        for (MovieDb movieDb : source) {
+            List<Integer> directors = vMovieDirectorDbList
                     .stream()
                     .filter(md -> Objects.equals(md.getMovieId(), movieDb.getId()))
-                    .map(md -> {
-                        MovieDirector directedMovie = new MovieDirector();
-                        directedMovie.setMovieId(md.getMovieId());
-                        directedMovie.setDirectorId(md.getDirectorId());
-                        return directedMovie;
-                    })
+                    .map(VMovieDirectorDb::getDirectorId)
                     .toList();
             List<MovieActor> actors = vMovieActorDbList
                     .stream()
@@ -83,15 +79,10 @@ public class MovieMapper implements ObjectMapper<Movie, MovieDb> {
                         return starredMovie;
                     })
                     .toList();
-            List<MovieGenre> genres = vMovieGenreDbList
+            List<Integer> genres = vMovieGenreDbList
                     .stream()
                     .filter(mg -> Objects.equals(mg.getMovieId(), movieDb.getId()))
-                    .map(mg -> {
-                        MovieGenre movieGenre = new MovieGenre();
-                        movieGenre.setMovieId(mg.getMovieId());
-                        movieGenre.setGenreId(mg.getGenreId());
-                        return movieGenre;
-                    })
+                    .map(VMovieGenreDb::getGenreId)
                     .toList();
 
             Movie movie = new Movie();
@@ -102,8 +93,8 @@ public class MovieMapper implements ObjectMapper<Movie, MovieDb> {
             movie.setBoxOffice(movieDb.getBoxOffice());
             movie.setRuntime(movieDb.getRuntime());
             movie.setOverview(movieDb.getOverview());
-            movie.setGenres(genres);
-            movie.setDirectors(directors);
+            movie.setGenreIds(genres);
+            movie.setDirectorIds(directors);
             movie.setActors(actors);
 
             movies.add(movie);
@@ -113,7 +104,7 @@ public class MovieMapper implements ObjectMapper<Movie, MovieDb> {
     }
 
     @Override
-    public List<MovieDb> domainToDb(Collection<Movie> domainEntities) {
+    public List<MovieDb> domainToTarget(Collection<Movie> domainEntities) {
         List<MovieDb> moviesDb = new ArrayList<>();
         for (Movie domainEntity : domainEntities) {
             MovieDb movieDb = new MovieDb();

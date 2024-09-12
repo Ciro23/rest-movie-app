@@ -60,7 +60,7 @@ public class PersonManager {
 
 	public Person insert(Person person) {
 		try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-			PersonDb dbEntity = personMapper.domainToDb(person);
+			PersonDb dbEntity = personMapper.domainToTarget(person);
 
 			PersonDbMapper personDao = sqlSession.getMapper(PersonDbMapper.class);
 			MovieDirectorDbMapper movieDirectorDao = sqlSession.getMapper(MovieDirectorDbMapper.class);
@@ -69,12 +69,19 @@ public class PersonManager {
 			int affectedRows = personDao.insert(dbEntity);
 			person.setId(dbEntity.getId());
 
-			movieDirectorDao.insertMultiple(getDirectedMovies(person));
-			movieActorDao.insertMultiple(getStarredMovies(person));
+			List<MovieDirectorDb> directedMovies = getDirectedMovies(person);
+			if (!directedMovies.isEmpty()) {
+				movieDirectorDao.insertMultiple(directedMovies);
+			}
+
+			List<MovieActorDb> starredMovies = getStarredMovies(person);
+			if (!starredMovies.isEmpty()) {
+				movieActorDao.insertMultiple(starredMovies);
+			}
 
 			if (affectedRows == 1) {
 				sqlSession.commit();
-                return personMapper.dbToDomain(dbEntity);
+                return personMapper.sourceToDomain(dbEntity);
 			}
 			throw new MovieAppException("No affected rows on insert");
 		} catch (Exception e) {
@@ -85,7 +92,7 @@ public class PersonManager {
 	
 	public Person update(Person person) {
 		try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-			PersonDb dbEntity = personMapper.domainToDb(person);
+			PersonDb dbEntity = personMapper.domainToTarget(person);
 
 			PersonDbMapper personDao = sqlSession.getMapper(PersonDbMapper.class);
 			MovieDirectorDbMapper movieDirectorDao = sqlSession.getMapper(MovieDirectorDbMapper.class);
@@ -97,17 +104,23 @@ public class PersonManager {
 					MovieDirectorDbDynamicSqlSupport.directorId,
 					SqlBuilder.isEqualTo(dbEntity.getId())
 			));
-			movieDirectorDao.insertMultiple(getDirectedMovies(person));
+			List<MovieDirectorDb> directedMovies = getDirectedMovies(person);
+			if (!directedMovies.isEmpty()) {
+				movieDirectorDao.insertMultiple(directedMovies);
+			}
 
 			movieActorDao.delete(c -> c.where(
 					MovieActorDbDynamicSqlSupport.actorId,
 					SqlBuilder.isEqualTo(dbEntity.getId())
 			));
-			movieActorDao.insertMultiple(getStarredMovies(person));
+			List<MovieActorDb> starredMovies = getStarredMovies(person);
+			if (!starredMovies.isEmpty()) {
+				movieActorDao.insertMultiple(starredMovies);
+			}
 
 			if (affectedRows == 1) {
 				sqlSession.commit();
-                return personMapper.dbToDomain(dbEntity);
+                return personMapper.sourceToDomain(dbEntity);
 			}
 			throw new MovieAppException("No affected rows on insert");
 		} catch (Exception e) {
@@ -167,7 +180,7 @@ public class PersonManager {
 							.collect(Collectors.toSet())
 			);
 
-			return personMapper.dbToDomain(peopleDb);
+			return personMapper.sourceToDomain(peopleDb);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new MovieAppException(e);

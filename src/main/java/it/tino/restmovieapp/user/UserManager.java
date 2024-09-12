@@ -1,5 +1,6 @@
 package it.tino.restmovieapp.user;
 
+import it.tino.restmovieapp.PasswordEncryption;
 import it.tino.restmovieapp.SimpleManager;
 import it.tino.restmovieapp.mybatis.mapper.UserDbMapper;
 import it.tino.restmovieapp.mybatis.model.UserDb;
@@ -45,10 +46,21 @@ public class UserManager {
 	}
 
 	public User insert(User user) {
+		String encryptedPassword = PasswordEncryption.hashPassword(user.getPassword());
+		user.setPassword(encryptedPassword);
 		return simpleManager.insert(user);
 	}
 	
 	public User update(User user) {
+		// To facilitate the update of users, without the need to retype
+		// the password everytime, the password only gets updated if it's present.
+		if (user.getPassword() == null) {
+			User existingUser = selectById(user.getId());
+			user.setPassword(existingUser.getPassword());
+		} else {
+			String encryptedPassword = PasswordEncryption.hashPassword(user.getPassword());
+			user.setPassword(encryptedPassword);
+		}
 		return simpleManager.update(user);
 	}
 

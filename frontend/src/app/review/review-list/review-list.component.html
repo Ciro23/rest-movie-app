@@ -1,0 +1,97 @@
+<div>
+  <h2 class="text-center">List of reviews</h2>
+
+  <form
+    (ngSubmit)="search()"
+    class="d-flex flex-wrap justify-content-center">
+
+    <div class="d-flex flex-column gap-3 w-50" style="max-width: 75%">
+      <div class="d-flex flex-column gap-2 mb-3">
+        <label class="d-flex flex-column flex-grow-1">
+          Movie
+          <app-autocomplete-field
+            [allowMultipleSelections]="true"
+            [placeholder]="'Search by title'"
+            [getDisplayValue]="getMovieTitle"
+            [selectedItems]="selectedMovies"
+            [onSearch]="searchMoviesByTitle"
+            (onSelectedItems)="onSelectMovies($event)"></app-autocomplete-field>
+        </label>
+
+        <label class="d-flex flex-column flex-grow-1">
+          User
+          <app-autocomplete-field
+            [allowMultipleSelections]="true"
+            [placeholder]="'Search by username'"
+            [selectedItems]="selectedUsers"
+            [getDisplayValue]="getUserUsername"
+            [onSearch]="searchUsersByUsername"
+            (onSelectedItems)="onSelectUsers($event)"></app-autocomplete-field>
+        </label>
+      </div>
+
+      <div class="d-flex gap-3">
+        <div class="border position-relative p-3 flex-grow-1 w-100">
+          <p class="text-center position-absolute top-0 start-50 translate-middle bg-white px-2">
+            Creation date
+          </p>
+
+          <label class="d-flex flex-column">
+            From
+            <input
+              [(ngModel)]="searchModel.creationDateStart"
+              name="creation-date-from"
+              type="date"
+              class="form-control">
+          </label>
+
+          <label class="d-flex flex-column">
+            To
+            <input
+              [(ngModel)]="searchModel.creationDateEnd"
+              name="creation-date-to"
+              type="date"
+              class="form-control">
+          </label>
+        </div>
+
+        <div class="border position-relative p-3 flex-grow-1 w-100">
+          <p class="text-center position-absolute top-0 start-50 translate-middle bg-white px-2">
+            Vote
+          </p>
+
+          <label class="d-flex flex-column">
+            From
+            <input
+              [(ngModel)]="searchModel.voteStart"
+              name="vote-from"
+              type="number"
+              min="0"
+              max="10"
+              class="form-control">
+          </label>
+
+          <label class="d-flex flex-column">
+            To
+            <input
+              [(ngModel)]="searchModel.voteEnd"
+              name="vote-to"
+              type="number"
+              min="0"
+              max="10"
+              class="form-control">
+          </label>
+        </div>
+      </div>
+
+      <app-search-and-reset-buttons
+        [filterOn]="filterOn"
+        [resetFilter]="resetFilter"></app-search-and-reset-buttons>
+    </div>
+
+  </form>
+
+  <app-review-table
+    [reviews]="reviews"
+    [searchModel]="searchModel"></app-review-table>
+</div>

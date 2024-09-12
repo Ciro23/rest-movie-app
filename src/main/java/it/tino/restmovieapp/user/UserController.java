@@ -1,31 +1,64 @@
 package it.tino.restmovieapp.user;
 
 
-import it.tino.restmovieapp.error.ErrorResponse;
 import it.tino.restmovieapp.MovieApp;
+import it.tino.restmovieapp.error.ErrorResponse;
+import it.tino.restmovieapp.export.PdfGenerator;
+import it.tino.restmovieapp.export.XlsxGenerator;
+import it.tino.restmovieapp.mybatis.mapper.ReviewDbDynamicSqlSupport;
+import it.tino.restmovieapp.mybatis.mapper.UserDbDynamicSqlSupport;
+import it.tino.restmovieapp.review.Review;
+import it.tino.restmovieapp.review.ReviewJson;
+import it.tino.restmovieapp.review.ReviewJsonMapper;
+import it.tino.restmovieapp.review.ReviewManager;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import net.sf.jasperreports.engine.JRException;
+import org.mybatis.dynamic.sql.SqlBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Path("users")
 public class UserController {
 
     private final UserManager userManager;
+    private final ReviewManager reviewManager;
+    private final ReviewJsonMapper reviewJsonMapper;
 
     @Inject
-    public UserController(UserManager userManager) {
+    public UserController(UserManager userManager, ReviewManager reviewManager, ReviewJsonMapper reviewJsonMapper) {
         this.userManager = userManager;
+        this.reviewManager = reviewManager;
+        this.reviewJsonMapper = reviewJsonMapper;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<User> getAll() {
-        return userManager.selectAll();
+    public List<User> getAll(
+        @QueryParam("username") String username,
+        @QueryParam("email") String email
+    ) {
+       return filterUsers(username, email);
+    }
+
+    @GET
+    @Path("xlsx")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response exportUsersXlsx(
+        @QueryParam("username") String username,
+        @QueryParam("email") String email
+    ) {
+        List<User> users = filterUsers(username, email);
+        byte[] excelContent = XlsxGenerator.generateXlsx(users, "Users");
+
+        return Response.ok(excelContent)
+                .header("Content-Disposition", "attachment; filename=users.xlsx")
+                .build();
     }
 
     @GET
@@ -37,6 +70,31 @@ public class UserController {
             return userNotFound(id, uriInfo);
         }
         return Response.ok(user).build();
+    }
+
+    @GET
+    @Path("{userId}/reviews")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ReviewJson> getReviewsByUserId(@PathParam("userId") int userId) {
+        List<Review> reviews = reviewManager.selectByCriteria(c -> c
+                .where(ReviewDbDynamicSqlSupport.userId, SqlBuilder.isEqualTo(userId))
+        );
+        return reviewJsonMapper.domainToTarget(reviews);
+    }
+
+    @GET
+    @Path("{id}/pdf")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response exportUserPdf(@PathParam("id") int id, @Context UriInfo uriInfo) throws JRException {
+        User user = userManager.selectById(id);
+        if (user == null) {
+            return userNotFound(id, uriInfo);
+        }
+
+        byte[] pdfContent = PdfGenerator.generateUserPdf(user);
+        return Response.ok(pdfContent)
+                .header("Content-Disposition", "attachment; filename=" + user.getUsername() + ".pdf")
+                .build();
     }
 
     @POST
@@ -87,5 +145,35 @@ public class UserController {
                 .status(Response.Status.NOT_FOUND)
                 .entity(errorResponse)
                 .build();
+    }
+
+    private List<User> filterUsers(String username, String email) {
+        if (username == null && email == null) {
+            return userManager.selectAll();
+        }
+
+        List<User> filteredUsers = new ArrayList<>();
+        if (username != null) {
+            List<User> users = userManager.selectByCriteria(c -> c.where(
+                    UserDbDynamicSqlSupport.username,
+                    SqlBuilder.isLikeCaseInsensitive("%" + username + "%")
+            ));
+            filteredUsers.addAll(users);
+        }
+
+        if (email != null) {
+            List<User> users = userManager.selectByCriteria(c -> c.where(
+                    UserDbDynamicSqlSupport.email,
+                    SqlBuilder.isLikeCaseInsensitive("%" + email + "%")
+            ));
+
+            if (filteredUsers.isEmpty()) {
+                filteredUsers.addAll(users);
+            } else {
+                filteredUsers.retainAll(users);
+            }
+        }
+
+        return filteredUsers;
     }
 }

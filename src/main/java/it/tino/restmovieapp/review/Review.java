@@ -2,11 +2,13 @@ package it.tino.restmovieapp.review;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Objects;
 
-public class Review {
+public class Review implements Comparable<Review> {
     
 	private int id;
     private int movieId;
@@ -19,7 +21,7 @@ public class Review {
     private float vote;
     
     @Nullable
-    private String review;
+    private String content;
     
     public int getId() {
 		return id;
@@ -63,15 +65,15 @@ public class Review {
     }
 
     @Nullable
-    public String getReview() {
-        return review;
+    public String getContent() {
+        return content;
     }
 
-    public void setReview(@Nullable String review) {
-    	if (review != null && review.isBlank()) {
-    		review = null;
+    public void setContent(@Nullable String content) {
+    	if (content != null && content.isBlank()) {
+    		content = null;
     	}
-        this.review = review;
+        this.content = content;
     }
 
     @Override
@@ -82,7 +84,7 @@ public class Review {
         builder.append("  \"userId\": \"").append(userId).append("\",\n");
         builder.append("  \"creationDate\": \"").append(creationDate).append("\",\n");
         builder.append("  \"vote\": \"").append(vote).append("\",\n");
-        builder.append("  \"review\": ").append(review).append(",\n");
+        builder.append("  \"review\": ").append(content).append(",\n");
         builder.append("}");
         return builder.toString();
     }
@@ -103,4 +105,11 @@ public class Review {
 		Review other = (Review) obj;
 		return id == other.id;
 	}
+
+    @Override
+    public int compareTo(@NotNull Review other) {
+        return Comparator.comparing(Review::getCreationDate)
+                .thenComparing(Review::getId)
+                .compare(this, other);
+    }
 }

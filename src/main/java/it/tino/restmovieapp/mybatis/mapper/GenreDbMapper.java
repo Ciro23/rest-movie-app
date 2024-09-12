@@ -34,20 +34,20 @@ import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 
 @Mapper
 public interface GenreDbMapper extends CommonCountMapper, CommonDeleteMapper, CommonUpdateMapper {
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437224273+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.25721841+02:00", comments="Source Table: genres")
     BasicColumn[] selectList = BasicColumn.columnList(id, name);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.436644324+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.256698633+02:00", comments="Source Table: genres")
     @InsertProvider(type=SqlProviderAdapter.class, method="insert")
     @Options(useGeneratedKeys=true,keyProperty="row.id")
     int insert(InsertStatementProvider<GenreDb> insertStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.436711439+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.256758034+02:00", comments="Source Table: genres")
     @InsertProvider(type=SqlProviderAdapter.class, method="insertMultipleWithGeneratedKeys")
     @Options(useGeneratedKeys=true,keyProperty="records.id")
     int insertMultiple(@Param("insertStatement") String insertStatement, @Param("records") List<GenreDb> records);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.436779866+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.256815691+02:00", comments="Source Table: genres")
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @Results(id="GenreDbResult", value = {
         @Result(column="id", property="id", jdbcType=JdbcType.INTEGER, id=true),
@@ -55,87 +55,87 @@ public interface GenreDbMapper extends CommonCountMapper, CommonDeleteMapper, Co
     })
     List<GenreDb> selectMany(SelectStatementProvider selectStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.436859404+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.256899998+02:00", comments="Source Table: genres")
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @ResultMap("GenreDbResult")
     Optional<GenreDb> selectOne(SelectStatementProvider selectStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.436907233+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.256942527+02:00", comments="Source Table: genres")
     default long count(CountDSLCompleter completer) {
         return MyBatis3Utils.countFrom(this::count, genreDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.436948921+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.256985136+02:00", comments="Source Table: genres")
     default int delete(DeleteDSLCompleter completer) {
         return MyBatis3Utils.deleteFrom(this::delete, genreDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437009914+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257027756+02:00", comments="Source Table: genres")
     default int deleteByPrimaryKey(Integer id_) {
         return delete(c -> 
             c.where(id, isEqualTo(id_))
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.43705066+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257064574+02:00", comments="Source Table: genres")
     default int insert(GenreDb row) {
         return MyBatis3Utils.insert(this::insert, row, genreDb, c ->
             c.map(name).toProperty("name")
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437095133+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257108866+02:00", comments="Source Table: genres")
     default int insertMultiple(Collection<GenreDb> records) {
         return MyBatis3Utils.insertMultipleWithGeneratedKeys(this::insertMultiple, records, genreDb, c ->
             c.map(name).toProperty("name")
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.43715276+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257155654+02:00", comments="Source Table: genres")
     default int insertSelective(GenreDb row) {
         return MyBatis3Utils.insert(this::insert, row, genreDb, c ->
             c.map(name).toPropertyWhenPresent("name", row::getName)
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437262564+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257252774+02:00", comments="Source Table: genres")
     default Optional<GenreDb> selectOne(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectOne(this::selectOne, selectList, genreDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437303811+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257291456+02:00", comments="Source Table: genres")
     default List<GenreDb> select(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectList(this::selectMany, selectList, genreDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437345588+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257330599+02:00", comments="Source Table: genres")
     default List<GenreDb> selectDistinct(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectDistinct(this::selectMany, selectList, genreDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437380253+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257361767+02:00", comments="Source Table: genres")
     default Optional<GenreDb> selectByPrimaryKey(Integer id_) {
         return selectOne(c ->
             c.where(id, isEqualTo(id_))
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437420818+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257419975+02:00", comments="Source Table: genres")
     default int update(UpdateDSLCompleter completer) {
         return MyBatis3Utils.update(this::update, genreDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437478145+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257463546+02:00", comments="Source Table: genres")
     static UpdateDSL<UpdateModel> updateAllColumns(GenreDb row, UpdateDSL<UpdateModel> dsl) {
         return dsl.set(name).equalTo(row::getName);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437533698+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257515503+02:00", comments="Source Table: genres")
     static UpdateDSL<UpdateModel> updateSelectiveColumns(GenreDb row, UpdateDSL<UpdateModel> dsl) {
         return dsl.set(name).equalToWhenPresent(row::getName);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437604089+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257567159+02:00", comments="Source Table: genres")
     default int updateByPrimaryKey(GenreDb row) {
         return update(c ->
             c.set(name).equalTo(row::getName)
@@ -143,7 +143,7 @@ public interface GenreDbMapper extends CommonCountMapper, CommonDeleteMapper, Co
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.437653692+02:00", comments="Source Table: genres")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.257624426+02:00", comments="Source Table: genres")
     default int updateByPrimaryKeySelective(GenreDb row) {
         return update(c ->
             c.set(name).equalToWhenPresent(row::getName)

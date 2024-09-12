@@ -1,0 +1,14 @@
+<div class="d-flex gap-1">
+  <button *ngIf="onView" (click)="onView()" class="btn btn-light">
+    <i class="bi bi-eye"></i>
+  </button>
+  <button *ngIf="onEdit" (click)="onEdit()" class="btn btn-light">
+    <i class="bi bi-pencil"></i>
+  </button>
+  <button *ngIf="onDownloadPdf" (click)="openDownloadPdfConfirmationDialog()" class="btn btn-light">
+    <i class="bi bi-file-earmark-pdf"></i>
+  </button>
+  <button *ngIf="onDelete" (click)="openDeleteConfirmationDialog()" class="btn btn-light">
+    <i class="bi bi-trash"></i>
+  </button>
+</div>

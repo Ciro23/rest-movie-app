@@ -1,16 +1,21 @@
 package it.tino.restmovieapp.genre;
 
 
-import it.tino.restmovieapp.error.ErrorResponse;
 import it.tino.restmovieapp.MovieApp;
+import it.tino.restmovieapp.error.ErrorResponse;
+import it.tino.restmovieapp.export.XlsxGenerator;
+import it.tino.restmovieapp.mybatis.mapper.GenreDbDynamicSqlSupport;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import org.mybatis.dynamic.sql.SqlBuilder;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Path("genres")
 public class GenreController {
@@ -24,8 +29,20 @@ public class GenreController {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Genre> getAll() {
-        return genreManager.selectAll();
+    public Set<Genre> getAll(@QueryParam("name") String name) {
+        return new TreeSet<>(filterGenres(name));
+    }
+
+    @GET
+    @Path("xlsx")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response exportGenres(@QueryParam("name") String name) {
+        Set<Genre> genres = new TreeSet<>(filterGenres(name));
+        byte[] excelContent = XlsxGenerator.generateXlsx(genres, "Genres");
+
+        return Response.ok(excelContent)
+                .header("Content-Disposition", "attachment; filename=genres.xlsx")
+                .build();
     }
 
     @GET
@@ -87,5 +104,16 @@ public class GenreController {
                 .status(Response.Status.NOT_FOUND)
                 .entity(errorResponse)
                 .build();
+    }
+
+    private List<Genre> filterGenres(String name) {
+        if (name == null) {
+            return genreManager.selectAll();
+        }
+
+        return genreManager.selectByCriteria(c -> c.where(
+                GenreDbDynamicSqlSupport.name,
+                SqlBuilder.isLike("%" + name + "%")
+        ));
     }
 }

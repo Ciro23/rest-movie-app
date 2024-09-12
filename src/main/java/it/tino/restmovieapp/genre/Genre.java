@@ -1,8 +1,10 @@
 package it.tino.restmovieapp.genre;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
-public class Genre {
+public class Genre implements Comparable<Genre> {
 
     private int id;
     private String name;
@@ -49,4 +51,9 @@ public class Genre {
 		Genre other = (Genre) obj;
 		return id == other.id;
 	}
+
+    @Override
+    public int compareTo(@NotNull Genre other) {
+        return name.compareTo(other.name);
+    }
 }

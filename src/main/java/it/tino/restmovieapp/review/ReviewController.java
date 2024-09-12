@@ -1,8 +1,10 @@
 package it.tino.restmovieapp.review;
 
 
-import it.tino.restmovieapp.error.ErrorResponse;
+import it.tino.restmovieapp.CollectionsUtility;
 import it.tino.restmovieapp.MovieApp;
+import it.tino.restmovieapp.error.ErrorResponse;
+import it.tino.restmovieapp.export.XlsxGenerator;
 import it.tino.restmovieapp.mybatis.mapper.ReviewDbDynamicSqlSupport;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -10,28 +12,74 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import kotlin.Pair;
 import org.mybatis.dynamic.sql.SqlBuilder;
+import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @Path("reviews")
 public class ReviewController {
 
     private final ReviewManager reviewManager;
+    private final ReviewJsonMapper reviewJsonMapper;
 
     @Inject
-    public ReviewController(ReviewManager reviewManager) {
+    public ReviewController(
+        ReviewManager reviewManager,
+        ReviewJsonMapper reviewJsonMapper
+    ) {
         this.reviewManager = reviewManager;
+        this.reviewJsonMapper = reviewJsonMapper;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Review> getAll(@QueryParam("userId") int userId) {
-        if (userId == 0) {
-            return reviewManager.selectAll();
-        }
+    public List<ReviewJson> getAll(
+        @QueryParam("movieId") List<Integer> movieIds,
+        @QueryParam("userId") List<Integer> userIds,
+        @QueryParam("creationDateStart") String creationDateStart,
+        @QueryParam("creationDateEnd") String creationDateEnd,
+        @QueryParam("voteStart") Float voteStart,
+        @QueryParam("voteEnd") Float voteEnd
+    ) throws ParseException {
+        return filterReviews(
+                movieIds,
+                userIds,
+                creationDateStart,
+                creationDateEnd,
+                voteStart,
+                voteEnd
+        );
+    }
 
-        return reviewManager.selectByCriteria(c -> c.where(ReviewDbDynamicSqlSupport.id, SqlBuilder.isEqualTo(userId)));
+    @GET
+    @Path("xlsx")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response exportGenres(
+        @QueryParam("movieId") List<Integer> movieIds,
+        @QueryParam("userId") List<Integer> userIds,
+        @QueryParam("creationDateStart") String creationDateStart,
+        @QueryParam("creationDateEnd") String creationDateEnd,
+        @QueryParam("voteStart") Float voteStart,
+        @QueryParam("voteEnd") Float voteEnd
+    ) throws ParseException {
+        List<ReviewJson> reviews = filterReviews(
+                movieIds,
+                userIds,
+                creationDateStart,
+                creationDateEnd,
+                voteStart,
+                voteEnd
+        );
+        byte[] excelContent = XlsxGenerator.generateXlsx(reviews, "Reviews");
+
+        return Response.ok(excelContent)
+                .header("Content-Disposition", "attachment; filename=reviews.xlsx")
+                .build();
     }
 
     @GET
@@ -42,7 +90,9 @@ public class ReviewController {
         if (review == null) {
             return reviewNotFound(id, uriInfo);
         }
-        return Response.ok(review).build();
+
+        ReviewJson reviewJson = reviewJsonMapper.domainToTarget(review);
+        return Response.ok(reviewJson).build();
     }
 
     @POST
@@ -57,8 +107,9 @@ public class ReviewController {
         }
 
         Review newReview = reviewManager.insert(review);
+        ReviewJson reviewJson = reviewJsonMapper.domainToTarget(newReview);
         return Response
-                .ok(newReview)
+                .ok(reviewJson)
                 .build();
     }
 
@@ -85,8 +136,9 @@ public class ReviewController {
             updatedReview = reviewManager.update(review);
         }
 
+        ReviewJson reviewJson = reviewJsonMapper.domainToTarget(updatedReview);
         return Response
-                .ok(updatedReview)
+                .ok(reviewJson)
                 .build();
     }
 
@@ -115,8 +167,10 @@ public class ReviewController {
      * @return true if the user already reviewed the movie, false otherwise.
      */
     private boolean hasUserAlreadyReviewed(Review review) {
-        return !reviewManager.selectByCriteria(c -> c.where(ReviewDbDynamicSqlSupport.userId, SqlBuilder.isEqualTo(review.getUserId()))
-                .and(ReviewDbDynamicSqlSupport.movieId, SqlBuilder.isEqualTo(review.getMovieId()))).isEmpty();
+        return !reviewManager.selectByCriteria(c -> c
+                .where(ReviewDbDynamicSqlSupport.userId, SqlBuilder.isEqualTo(review.getUserId()))
+                .and(ReviewDbDynamicSqlSupport.movieId, SqlBuilder.isEqualTo(review.getMovieId()))
+        ).isEmpty();
     }
 
     private Response userAlreadyReviewedMovieResponse(Review review, @Context UriInfo uriInfo) {
@@ -162,5 +216,52 @@ public class ReviewController {
                 .status(Response.Status.NOT_FOUND)
                 .entity(errorResponse)
                 .build();
+    }
+
+    private List<ReviewJson> filterReviews(
+        List<Integer> movieIds,
+        List<Integer> userIds,
+        String creationDateStart,
+        String creationDateEnd,
+        Float voteStart,
+        Float voteEnd
+    ) throws ParseException {
+        if (
+            movieIds.isEmpty()
+            && userIds.isEmpty()
+            && creationDateStart == null
+            && creationDateEnd == null
+            && voteStart == null
+            && voteEnd == null
+        ) {
+            return reviewJsonMapper.domainToTarget(reviewManager.selectAll());
+        }
+
+        List<Review> filteredReviews = new ArrayList<>();
+        Function<SelectDSLCompleter, List<Review>> onSelect = reviewManager::selectByCriteria;
+
+        if (!movieIds.isEmpty()) {
+            List<Review> reviews = reviewManager.selectByCriteria(c -> c
+                    .where(ReviewDbDynamicSqlSupport.movieId, SqlBuilder.isIn(movieIds))
+            );
+            CollectionsUtility.addOrRetain(filteredReviews, reviews);
+        }
+
+        if (!userIds.isEmpty()) {
+            List<Review> reviews = reviewManager.selectByCriteria(c -> c
+                    .where(ReviewDbDynamicSqlSupport.userId, SqlBuilder.isIn(userIds))
+            );
+            CollectionsUtility.addOrRetain(filteredReviews, reviews);
+        }
+
+        Pair<String, String> creationDateRange = new Pair<>(creationDateStart, creationDateEnd);
+        CollectionsUtility.filterByStringDateRange(ReviewDbDynamicSqlSupport.creationDate, creationDateRange, onSelect)
+                .ifPresent(values -> CollectionsUtility.addOrRetain(filteredReviews, values));
+
+        Pair<Float, Float> voteRange = new Pair<>(voteStart, voteEnd);
+        CollectionsUtility.filterByRange(ReviewDbDynamicSqlSupport.vote, voteRange, onSelect)
+                .ifPresent(values -> CollectionsUtility.addOrRetain(filteredReviews, values));
+
+        return reviewJsonMapper.domainToTarget(filteredReviews);
     }
 }

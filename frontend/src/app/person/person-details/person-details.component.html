@@ -1,0 +1,54 @@
+<div class="d-flex justify-content-between">
+  <app-back-button></app-back-button>
+  <app-action-buttons
+    class="align-self-end"
+    [onEdit]="getOnEdit(person.id)"
+    [onDownloadPdf]="getOnDownloadPdf(person.id)"
+    [onDelete]="getOnDelete(person.id)">
+  </app-action-buttons>
+</div>
+
+<div class="container mt-5 d-flex flex-column gap-3">
+  <div class="row">
+    <div class="col-12 d-flex flex-column gap-2">
+      <h1>{{ person.name }}</h1>
+
+      <div class="d-flex gap-2">
+        <p>
+          {{ person.gender === 'MALE' ? 'Male' : 'Female' }},
+          {{ person.birth | date:'longDate'  }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Directed Movies -->
+  <div class="row" *ngIf="directedMovies.length > 0">
+    <div class="col-12">
+      <h3>Directed Movies</h3>
+      <ul>
+        <li *ngFor="let movie of directedMovies">
+          <a [routerLink]="['/movies', movie.id]" class="text-decoration-none">
+            {{ movie.title }} ({{ movie.releaseDate | date:'yyyy' }})
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Starred Movies -->
+  <div class="row" *ngIf="starredMovies.length > 0">
+    <div class="col-12">
+      <h3>Starred Movies</h3>
+      <ul>
+        <li *ngFor="let movie of starredMovies">
+          <a [routerLink]="['/movies', movie.id]">
+            {{ movie.title }} ({{ movie.releaseDate | date:'yyyy' }})
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

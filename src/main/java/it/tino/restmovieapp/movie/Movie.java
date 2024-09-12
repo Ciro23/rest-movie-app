@@ -1,13 +1,16 @@
 package it.tino.restmovieapp.movie;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class Movie {
+public class Movie implements Comparable<Movie> {
 
 	private int id;
     private String title;
@@ -18,9 +21,12 @@ public class Movie {
     private int budget;
     private int boxOffice;
     private int runtime;
-    private String overview;
-    private List<MovieGenre> genres = new ArrayList<>();
-    private List<MovieDirector> directors = new ArrayList<>();
+
+	@Nullable
+	private String overview;
+
+	private List<Integer> genreIds = new ArrayList<>();
+    private List<Integer> directorIds = new ArrayList<>();
     private List<MovieActor> actors = new ArrayList<>();
     
 	public int getId() {
@@ -70,29 +76,33 @@ public class Movie {
 	public void setRuntime(int runtime) {
 		this.runtime = runtime;
 	}
-	
+
+	@Nullable
 	public String getOverview() {
 		return overview;
 	}
 	
-	public void setOverview(String overview) {
+	public void setOverview(@Nullable String overview) {
+		if (overview != null && overview.isBlank()) {
+			overview = null;
+		}
 		this.overview = overview;
 	}
 
-	public List<MovieGenre> getGenres() {
-		return genres;
+	public List<Integer> getGenreIds() {
+		return genreIds;
 	}
 
-	public void setGenres(List<MovieGenre> genres) {
-		this.genres = genres;
+	public void setGenreIds(List<Integer> genres) {
+		this.genreIds = genres;
 	}
 
-	public List<MovieDirector> getDirectors() {
-		return directors;
+	public List<Integer> getDirectorIds() {
+		return directorIds;
 	}
 
-	public void setDirectors(List<MovieDirector> directors) {
-		this.directors = directors;
+	public void setDirectorIds(List<Integer> directors) {
+		this.directorIds = directors;
 	}
 
 	public List<MovieActor> getActors() {
@@ -114,8 +124,8 @@ public class Movie {
         builder.append("  \"boxOffice\": ").append(boxOffice).append(",\n");
         builder.append("  \"runtime\": ").append(runtime).append(",\n");
         builder.append("  \"overview\": \"").append(overview).append("\"\n");
-        builder.append("  \"genres\": \"").append(genres).append("\"\n");
-        builder.append("  \"directors\": \"").append(directors).append("\"\n");
+        builder.append("  \"genres\": \"").append(genreIds).append("\"\n");
+        builder.append("  \"directors\": \"").append(directorIds).append("\"\n");
         builder.append("  \"actors\": \"").append(actors).append("\"\n");
         builder.append("}");
         return builder.toString();
@@ -136,5 +146,12 @@ public class Movie {
 			return false;
 		Movie other = (Movie) obj;
 		return id == other.id;
+	}
+
+	@Override
+	public int compareTo(@NotNull Movie other) {
+		return Comparator.comparing(Movie::getTitle)
+				.thenComparing(Movie::getId)
+				.compare(this, other);
 	}
 }

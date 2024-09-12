@@ -34,20 +34,20 @@ import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 
 @Mapper
 public interface ReviewDbMapper extends CommonCountMapper, CommonDeleteMapper, CommonUpdateMapper {
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435636209+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255747213+02:00", comments="Source Table: reviews")
     BasicColumn[] selectList = BasicColumn.columnList(id, movieId, userId, creationDate, vote, review);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.434859073+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255076335+02:00", comments="Source Table: reviews")
     @InsertProvider(type=SqlProviderAdapter.class, method="insert")
     @Options(useGeneratedKeys=true,keyProperty="row.id")
     int insert(InsertStatementProvider<ReviewDb> insertStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.434963317+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255157045+02:00", comments="Source Table: reviews")
     @InsertProvider(type=SqlProviderAdapter.class, method="insertMultipleWithGeneratedKeys")
     @Options(useGeneratedKeys=true,keyProperty="records.id")
     int insertMultiple(@Param("insertStatement") String insertStatement, @Param("records") List<ReviewDb> records);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435032125+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255223278+02:00", comments="Source Table: reviews")
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @Results(id="ReviewDbResult", value = {
         @Result(column="id", property="id", jdbcType=JdbcType.INTEGER, id=true),
@@ -59,29 +59,29 @@ public interface ReviewDbMapper extends CommonCountMapper, CommonDeleteMapper, C
     })
     List<ReviewDb> selectMany(SelectStatementProvider selectStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435133524+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255310821+02:00", comments="Source Table: reviews")
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @ResultMap("ReviewDbResult")
     Optional<ReviewDb> selectOne(SelectStatementProvider selectStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435207882+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.2553641+02:00", comments="Source Table: reviews")
     default long count(CountDSLCompleter completer) {
         return MyBatis3Utils.countFrom(this::count, reviewDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435262904+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.25541216+02:00", comments="Source Table: reviews")
     default int delete(DeleteDSLCompleter completer) {
         return MyBatis3Utils.deleteFrom(this::delete, reviewDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435306596+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255473854+02:00", comments="Source Table: reviews")
     default int deleteByPrimaryKey(Integer id_) {
         return delete(c -> 
             c.where(id, isEqualTo(id_))
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435347422+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255519209+02:00", comments="Source Table: reviews")
     default int insert(ReviewDb row) {
         return MyBatis3Utils.insert(this::insert, row, reviewDb, c ->
             c.map(movieId).toProperty("movieId")
@@ -92,7 +92,7 @@ public interface ReviewDbMapper extends CommonCountMapper, CommonDeleteMapper, C
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435479277+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255579581+02:00", comments="Source Table: reviews")
     default int insertMultiple(Collection<ReviewDb> records) {
         return MyBatis3Utils.insertMultipleWithGeneratedKeys(this::insertMultiple, records, reviewDb, c ->
             c.map(movieId).toProperty("movieId")
@@ -103,7 +103,7 @@ public interface ReviewDbMapper extends CommonCountMapper, CommonDeleteMapper, C
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435541913+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255657696+02:00", comments="Source Table: reviews")
     default int insertSelective(ReviewDb row) {
         return MyBatis3Utils.insert(this::insert, row, reviewDb, c ->
             c.map(movieId).toPropertyWhenPresent("movieId", row::getMovieId)
@@ -114,34 +114,34 @@ public interface ReviewDbMapper extends CommonCountMapper, CommonDeleteMapper, C
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435680932+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255795663+02:00", comments="Source Table: reviews")
     default Optional<ReviewDb> selectOne(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectOne(this::selectOne, selectList, reviewDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435726557+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255854983+02:00", comments="Source Table: reviews")
     default List<ReviewDb> select(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectList(this::selectMany, selectList, reviewDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435768114+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255903694+02:00", comments="Source Table: reviews")
     default List<ReviewDb> selectDistinct(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectDistinct(this::selectMany, selectList, reviewDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435806485+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255939791+02:00", comments="Source Table: reviews")
     default Optional<ReviewDb> selectByPrimaryKey(Integer id_) {
         return selectOne(c ->
             c.where(id, isEqualTo(id_))
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435851579+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.255985777+02:00", comments="Source Table: reviews")
     default int update(UpdateDSLCompleter completer) {
         return MyBatis3Utils.update(this::update, reviewDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435901011+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.256029488+02:00", comments="Source Table: reviews")
     static UpdateDSL<UpdateModel> updateAllColumns(ReviewDb row, UpdateDSL<UpdateModel> dsl) {
         return dsl.set(movieId).equalTo(row::getMovieId)
                 .set(userId).equalTo(row::getUserId)
@@ -150,7 +150,7 @@ public interface ReviewDbMapper extends CommonCountMapper, CommonDeleteMapper, C
                 .set(review).equalTo(row::getReview);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.435971833+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.256107413+02:00", comments="Source Table: reviews")
     static UpdateDSL<UpdateModel> updateSelectiveColumns(ReviewDb row, UpdateDSL<UpdateModel> dsl) {
         return dsl.set(movieId).equalToWhenPresent(row::getMovieId)
                 .set(userId).equalToWhenPresent(row::getUserId)
@@ -159,7 +159,7 @@ public interface ReviewDbMapper extends CommonCountMapper, CommonDeleteMapper, C
                 .set(review).equalToWhenPresent(row::getReview);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.436043586+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.256176422+02:00", comments="Source Table: reviews")
     default int updateByPrimaryKey(ReviewDb row) {
         return update(c ->
             c.set(movieId).equalTo(row::getMovieId)
@@ -171,7 +171,7 @@ public interface ReviewDbMapper extends CommonCountMapper, CommonDeleteMapper, C
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-12T09:29:49.436111693+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.256246873+02:00", comments="Source Table: reviews")
     default int updateByPrimaryKeySelective(ReviewDb row) {
         return update(c ->
             c.set(movieId).equalToWhenPresent(row::getMovieId)

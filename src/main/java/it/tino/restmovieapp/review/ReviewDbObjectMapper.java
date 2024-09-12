@@ -10,12 +10,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-public class ReviewMapper implements ObjectMapper<Review, ReviewDb> {
+public class ReviewDbObjectMapper implements ObjectMapper<Review, ReviewDb> {
 
     @Override
-    public List<Review> dbToDomain(Collection<ReviewDb> dbEntities) {
+    public List<Review> sourceToDomain(Collection<ReviewDb> source) {
         List<Review> reviews = new ArrayList<>();
-        for (ReviewDb dbEntity : dbEntities) {
+        for (ReviewDb dbEntity : source) {
             LocalDateTime localDateTime = DateConverter.dateToLocalDateTime(dbEntity.getCreationDate());
             Review review = new Review();
 
@@ -24,14 +24,14 @@ public class ReviewMapper implements ObjectMapper<Review, ReviewDb> {
             review.setUserId(dbEntity.getUserId());
             review.setCreationDate(localDateTime);
             review.setVote(dbEntity.getVote());
-            review.setReview(dbEntity.getReview());
+            review.setContent(dbEntity.getReview());
             reviews.add(review);
         }
         return reviews;
     }
 
     @Override
-    public List<ReviewDb> domainToDb(Collection<Review> domainEntities) {
+    public List<ReviewDb> domainToTarget(Collection<Review> domainEntities) {
         List<ReviewDb> reviewsDb = new ArrayList<>();
         for (Review domainEntity : domainEntities) {
             Date convertedCreationDate = null;
@@ -45,7 +45,7 @@ public class ReviewMapper implements ObjectMapper<Review, ReviewDb> {
             reviewDb.setUserId(domainEntity.getUserId());
             reviewDb.setCreationDate(convertedCreationDate);
             reviewDb.setVote(domainEntity.getVote());
-            reviewDb.setReview(domainEntity.getReview());
+            reviewDb.setReview(domainEntity.getContent());
             reviewsDb.add(reviewDb);
         }
         return reviewsDb;

@@ -1,7 +1,7 @@
 package it.tino.restmovieapp.movie;
 
-import it.tino.restmovieapp.error.MovieAppException;
 import it.tino.restmovieapp.SimpleManager;
+import it.tino.restmovieapp.error.MovieAppException;
 import it.tino.restmovieapp.mybatis.mapper.*;
 import it.tino.restmovieapp.mybatis.model.*;
 import org.apache.ibatis.session.SqlSession;
@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class MovieManager {
@@ -59,7 +61,7 @@ public class MovieManager {
 
 	public Movie insert(Movie movie) {
 		try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-			MovieDb dbEntity = movieMapper.domainToDb(movie);
+			MovieDb dbEntity = movieMapper.domainToTarget(movie);
 
 			MovieDbMapper movieDao = sqlSession.getMapper(MovieDbMapper.class);
 			MovieDirectorDbMapper movieDirectorDao = sqlSession.getMapper(MovieDirectorDbMapper.class);
@@ -69,13 +71,24 @@ public class MovieManager {
 			int affectedRows = movieDao.insert(dbEntity);
 			movie.setId(dbEntity.getId());
 
-			movieDirectorDao.insertMultiple(getDirectors(movie));
-			movieActorDao.insertMultiple(getActors(movie));
-			movieGenreDao.insertMultiple(getGenres(movie));
+			List<MovieDirectorDb> directors = getDirectors(movie);
+			if (!directors.isEmpty()) {
+				movieDirectorDao.insertMultiple(directors);
+			}
+
+			List<MovieActorDb> actors = getActors(movie);
+			if (!actors.isEmpty()) {
+				movieActorDao.insertMultiple(actors);
+			}
+
+			List<MovieGenreDb> genres = getGenres(movie);
+			if (!genres.isEmpty()) {
+				movieGenreDao.insertMultiple(genres);
+			}
 
 			if (affectedRows == 1) {
 				sqlSession.commit();
-                return movieMapper.dbToDomain(dbEntity);
+                return movieMapper.sourceToDomain(dbEntity);
 			}
 			throw new MovieAppException("No affected rows on insert");
 		} catch (Exception e) {
@@ -86,7 +99,7 @@ public class MovieManager {
     
     public Movie update(Movie movie) {
 		try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-			MovieDb dbEntity = movieMapper.domainToDb(movie);
+			MovieDb dbEntity = movieMapper.domainToTarget(movie);
 
 			MovieDbMapper movieDao = sqlSession.getMapper(MovieDbMapper.class);
 			MovieDirectorDbMapper movieDirectorDao = sqlSession.getMapper(MovieDirectorDbMapper.class);
@@ -99,23 +112,32 @@ public class MovieManager {
 					MovieDirectorDbDynamicSqlSupport.movieId,
 					SqlBuilder.isEqualTo(dbEntity.getId())
 			));
-			movieDirectorDao.insertMultiple(getDirectors(movie));
+			List<MovieDirectorDb> directors = getDirectors(movie);
+			if (!directors.isEmpty()) {
+				movieDirectorDao.insertMultiple(directors);
+			}
 
 			movieActorDao.delete(c -> c.where(
 					MovieActorDbDynamicSqlSupport.movieId,
 					SqlBuilder.isEqualTo(dbEntity.getId())
 			));
-			movieActorDao.insertMultiple(getActors(movie));
+			List<MovieActorDb> actors = getActors(movie);
+			if (!actors.isEmpty()) {
+				movieActorDao.insertMultiple(actors);
+			}
 
 			movieGenreDao.delete(c -> c.where(
 					MovieGenreDbDynamicSqlSupport.movieId,
 					SqlBuilder.isEqualTo(dbEntity.getId())
 			));
-			movieGenreDao.insertMultiple(getGenres(movie));
+			List<MovieGenreDb> genres = getGenres(movie);
+			if (!genres.isEmpty()) {
+				movieGenreDao.insertMultiple(genres);
+			}
 
 			if (affectedRows == 1) {
 				sqlSession.commit();
-                return movieMapper.dbToDomain(dbEntity);
+                return movieMapper.sourceToDomain(dbEntity);
 			}
 			throw new MovieAppException("No affected rows on insert");
 		} catch (Exception e) {
@@ -159,7 +181,7 @@ public class MovieManager {
 					})
 					.toList();
 
-			return movieMapper.dbToDomain(moviesDb);
+			return movieMapper.sourceToDomain(moviesDb);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new MovieAppException(e);
@@ -189,20 +211,19 @@ public class MovieManager {
 					})
 					.toList();
 
-			return movieMapper.dbToDomain(moviesDb);
+			return movieMapper.sourceToDomain(moviesDb);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new MovieAppException(e);
 		}
 	}
 
-	public List<Movie> selectByGenreId(int genreId) {
+	public List<Movie> selectByGenreIdIn(List<Integer> genreIds) {
 		try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
 			VMovieGenreDbMapper vMovieGenreDao = sqlSession.getMapper(VMovieGenreDbMapper.class);
-			List<VMovieGenreDb> vMovieGenresDbList = vMovieGenreDao.select(c -> c.where(
-					VMovieGenreDbDynamicSqlSupport.genreId,
-					SqlBuilder.isEqualTo(genreId)
-			));
+			List<VMovieGenreDb> vMovieGenresDbList = vMovieGenreDao.select(c -> c
+					.where(VMovieGenreDbDynamicSqlSupport.genreId, SqlBuilder.isIn(genreIds))
+			);
 
 			List<MovieDb> moviesDb = vMovieGenresDbList
 					.stream()
@@ -219,7 +240,17 @@ public class MovieManager {
 					})
 					.toList();
 
-			return movieMapper.dbToDomain(moviesDb);
+			// TODO: horrible code. fetch only movies which have all the genres passed to this method.
+			HashSet<Movie> movies = new HashSet<>(movieMapper.sourceToDomain(new HashSet<>(moviesDb)));
+			List<Movie> moviesWithAllTheSelectedGenres = movies
+					.stream()
+					.filter(m -> new HashSet<>(m
+							.getGenreIds()
+							.stream()
+							.toList())
+							.containsAll(genreIds))
+					.toList();
+			return new ArrayList<>(moviesWithAllTheSelectedGenres);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new MovieAppException(e);
@@ -231,24 +262,24 @@ public class MovieManager {
 	}
 
 	private List<MovieGenreDb> getGenres(Movie movie) {
-		return movie.getGenres()
+		return movie.getGenreIds()
 				.stream()
 				.map(genre -> {
 					MovieGenreDb movieGenre = new MovieGenreDb();
 					movieGenre.setMovieId(movie.getId());
-					movieGenre.setGenreId(genre.getGenreId());
+					movieGenre.setGenreId(genre);
 					return movieGenre;
 				})
 				.toList();
 	}
 	
 	private List<MovieDirectorDb> getDirectors(Movie movie) {
-		return movie.getDirectors()
+		return movie.getDirectorIds()
 				.stream()
-				.map(directedMovie -> {
+				.map(director -> {
 					MovieDirectorDb movieDirector = new MovieDirectorDb();
 					movieDirector.setMovieId(movie.getId());
-					movieDirector.setDirectorId(directedMovie.getDirectorId());
+					movieDirector.setDirectorId(director);
 					return movieDirector;
 				})
 				.toList();

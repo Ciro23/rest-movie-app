@@ -1,0 +1,11 @@
+<app-table
+  [rows]="movies"
+  [fields]="fields"
+  [sortedField]="fields[1]"
+  [sortOrder]="'desc'"
+  [onView]="view"
+  [onCreateNew]="createNew"
+  [onEdit]="edit"
+  [onDelete]="delete"
+  [onDownloadPdf]="downloadPdf"
+  [onDownloadXlsx]="downloadXlsx"></app-table>

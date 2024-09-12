@@ -1,0 +1,55 @@
+<app-back-button></app-back-button>
+
+<h2 *ngIf="personId" class="text-center">Edit person</h2>
+<h2 *ngIf="!personId" class="text-center">Add a new person</h2>
+
+<form
+  class="d-flex flex-column w-50 m-auto px-5 mt-4 gap-4"
+  (ngSubmit)="save(form)"
+  #form="ngForm">
+
+  <label class="d-flex flex-column">
+    Name*
+    <input
+      [(ngModel)]="personForm.name"
+      [ngClass]="{'is-invalid': form.submitted && form.controls['name']?.invalid}"
+      class="form-control"
+      name="name"
+      type="text"
+      minlength="4"
+      required>
+  </label>
+
+  <div class="d-flex gap-3 flex-wrap">
+    <label class="d-flex flex-column flex-grow-1">
+      Gender*
+      <select
+        [(ngModel)]="personForm.gender"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['gender']?.invalid}"
+        name="gender"
+        class="form-select"
+        required>
+        <option [value]="'MALE'">Male</option>
+        <option [value]="'FEMALE'">Female</option>
+      </select>
+    </label>
+
+    <label class="d-flex flex-column flex-grow-1">
+      Birth*
+      <input
+        [(ngModel)]="birth"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['birth']?.invalid}"
+        class="form-control"
+        name="birth"
+        type="date"
+        required>
+    </label>
+  </div>
+
+  <app-save-and-cancel-buttons></app-save-and-cancel-buttons>
+</form>
+<ul *ngIf="errorMessages.length !== 0" class="w-75 m-auto alert alert-danger mt-4">
+  <li *ngFor="let errorMessage of errorMessages" class="ms-4">
+    {{ errorMessage }}
+  </li>
+</ul>

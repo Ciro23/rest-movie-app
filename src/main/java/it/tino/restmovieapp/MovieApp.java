@@ -12,7 +12,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 public class MovieApp extends ResourceConfig {
     public MovieApp() {
         packages("it.tino.restmovieapp");
-        register(new CustomBinder());
+        register(new DependencyBinder());
         register(NotFoundExceptionMapper.class);
         register(UnexpectedExceptionMapper.class);
     }

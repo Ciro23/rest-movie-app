@@ -1,0 +1,25 @@
+<div>
+  <h2 class="text-center">List of genres</h2>
+
+  <form
+    (ngSubmit)="search()"
+    class="d-flex flex-wrap gap-3 justify-content-center align-items-end mt-4">
+
+    <div class="d-flex flex-column gap-3">
+      <div class="d-flex gap-3 flex-wrap">
+        <label class="d-flex flex-column flex-grow-1">
+          Name
+          <input name="username" [(ngModel)]="searchModel.name" class="form-control">
+        </label>
+      </div>
+
+      <app-search-and-reset-buttons
+        [filterOn]="filterOn"
+        [resetFilter]="resetFilter"></app-search-and-reset-buttons>
+    </div>
+  </form>
+
+  <app-genre-table
+    [genres]="genres"
+    [searchModel]="searchModel"></app-genre-table>
+</div>

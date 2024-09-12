@@ -1,0 +1,10 @@
+<app-table
+  [rows]="genres"
+  [fields]="fields"
+  [sortedField]="fields[0]"
+  [sortOrder]="'asc'"
+  [onCreateNew]="createNew"
+  [onEdit]="edit"
+  [onDelete]="delete"
+  [onDownloadPdf]="downloadPdf"
+  [onDownloadXlsx]="downloadXlsx"></app-table>

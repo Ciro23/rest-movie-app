@@ -9,8 +9,9 @@ import it.tino.restmovieapp.mybatis.mapper.*;
 import it.tino.restmovieapp.mybatis.model.*;
 import it.tino.restmovieapp.person.PersonManager;
 import it.tino.restmovieapp.person.PersonMapper;
+import it.tino.restmovieapp.review.ReviewDbObjectMapper;
+import it.tino.restmovieapp.review.ReviewJsonMapper;
 import it.tino.restmovieapp.review.ReviewManager;
-import it.tino.restmovieapp.review.ReviewMapper;
 import it.tino.restmovieapp.user.UserManager;
 import it.tino.restmovieapp.user.UserMapper;
 import jakarta.inject.Inject;
@@ -28,7 +29,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-public class CustomBinder extends AbstractBinder {
+public class DependencyBinder extends AbstractBinder {
 
     @Override
     protected void configure() {
@@ -37,7 +38,8 @@ public class CustomBinder extends AbstractBinder {
         bindFactory(UserMapperFactory.class).to(UserMapper.class);
         bindFactory(UserManagerFactory.class).to(UserManager.class);
 
-        bindFactory(ReviewMapperFactory.class).to(ReviewMapper.class);
+        bindFactory(ReviewDbObjectMapperFactory.class).to(ReviewDbObjectMapper.class);
+        bindFactory(ReviewJsonMapperFactory.class).to(ReviewJsonMapper.class);
         bindFactory(ReviewManagerFactory.class).to(ReviewManager.class);
 
         bindFactory(GenreMapperFactory.class).to(GenreMapper.class);
@@ -144,31 +146,51 @@ public class CustomBinder extends AbstractBinder {
         public void dispose(UserManager instance) {}
     }
 
-    static class ReviewMapperFactory implements Factory<ReviewMapper> {
+    static class ReviewDbObjectMapperFactory implements Factory<ReviewDbObjectMapper> {
 
         @Override
-        public ReviewMapper provide() {
-            return new ReviewMapper();
+        public ReviewDbObjectMapper provide() {
+            return new ReviewDbObjectMapper();
         }
 
         @Override
-        public void dispose(ReviewMapper instance) {}
+        public void dispose(ReviewDbObjectMapper instance) {}
+    }
+
+    static class ReviewJsonMapperFactory implements Factory<ReviewJsonMapper> {
+
+        private final MovieManager movieManager;
+        private final UserManager userManager;
+
+        @Inject
+        ReviewJsonMapperFactory(MovieManager movieManager, UserManager userManager) {
+            this.movieManager = movieManager;
+            this.userManager = userManager;
+        }
+
+        @Override
+        public ReviewJsonMapper provide() {
+            return new ReviewJsonMapper(movieManager, userManager);
+        }
+
+        @Override
+        public void dispose(ReviewJsonMapper instance) {}
     }
 
     static class ReviewManagerFactory implements Factory<ReviewManager> {
 
         private final SqlSessionFactory sqlSessionFactory;
-        private final ReviewMapper reviewMapper;
+        private final ReviewDbObjectMapper reviewDbObjectMapper;
 
         @Inject
-        ReviewManagerFactory(SqlSessionFactory sqlSessionFactory, ReviewMapper reviewMapper) {
+        ReviewManagerFactory(SqlSessionFactory sqlSessionFactory, ReviewDbObjectMapper reviewDbObjectMapper) {
             this.sqlSessionFactory = sqlSessionFactory;
-            this.reviewMapper = reviewMapper;
+            this.reviewDbObjectMapper = reviewDbObjectMapper;
         }
 
         @Override
         public ReviewManager provide() {
-            return new ReviewManager(sqlSessionFactory, reviewMapper);
+            return new ReviewManager(sqlSessionFactory, reviewDbObjectMapper);
         }
 
         @Override

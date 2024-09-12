@@ -20,10 +20,7 @@ import org.mybatis.dynamic.sql.SqlBuilder;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class PersonMapper implements ObjectMapper<Person, PersonDb> {
 
@@ -35,11 +32,15 @@ public class PersonMapper implements ObjectMapper<Person, PersonDb> {
     }
 
     @Override
-    public List<Person> dbToDomain(Collection<PersonDb> dbEntities) {
-        List<Integer> personIds = dbEntities
+    public List<Person> sourceToDomain(Collection<PersonDb> source) {
+        List<Integer> personIds = source
                 .stream()
                 .map(PersonDb::getId)
                 .toList();
+
+        if (personIds.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         List<VMovieDirectorDb> vMovieDirectorDbList;
         List<VMovieActorDb> vMovieActorDbList;
@@ -60,7 +61,7 @@ public class PersonMapper implements ObjectMapper<Person, PersonDb> {
         }
 
         List<Person> people = new ArrayList<>();
-        for (PersonDb personDb : dbEntities) {
+        for (PersonDb personDb : source) {
             List<MovieDirector> directedMovies = vMovieDirectorDbList
                     .stream()
                     .filter(md -> Objects.equals(md.getDirectorId(), personDb.getId()))
@@ -101,7 +102,7 @@ public class PersonMapper implements ObjectMapper<Person, PersonDb> {
     }
 
     @Override
-    public List<PersonDb> domainToDb(Collection<Person> domainEntities) {
+    public List<PersonDb> domainToTarget(Collection<Person> domainEntities) {
         List<PersonDb> peopleDb = new ArrayList<>();
         for (Person domainEntity : domainEntities) {
             PersonDb personDb = new PersonDb();

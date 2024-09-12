@@ -1,15 +1,17 @@
 package it.tino.restmovieapp.person;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import it.tino.restmovieapp.movie.MovieActor;
 import it.tino.restmovieapp.movie.MovieDirector;
+import org.jetbrains.annotations.NotNull;
 
-public class Person {
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+
+public class Person implements Comparable<Person> {
 	
 	private int id = 0;
     private String name;
@@ -98,6 +100,13 @@ public class Person {
 			return false;
 		Person other = (Person) obj;
 		return id == other.id;
+	}
+
+	@Override
+	public int compareTo(@NotNull Person other) {
+		return Comparator.comparing(Person::getName)
+				.thenComparing(Person::getId)
+				.compare(this, other);
 	}
 
 	public enum Gender {

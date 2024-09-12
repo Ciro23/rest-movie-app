@@ -13,7 +13,7 @@ public class ReviewManager {
 
 	private final SimpleManager<Review, ReviewDb, Integer> simpleManager;
 
-	public ReviewManager(SqlSessionFactory sqlSessionFactory, ReviewMapper reviewMapper) {
+	public ReviewManager(SqlSessionFactory sqlSessionFactory, ReviewDbObjectMapper reviewDbObjectMapper) {
 		SimpleManager.InsertFunction<ReviewDb> onInsert = (sqlSession, key) -> {
 			ReviewDbMapper dao = sqlSession.getMapper(ReviewDbMapper.class);
 			return dao.insert(key);
@@ -36,7 +36,7 @@ public class ReviewManager {
 		};
 		this.simpleManager = new SimpleManager<>(
 				sqlSessionFactory,
-				reviewMapper,
+				reviewDbObjectMapper,
 				onInsert,
 				onUpdate,
 				onSelect,
@@ -55,6 +55,10 @@ public class ReviewManager {
 	}
 	
 	public Review update(Review review) {
+		if (review.getCreationDate() == null) {
+			Review existingReview = selectById(review.getId());
+			review.setCreationDate(existingReview.getCreationDate());
+		}
 		return simpleManager.update(review);
 	}
     

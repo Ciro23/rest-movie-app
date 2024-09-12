@@ -4,19 +4,25 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This mapper is used to convert objects from their domain
+ * model to another form.
+ * @param <T> The domain entity type
+ * @param <K> The other entity type (JSON, database...)
+ */
 public interface ObjectMapper<T, K> {
 
-    default T dbToDomain(K dbEntity) {
-        List<T> domainEntities = dbToDomain(Collections.singleton(dbEntity));
+    default T sourceToDomain(K source) {
+        List<T> domainEntities = sourceToDomain(Collections.singleton(source));
         return domainEntities.getFirst();
     }
 
-    List<T> dbToDomain(Collection<K> dbEntities);
+    List<T> sourceToDomain(Collection<K> source);
 
-    default K domainToDb(T domainEntity) {
-        List<K> dbEntities = domainToDb(Collections.singleton(domainEntity));
+    default K domainToTarget(T domainEntity) {
+        List<K> dbEntities = domainToTarget(Collections.singleton(domainEntity));
         return dbEntities.getFirst();
     }
 
-    List<K> domainToDb(Collection<T> domainEntities);
+    List<K> domainToTarget(Collection<T> domainEntities);
 }

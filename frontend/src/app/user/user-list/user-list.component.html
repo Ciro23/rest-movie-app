@@ -1,0 +1,30 @@
+<div>
+  <h2 class="text-center">List of users</h2>
+
+  <form
+    (ngSubmit)="search()"
+    class="d-flex flex-wrap justify-content-center">
+
+    <div class="d-flex flex-column gap-3">
+      <div class="d-flex gap-3 flex-wrap">
+        <label class="d-flex flex-column flex-grow-1">
+          Username
+          <input name="username" [(ngModel)]="searchModel.username" class="form-control">
+        </label>
+
+        <label class="d-flex flex-column flex-grow-1">
+          Email
+          <input name="email" type="email" [(ngModel)]="searchModel.email" class="form-control">
+        </label>
+      </div>
+
+      <app-search-and-reset-buttons
+        [filterOn]="filterOn"
+        [resetFilter]="resetFilter"></app-search-and-reset-buttons>
+    </div>
+  </form>
+
+  <app-user-table
+    [users]="users"
+    [searchModel]="searchModel"></app-user-table>
+</div>

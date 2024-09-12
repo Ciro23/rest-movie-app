@@ -10,9 +10,9 @@ import java.util.List;
 public class GenreMapper implements ObjectMapper<Genre, GenreDb> {
 
     @Override
-    public List<Genre> dbToDomain(Collection<GenreDb> dbEntities) {
+    public List<Genre> sourceToDomain(Collection<GenreDb> source) {
         List<Genre> genres = new ArrayList<>();
-        for (GenreDb dbEntity : dbEntities) {
+        for (GenreDb dbEntity : source) {
             Genre genre = new Genre();
             genre.setId(dbEntity.getId());
             genre.setName((String) dbEntity.getName());
@@ -23,7 +23,7 @@ public class GenreMapper implements ObjectMapper<Genre, GenreDb> {
     }
 
     @Override
-    public List<GenreDb> domainToDb(Collection<Genre> domainEntities) {
+    public List<GenreDb> domainToTarget(Collection<Genre> domainEntities) {
         List<GenreDb> genresDb = new ArrayList<>();
         for (Genre domainEntity : domainEntities) {
             GenreDb genre = new GenreDb();

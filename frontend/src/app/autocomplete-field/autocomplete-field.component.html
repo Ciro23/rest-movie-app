@@ -1,0 +1,59 @@
+<div class="position-relative">
+  <!-- Input field -->
+  <div
+    (click)="focusSearchInput()"
+    [ngClass]="{'is-invalid': isInvalid}"
+    class="form-control p-0 input-wrapper"
+    style="cursor: text">
+
+    <!-- Selected items as "tags" -->
+    <span
+      *ngIf="allowMultipleSelections && selectedItems.length > 0"
+      class="d-flex flex-wrap mx-2 my-2 gap-1">
+      <span
+        *ngFor="let selectedItem of selectedItems"
+        (click)="removeSelectedItem(selectedItem)"
+        class="badge bg-primary d-flex align-items-center gap-1 user-select-none"
+        style="cursor: pointer">
+        {{ getDisplayValue(selectedItem) }}
+        <i class="bi bi-x-lg"></i>
+      </span>
+    </span>
+
+    <!-- The actual input field -->
+    <input
+      #searchInput
+      [ngClass]="{'is-invalid': isInvalid}"
+      [placeholder]="placeholder"
+      [formControl]="searchControl"
+      (focus)="onSearchFieldFocus()"
+      (click)="onSearchFieldFocus()"
+      class="border-0 flex-grow-1 p-2 form-control"
+      type="text"
+      autocomplete="off">
+  </div>
+
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="spinner-border text-primary position-absolute z-3"
+       style="top: 4px; right: 10px;" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+
+  <!-- Dropdown with results -->
+  <ul
+    *ngIf="isDropdownOpen && results.length > 0"
+    class="list-group position-absolute w-100 z-3">
+    <li
+      class="list-group-item list-group-item-action bg-"
+      *ngFor="let result of results"
+      [ngClass]="{'bg-dark-subtle': highlightedResultIndex !== undefined && result === results[highlightedResultIndex]}"
+      (click)="selectItem(result)">
+      {{ getDisplayValue(result) }}
+    </li>
+  </ul>
+
+  <!-- Message when no results are found -->
+  <ul class="list-group position-absolute w-100 z-3" *ngIf="isDropdownOpen && results.length === 0">
+    <li class="list-group-item list-group-item-action"><i>No results found</i></li>
+  </ul>
+</div>

@@ -74,10 +74,8 @@ public class MovieManager {
 			movieGenreDao.insertMultiple(getGenres(movie));
 
 			if (affectedRows == 1) {
-				Movie insertedMovie = movieMapper.dbToDomain(dbEntity);
 				sqlSession.commit();
-
-				return insertedMovie;
+                return movieMapper.dbToDomain(dbEntity);
 			}
 			throw new MovieAppException("No affected rows on insert");
 		} catch (Exception e) {
@@ -116,10 +114,8 @@ public class MovieManager {
 			movieGenreDao.insertMultiple(getGenres(movie));
 
 			if (affectedRows == 1) {
-				Movie updatedMovie = movieMapper.dbToDomain(dbEntity);
 				sqlSession.commit();
-
-				return updatedMovie;
+                return movieMapper.dbToDomain(dbEntity);
 			}
 			throw new MovieAppException("No affected rows on insert");
 		} catch (Exception e) {

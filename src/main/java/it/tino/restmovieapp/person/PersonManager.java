@@ -73,10 +73,8 @@ public class PersonManager {
 			movieActorDao.insertMultiple(getStarredMovies(person));
 
 			if (affectedRows == 1) {
-				Person insertedPerson = personMapper.dbToDomain(dbEntity);
 				sqlSession.commit();
-
-				return insertedPerson;
+                return personMapper.dbToDomain(dbEntity);
 			}
 			throw new MovieAppException("No affected rows on insert");
 		} catch (Exception e) {
@@ -108,10 +106,8 @@ public class PersonManager {
 			movieActorDao.insertMultiple(getStarredMovies(person));
 
 			if (affectedRows == 1) {
-				Person updatedPerson = personMapper.dbToDomain(dbEntity);
 				sqlSession.commit();
-
-				return updatedPerson;
+                return personMapper.dbToDomain(dbEntity);
 			}
 			throw new MovieAppException("No affected rows on insert");
 		} catch (Exception e) {

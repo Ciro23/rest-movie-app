@@ -37,9 +37,17 @@ public class GenreController {
     @Path("xlsx")
     @Produces(MediaType.APPLICATION_JSON)
     public Response exportGenres(@QueryParam("name") String name) {
-        Set<Genre> genres = new TreeSet<>(filterGenres(name));
-        byte[] excelContent = XlsxGenerator.generateXlsx(genres, "Genres");
+        List<Genre> genres = filterGenres(name);
+        Set<GenreXlsx> genresXlsx = new TreeSet<>();
 
+        for (Genre genre : genres) {
+            GenreXlsx genreXlsx = new GenreXlsx();
+            genreXlsx.setId(genre.getId());
+            genreXlsx.setName(genre.getName());
+            genresXlsx.add(genreXlsx);
+        }
+
+        byte[] excelContent = XlsxGenerator.generateXlsx(genresXlsx, "Genres");
         return Response.ok(excelContent)
                 .header("Content-Disposition", "attachment; filename=genres.xlsx")
                 .build();

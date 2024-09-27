@@ -7,7 +7,9 @@ import it.tino.restmovieapp.error.ErrorResponse;
 import it.tino.restmovieapp.export.XlsxGenerator;
 import it.tino.restmovieapp.genre.Genre;
 import it.tino.restmovieapp.genre.GenreManager;
+import it.tino.restmovieapp.mybatis.mapper.GenreDbDynamicSqlSupport;
 import it.tino.restmovieapp.mybatis.mapper.MovieDbDynamicSqlSupport;
+import it.tino.restmovieapp.mybatis.mapper.PersonDbDynamicSqlSupport;
 import it.tino.restmovieapp.person.Person;
 import it.tino.restmovieapp.person.PersonManager;
 import jakarta.inject.Inject;
@@ -17,16 +19,16 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import kotlin.Pair;
+import org.apache.commons.lang3.StringUtils;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Path("movies")
 public class MovieController {
@@ -105,8 +107,80 @@ public class MovieController {
                 runtimeStart,
                 runtimeEnd
         );
-        byte[] excelContent = XlsxGenerator.generateXlsx(movies, "Movies");
 
+        Set<Integer> allPersonIds = movies.stream()
+                .flatMap(movie -> movie.getDirectorIds().stream())
+                .collect(Collectors.toSet());
+        Set<Integer> allActorIds = movies.stream()
+                .flatMap(movie -> movie.getActors().stream().map(MovieActor::getActorId))
+                .collect(Collectors.toSet());
+       allPersonIds.addAll(allActorIds);
+
+        Set<Integer> allGenreIds = movies
+                .stream()
+                .flatMap(m -> m.getGenreIds().stream())
+                .collect(Collectors.toSet());
+
+        List<Person> people = new ArrayList<>();
+        if (!allPersonIds.isEmpty()) {
+            people = personManager.selectByCriteria(c -> c
+                    .where(PersonDbDynamicSqlSupport.id, SqlBuilder.isIn(allPersonIds))
+            );
+        }
+
+        List<Genre> genres = new ArrayList<>();
+        if (!allGenreIds.isEmpty()) {
+            genres = genreManager.selectByCriteria(c -> c
+                    .where(GenreDbDynamicSqlSupport.id, SqlBuilder.isIn(allGenreIds))
+            );
+        }
+
+        Set<MovieXlsx> moviesXlsx = new TreeSet<>();
+        for (Movie movie : movies) {
+            List<String> directorNames = people
+                    .stream()
+                    .filter(p -> movie.getDirectorIds().contains(p.getId()))
+                    .map(Person::getName)
+                    .sorted()
+                    .toList();
+
+            List<Integer> actorIds = movie.getActors()
+                    .stream()
+                    .map(MovieActor::getActorId)
+                    .toList();
+            List<String> actorNames = people
+                    .stream()
+                    .filter(p -> actorIds.contains(p.getId()))
+                    .map(Person::getName)
+                    .sorted()
+                    .toList();
+
+            List<String> genreNames = genres
+                    .stream()
+                    .filter(p -> movie.getGenreIds().contains(p.getId()))
+                    .map(Genre::getName)
+                    .sorted()
+                    .toList();
+
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String releaseFormatted = dateTimeFormatter.format(movie.getReleaseDate());
+
+            MovieXlsx movieXlsx = new MovieXlsx();
+            movieXlsx.setId(movie.getId());
+            movieXlsx.setTitle(movie.getTitle());
+            movieXlsx.setReleaseDate(releaseFormatted);
+            movieXlsx.setBudget(movie.getBudget());
+            movieXlsx.setBoxOffice(movie.getBoxOffice());
+            movieXlsx.setRuntime(movie.getRuntime());
+            movieXlsx.setGenreNames(StringUtils.join(genreNames, ", "));
+            movieXlsx.setDirectorNames(StringUtils.join(directorNames, ", "));
+            movieXlsx.setActorNames(StringUtils.join(actorNames, ", "));
+            movieXlsx.setOverview(movie.getOverview());
+
+            moviesXlsx.add(movieXlsx);
+        }
+
+        byte[] excelContent = XlsxGenerator.generateXlsx(moviesXlsx, "Movies");
         return Response.ok(excelContent)
                 .header("Content-Disposition", "attachment; filename=movies.xlsx")
                 .build();

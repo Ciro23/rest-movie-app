@@ -7,10 +7,7 @@ import it.tino.restmovieapp.export.PdfGenerator;
 import it.tino.restmovieapp.export.XlsxGenerator;
 import it.tino.restmovieapp.mybatis.mapper.ReviewDbDynamicSqlSupport;
 import it.tino.restmovieapp.mybatis.mapper.UserDbDynamicSqlSupport;
-import it.tino.restmovieapp.review.Review;
-import it.tino.restmovieapp.review.ReviewJson;
-import it.tino.restmovieapp.review.ReviewJsonMapper;
-import it.tino.restmovieapp.review.ReviewManager;
+import it.tino.restmovieapp.review.*;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -20,8 +17,7 @@ import jakarta.ws.rs.core.UriInfo;
 import net.sf.jasperreports.engine.JRException;
 import org.mybatis.dynamic.sql.SqlBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Path("users")
 public class UserController {
@@ -54,8 +50,17 @@ public class UserController {
         @QueryParam("email") String email
     ) {
         List<User> users = filterUsers(username, email);
-        byte[] excelContent = XlsxGenerator.generateXlsx(users, "Users");
+        Set<UserXlsx> usersXlsx = new TreeSet<>();
 
+        for (User user : users) {
+            UserXlsx userXlsx = new UserXlsx();
+            userXlsx.setId(user.getId());
+            userXlsx.setUsername(user.getUsername());
+            userXlsx.setEmail(user.getEmail());
+            usersXlsx.add(userXlsx);
+        }
+
+        byte[] excelContent = XlsxGenerator.generateXlsx(usersXlsx, "Users");
         return Response.ok(excelContent)
                 .header("Content-Disposition", "attachment; filename=users.xlsx")
                 .build();

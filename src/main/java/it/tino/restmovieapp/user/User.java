@@ -1,6 +1,5 @@
 package it.tino.restmovieapp.user;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -11,8 +10,6 @@ public class User implements Comparable<User> {
 	private int id;
     private String username;
 	private String email;
-
-	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     
     public int getId() {

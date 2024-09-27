@@ -19,6 +19,7 @@ import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
 import java.text.ParseException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -68,8 +69,21 @@ public class PersonController {
                 birthStart,
                 birthEnd
         ));
-        byte[] excelContent = XlsxGenerator.generateXlsx(people, "People");
+        Set<PersonXlsx> peopleXlsx = new TreeSet<>();
 
+        for (Person person : people) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String birthFormatted = dateTimeFormatter.format(person.getBirth());
+
+            PersonXlsx personXlsx = new PersonXlsx();
+            personXlsx.setId(person.getId());
+            personXlsx.setName(person.getName());
+            personXlsx.setBirth(birthFormatted);
+            personXlsx.setGender(person.getGender());
+            peopleXlsx.add(personXlsx);
+        }
+
+        byte[] excelContent = XlsxGenerator.generateXlsx(peopleXlsx, "People");
         return Response.ok(excelContent)
                 .header("Content-Disposition", "attachment; filename=people.xlsx")
                 .build();

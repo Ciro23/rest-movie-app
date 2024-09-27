@@ -1,11 +1,7 @@
 package it.tino.restmovieapp.export;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import it.tino.restmovieapp.error.MovieAppException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.ByteArrayOutputStream;
@@ -17,9 +13,8 @@ public class XlsxGenerator {
 
     /**
      * Converts some objects to a ".xlsx" file.<br>
-     * To exclude a field from being exported, for example because of security
-     * reasons, it must be annotated with
-     * <code>@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)</code>
+     * Columns are written in the order bean attributes are declared and
+     * their names are converted from camelCase to snake_case.
      * @param beans The objects which are converted to a list of rows, where
      *              the columns are the object attributes, using reflection.
      * @param sheetTitle The title of the only sheet in the generated xlsx file.
@@ -52,13 +47,15 @@ public class XlsxGenerator {
         Row header = sheet.createRow(0);
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
-            if (isWriteOnly(field)) {
-                continue;
-            }
+            String headerName = camelToSnake(field.getName());
 
             Cell headerCell = header.createCell(i);
-            headerCell.setCellValue(field.getName());
+            headerCell.setCellValue(headerName);
         }
+    }
+
+    private static String camelToSnake(String str) {
+        return str.replaceAll("([a-z])([A-Z]+)", "$1_$2").toLowerCase();
     }
 
     private static <T> void createRows(Sheet sheet, Collection<T> beans, Field[] fields) {
@@ -68,10 +65,6 @@ public class XlsxGenerator {
 
             for (int j = 0; j < fields.length; j++) {
                 Field field = fields[j];
-                if (isWriteOnly(field)) {
-                    continue;
-                }
-
                 field.setAccessible(true);
 
                 Object value;
@@ -87,11 +80,6 @@ public class XlsxGenerator {
         }
     }
 
-    private static boolean isWriteOnly(Field field) {
-        JsonProperty jsonProperty = field.getAnnotation(JsonProperty.class);
-        return jsonProperty != null && jsonProperty.access() == JsonProperty.Access.WRITE_ONLY;
-    }
-
     private static void setValueToCell(Cell cell, Object value) {
         if (value instanceof String) {
             cell.setCellValue((String) value);
@@ -100,6 +88,17 @@ public class XlsxGenerator {
 
         if (value instanceof Number) {
             cell.setCellValue(((Number) value).doubleValue());
+
+            if (value instanceof Double || value instanceof Float) {
+                // Only two decimals allowed because of stupid computers
+                // and their floating points problems.
+                Workbook workbook = cell.getSheet().getWorkbook();
+                CellStyle style = workbook.createCellStyle();
+                DataFormat format = workbook.createDataFormat();
+
+                style.setDataFormat(format.getFormat("0.00"));
+                cell.setCellStyle(style);
+            }
             return;
         }
 

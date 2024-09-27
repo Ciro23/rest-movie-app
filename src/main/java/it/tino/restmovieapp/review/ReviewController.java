@@ -17,8 +17,11 @@ import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
 import java.text.ParseException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 
 @Path("reviews")
@@ -75,8 +78,26 @@ public class ReviewController {
                 voteStart,
                 voteEnd
         );
-        byte[] excelContent = XlsxGenerator.generateXlsx(reviews, "Reviews");
+        Set<ReviewXlsx> reviewsXlsx = new TreeSet<>();
 
+        for (ReviewJson review : reviews) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            String creationFormatted = "";
+            if (review.getCreationDate() != null) {
+                creationFormatted = dateTimeFormatter.format(review.getCreationDate());
+            }
+
+            ReviewXlsx reviewXlsx = new ReviewXlsx();
+            reviewXlsx.setId(review.getId());
+            reviewXlsx.setMovie(review.getMovie().getTitle());
+            reviewXlsx.setUser(review.getUser().getEmail());
+            reviewXlsx.setCreationDate(creationFormatted);
+            reviewXlsx.setVote(review.getVote());
+            reviewXlsx.setContent(review.getContent());
+            reviewsXlsx.add(reviewXlsx);
+        }
+
+        byte[] excelContent = XlsxGenerator.generateXlsx(reviewsXlsx, "Reviews");
         return Response.ok(excelContent)
                 .header("Content-Disposition", "attachment; filename=reviews.xlsx")
                 .build();

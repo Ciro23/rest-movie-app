@@ -20,6 +20,7 @@ export class PersonTableComponent {
 
   fields: TableField[] = [
     { name: "Name", getRawValue: (person: Person) => person.name },
+    { name: "Last name", getRawValue: (person: Person) => person.lastName },
     { name: "Gender", getRawValue: (person: Person) => person.gender },
     { name: "Birth", getRawValue: (person: Person) => person.birth }
   ];

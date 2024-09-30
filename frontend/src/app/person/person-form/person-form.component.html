@@ -20,6 +20,17 @@
       required>
   </label>
 
+  <label class="d-flex flex-column">
+    Last name*
+    <input
+      [(ngModel)]="personForm.lastName"
+      [ngClass]="{'is-invalid': form.submitted && form.controls['last name']?.invalid}"
+      class="form-control"
+      name="last name"
+      type="text"
+      minlength="4">
+  </label>
+
   <div class="d-flex gap-3 flex-wrap">
     <label class="d-flex flex-column flex-grow-1">
       Gender*

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import it.tino.restmovieapp.movie.MovieActor;
 import it.tino.restmovieapp.movie.MovieDirector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,7 +15,18 @@ import java.util.Objects;
 public class Person implements Comparable<Person> {
 	
 	private int id = 0;
+
+	/**
+	 * May also contain a middle name, if present, as there's no specific
+	 * fields for that.
+	 */
     private String name;
+
+	/**
+	 * Not every actor uses a last name for their artist name, like Zendaya.
+	 */
+	@Nullable
+    private String lastName;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birth;
@@ -38,7 +50,16 @@ public class Person implements Comparable<Person> {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
+	@Nullable
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(@Nullable String lastName) {
+		this.lastName = lastName;
+	}
+
 	public LocalDate getBirth() {
 		return birth;
 	}
@@ -104,7 +125,8 @@ public class Person implements Comparable<Person> {
 
 	@Override
 	public int compareTo(@NotNull Person other) {
-		return Comparator.comparing(Person::getName)
+		return Comparator.comparing(Person::getLastName, Comparator.nullsLast(Comparator.naturalOrder()))
+				.thenComparing(Person::getName)
 				.thenComparing(Person::getId)
 				.compare(this, other);
 	}

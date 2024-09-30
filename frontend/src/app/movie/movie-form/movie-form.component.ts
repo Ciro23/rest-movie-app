@@ -139,8 +139,8 @@ export class MovieFormComponent implements OnInit {
     this.movieForm.releaseDate = new Date(value);
   }
 
-  getPersonName = (person: Person) => {
-    return person.name;
+  getPersonFullName = (person: Person) => {
+    return person.name + " " + (person.lastName ?? "");
   }
 
   onSelectDirectors(people: Person[]) {
@@ -151,7 +151,7 @@ export class MovieFormComponent implements OnInit {
     this.movieForm.actors = people;
   }
 
-  searchPeopleByName = (name: string) => {
+  searchPeopleByFullName = (name: string) => {
     const searchablePerson: SearchablePerson = {
       name: name,
     }

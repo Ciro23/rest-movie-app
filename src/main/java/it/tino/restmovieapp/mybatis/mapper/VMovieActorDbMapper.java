@@ -30,14 +30,15 @@ import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 
 @Mapper
 public interface VMovieActorDbMapper extends CommonCountMapper, CommonDeleteMapper, CommonInsertMapper<VMovieActorDb>, CommonUpdateMapper {
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.268951712+02:00", comments="Source Table: v_movies_actors")
-    BasicColumn[] selectList = BasicColumn.columnList(actorId, name, birth, gender, movieId, title, releaseDate, budget, boxOffice, runtime, overview, role, castOrder);
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.36776426+02:00", comments="Source Table: v_movies_actors")
+    BasicColumn[] selectList = BasicColumn.columnList(actorId, name, lastName, birth, gender, movieId, title, releaseDate, budget, boxOffice, runtime, overview, role, castOrder);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.268475876+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367307619+02:00", comments="Source Table: v_movies_actors")
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @Results(id="VMovieActorDbResult", value = {
         @Result(column="actor_id", property="actorId", jdbcType=JdbcType.INTEGER),
         @Result(column="name", property="name", jdbcType=JdbcType.VARCHAR),
+        @Result(column="last_name", property="lastName", jdbcType=JdbcType.VARCHAR),
         @Result(column="birth", property="birth", jdbcType=JdbcType.DATE),
         @Result(column="gender", property="gender", jdbcType=JdbcType.CHAR),
         @Result(column="movie_id", property="movieId", jdbcType=JdbcType.INTEGER),
@@ -52,26 +53,27 @@ public interface VMovieActorDbMapper extends CommonCountMapper, CommonDeleteMapp
     })
     List<VMovieActorDb> selectMany(SelectStatementProvider selectStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.268546878+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367379694+02:00", comments="Source Table: v_movies_actors")
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @ResultMap("VMovieActorDbResult")
     Optional<VMovieActorDb> selectOne(SelectStatementProvider selectStatement);
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.268584268+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367414208+02:00", comments="Source Table: v_movies_actors")
     default long count(CountDSLCompleter completer) {
         return MyBatis3Utils.countFrom(this::count, VMovieActorDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.268611318+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367450756+02:00", comments="Source Table: v_movies_actors")
     default int delete(DeleteDSLCompleter completer) {
         return MyBatis3Utils.deleteFrom(this::delete, VMovieActorDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.268639871+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367480151+02:00", comments="Source Table: v_movies_actors")
     default int insert(VMovieActorDb row) {
         return MyBatis3Utils.insert(this::insert, row, VMovieActorDb, c ->
             c.map(actorId).toProperty("actorId")
             .map(name).toProperty("name")
+            .map(lastName).toProperty("lastName")
             .map(birth).toProperty("birth")
             .map(gender).toProperty("gender")
             .map(movieId).toProperty("movieId")
@@ -86,11 +88,12 @@ public interface VMovieActorDbMapper extends CommonCountMapper, CommonDeleteMapp
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.268718377+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367540794+02:00", comments="Source Table: v_movies_actors")
     default int insertMultiple(Collection<VMovieActorDb> records) {
         return MyBatis3Utils.insertMultiple(this::insertMultiple, records, VMovieActorDb, c ->
             c.map(actorId).toProperty("actorId")
             .map(name).toProperty("name")
+            .map(lastName).toProperty("lastName")
             .map(birth).toProperty("birth")
             .map(gender).toProperty("gender")
             .map(movieId).toProperty("movieId")
@@ -105,11 +108,12 @@ public interface VMovieActorDbMapper extends CommonCountMapper, CommonDeleteMapp
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.268823954+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367631392+02:00", comments="Source Table: v_movies_actors")
     default int insertSelective(VMovieActorDb row) {
         return MyBatis3Utils.insert(this::insert, row, VMovieActorDb, c ->
             c.map(actorId).toPropertyWhenPresent("actorId", row::getActorId)
             .map(name).toPropertyWhenPresent("name", row::getName)
+            .map(lastName).toPropertyWhenPresent("lastName", row::getLastName)
             .map(birth).toPropertyWhenPresent("birth", row::getBirth)
             .map(gender).toPropertyWhenPresent("gender", row::getGender)
             .map(movieId).toPropertyWhenPresent("movieId", row::getMovieId)
@@ -124,30 +128,31 @@ public interface VMovieActorDbMapper extends CommonCountMapper, CommonDeleteMapp
         );
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.268980976+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367793895+02:00", comments="Source Table: v_movies_actors")
     default Optional<VMovieActorDb> selectOne(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectOne(this::selectOne, selectList, VMovieActorDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.269011623+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367823981+02:00", comments="Source Table: v_movies_actors")
     default List<VMovieActorDb> select(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectList(this::selectMany, selectList, VMovieActorDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.269068859+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367852384+02:00", comments="Source Table: v_movies_actors")
     default List<VMovieActorDb> selectDistinct(SelectDSLCompleter completer) {
         return MyBatis3Utils.selectDistinct(this::selectMany, selectList, VMovieActorDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.26912841+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367884363+02:00", comments="Source Table: v_movies_actors")
     default int update(UpdateDSLCompleter completer) {
         return MyBatis3Utils.update(this::update, VMovieActorDb, completer);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.269170368+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.367913197+02:00", comments="Source Table: v_movies_actors")
     static UpdateDSL<UpdateModel> updateAllColumns(VMovieActorDb row, UpdateDSL<UpdateModel> dsl) {
         return dsl.set(actorId).equalTo(row::getActorId)
                 .set(name).equalTo(row::getName)
+                .set(lastName).equalTo(row::getLastName)
                 .set(birth).equalTo(row::getBirth)
                 .set(gender).equalTo(row::getGender)
                 .set(movieId).equalTo(row::getMovieId)
@@ -161,10 +166,11 @@ public interface VMovieActorDbMapper extends CommonCountMapper, CommonDeleteMapp
                 .set(castOrder).equalTo(row::getCastOrder);
     }
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-26T17:06:15.269235089+02:00", comments="Source Table: v_movies_actors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-09-30T12:02:57.36798466+02:00", comments="Source Table: v_movies_actors")
     static UpdateDSL<UpdateModel> updateSelectiveColumns(VMovieActorDb row, UpdateDSL<UpdateModel> dsl) {
         return dsl.set(actorId).equalToWhenPresent(row::getActorId)
                 .set(name).equalToWhenPresent(row::getName)
+                .set(lastName).equalToWhenPresent(row::getLastName)
                 .set(birth).equalToWhenPresent(row::getBirth)
                 .set(gender).equalToWhenPresent(row::getGender)
                 .set(movieId).equalToWhenPresent(row::getMovieId)

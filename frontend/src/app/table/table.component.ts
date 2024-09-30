@@ -5,6 +5,7 @@ import {RouterLink} from "@angular/router";
 import {TableField} from "./table-field";
 import {ConfirmationModalComponent} from "../confirmation-modal/confirmation-modal.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {compareNullableStrings} from "../collections";
 
 type SortOrder = 'asc' | 'desc';
 
@@ -119,8 +120,8 @@ export class TableComponent implements OnChanges {
       }
 
       return this.sortOrder === 'asc'
-        ? valueA.toString().localeCompare(valueB.toString())
-        : valueB.toString().localeCompare(valueA.toString());
+        ? compareNullableStrings(valueA, valueB)
+        : compareNullableStrings(valueB, valueA);
     });
 
     this.paginateRows()

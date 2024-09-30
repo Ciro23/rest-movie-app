@@ -161,6 +161,7 @@ public class PersonManager {
 						PersonDb person = new PersonDb();
 						person.setId(m.getDirectorId());
 						person.setName(m.getName());
+						person.setLastName(m.getLastName());
 						person.setBirth(m.getBirth());
 						person.setGender(m.getGender());
 						return person;
@@ -173,6 +174,7 @@ public class PersonManager {
 								PersonDb person = new PersonDb();
 								person.setId(m.getActorId());
 								person.setName(m.getName());
+								person.setLastName(m.getLastName());
 								person.setBirth(m.getBirth());
 								person.setGender(m.getGender());
 								return person;

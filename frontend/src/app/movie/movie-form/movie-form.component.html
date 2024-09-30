@@ -27,8 +27,8 @@
         [isInvalid]="form.submitted && (!movieForm.directors || movieForm.directors?.length == 0)"
         [placeholder]="'Search by name'"
         [allowMultipleSelections]="true"
-        [getDisplayValue]="getPersonName"
-        [onSearch]="searchPeopleByName"
+        [getDisplayValue]="getPersonFullName"
+        [onSearch]="searchPeopleByFullName"
         [selectedItems]="movieForm.directors ?? []"
         (onSelectedItems)="onSelectDirectors($event)"></app-autocomplete-field>
     </label>
@@ -39,8 +39,8 @@
         [isInvalid]="form.submitted && (!movieForm.actors || movieForm.actors?.length == 0)"
         [placeholder]="'Search by name'"
         [allowMultipleSelections]="true"
-        [getDisplayValue]="getPersonName"
-        [onSearch]="searchPeopleByName"
+        [getDisplayValue]="getPersonFullName"
+        [onSearch]="searchPeopleByFullName"
         [selectedItems]="movieForm.actors ?? []"
         (onSelectedItems)="onSelectActors($event)"></app-autocomplete-field>
     </label>

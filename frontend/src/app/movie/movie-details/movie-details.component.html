@@ -15,7 +15,7 @@
 
       <div class="d-flex gap-2">
         <a *ngFor="let genre of genres"
-           routerLink="/genres/{{ genre.id }}"
+           routerLink="/genres/{{ genre.id }}/edit"
            class="rounded bg-secondary px-2 py-1 text-light text-decoration-none">
           {{ genre.name }}
         </a>
@@ -68,13 +68,18 @@
     <p>
       <strong>Directed by: </strong>
       <ng-container *ngFor="let director of directors; let isLast = last">
-        <a [routerLink]="['/people', director.id]">{{ director.name }}</a>{{ isLast ? '' : ', ' }}
+        <a [routerLink]="['/people', director.id]">
+          {{ director.name }}
+          <span *ngIf="director.lastName != null"> {{ director.lastName }}</span>
+        </a>{{ isLast ? '' : ', ' }}
       </ng-container>
     </p>
     <p>
       <strong>Starring: </strong>
       <ng-container *ngFor="let actor of actors; let isLast = last">
-        <a [routerLink]="['/people', actor.id]">{{ actor.name }}</a>{{ isLast ? '' : ', ' }}
+        <a [routerLink]="['/people', actor.id]">
+          {{ actor.name }}<span *ngIf="actor.lastName != null"> {{ actor.lastName }}</span>
+        </a>{{ isLast ? '' : ', ' }}
       </ng-container>
     </p>
   </div>

@@ -6,6 +6,7 @@ public class PersonXlsx implements Comparable<PersonXlsx> {
 
     private int id = 0;
     private String name;
+    private String lastName;
 
     /**
      * A date already formatted.
@@ -28,6 +29,14 @@ public class PersonXlsx implements Comparable<PersonXlsx> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getBirth() {

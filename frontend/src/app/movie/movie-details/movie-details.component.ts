@@ -7,6 +7,7 @@ import {CurrencyPipe, DatePipe, NgFor, NgIf} from "@angular/common";
 import {Movie} from "../movie";
 import {Genre} from "../../genre/genre";
 import {Person} from "../../person/person";
+import {compareNullableStrings} from "../../collections";
 
 @Component({
   selector: 'app-movie-details',
@@ -77,12 +78,12 @@ export class MovieDetailsComponent implements OnInit {
   get directors() {
     return this.people
       .filter(person => this.movie.directorIds.includes(person.id))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => compareNullableStrings(a.lastName, b.lastName));
   }
 
   get actors() {
     return this.people
       .filter(person => this.movie.actors.map(a => a.actorId).includes(person.id))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => compareNullableStrings(a.lastName, b.lastName));
   }
 }

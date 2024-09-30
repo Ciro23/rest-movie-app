@@ -78,6 +78,7 @@ public class PersonController {
             PersonXlsx personXlsx = new PersonXlsx();
             personXlsx.setId(person.getId());
             personXlsx.setName(person.getName());
+            personXlsx.setLastName(person.getLastName());
             personXlsx.setBirth(birthFormatted);
             personXlsx.setGender(person.getGender());
             peopleXlsx.add(personXlsx);
@@ -182,10 +183,21 @@ public class PersonController {
         List<Person> filteredPeople = new ArrayList<>();
 
         if (name != null) {
-            List<Person> people = personManager.selectByCriteria(c -> c.where(
-                    PersonDbDynamicSqlSupport.name,
-                    SqlBuilder.isLikeCaseInsensitive("%" + name + "%")
-            ));
+            List<Person> people = personManager.selectByCriteria(c -> c
+                    .where(
+                        PersonDbDynamicSqlSupport.name,
+                        SqlBuilder.isLikeCaseInsensitive("%" + name + "%")
+                    ).or(
+                        PersonDbDynamicSqlSupport.lastName,
+                        SqlBuilder.isLikeCaseInsensitive("%" + name + "%")
+                    ).or(
+                        SqlBuilder.concat(PersonDbDynamicSqlSupport.name, SqlBuilder.constant("' '"), PersonDbDynamicSqlSupport.lastName),
+                        SqlBuilder.isLikeCaseInsensitive("%" + name + "%")
+                    ).or(
+                        SqlBuilder.concat(PersonDbDynamicSqlSupport.lastName, SqlBuilder.constant("' '"), PersonDbDynamicSqlSupport.name),
+                        SqlBuilder.isLikeCaseInsensitive("%" + name + "%")
+                    )
+            );
             CollectionsUtility.addOrRetain(filteredPeople, people);
         }
 

@@ -34,7 +34,6 @@ export const routes: Routes = [
 
   { path: "genres", component: GenreListComponent },
   { path: "genres/new", component: GenreFormComponent },
-  { path: "genres/:id", component: GenreFormComponent },
   { path: "genres/:id/edit", component: GenreFormComponent },
 
   { path: "reviews", component: ReviewListComponent },

@@ -36,6 +36,7 @@ export class PersonService {
   insertPerson(person: Person) {
     return this.httpClient.post<Person>(this.apiUrl, {
       name: person.name,
+      lastName: person.lastName,
       gender: person.gender,
       birth: person.birth.toISOString().split('T')[0],
     }, { observe: 'response' });
@@ -44,6 +45,7 @@ export class PersonService {
   updatePerson(person: Person) {
     return this.httpClient.put<Person>(`${this.apiUrl}/${person.id}`, {
       name: person.name,
+      lastName: person.lastName,
       gender: person.gender,
       birth: person.birth.toISOString().split('T')[0],
     }, { observe: 'response' });

@@ -47,7 +47,6 @@ export class PersonListComponent {
   }
 
   get filterOn(): boolean {
-    console.log(this.searchModel);
     return (
       this.searchModel.name !== undefined && this.searchModel.name !== "" ||
       this.searchModel.gender !== undefined ||

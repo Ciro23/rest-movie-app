@@ -102,6 +102,7 @@ export class PersonFormComponent {
     return {
       id: person.id,
       name: person.name,
+      lastName: person.lastName,
       gender: person.gender,
       birth: new Date(person.birth),
     }
@@ -111,6 +112,7 @@ export class PersonFormComponent {
     return {
       id: personForm.id!,
       name: personForm.name!,
+      lastName: personForm.lastName!,
       gender: personForm.gender!,
       birth: personForm.birth!,
     }

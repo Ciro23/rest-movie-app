@@ -90,6 +90,7 @@ public class PersonMapper implements ObjectMapper<Person, PersonDb> {
 
             person.setId(personDb.getId());
             person.setName(personDb.getName());
+            person.setLastName(personDb.getLastName());
             person.setBirth(convertedBirth);
             person.setGender(Person.Gender.fromId(personDb.getGender()));
             person.setDirectedMovies(directedMovies);
@@ -108,6 +109,7 @@ public class PersonMapper implements ObjectMapper<Person, PersonDb> {
             PersonDb personDb = new PersonDb();
             personDb.setId(domainEntity.getId());
             personDb.setName(domainEntity.getName());
+            personDb.setLastName(domainEntity.getLastName());
             personDb.setBirth(Date.valueOf(domainEntity.getBirth()));
             personDb.setGender(domainEntity.getGender().getId());
             peopleDb.add(personDb);

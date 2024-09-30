@@ -22,7 +22,7 @@ export class ReviewTableComponent {
 
   fields: TableField[] = [
     { name: "Movie", getRawValue: (review: Review) => review.movie.title },
-    { name: "User", getRawValue: (review: Review) => review.user.username },
+    { name: "User", getRawValue: (review: Review) => review.user.email },
     { name: "Creation date", getRawValue: (review: Review) => review.creationDate },
     { name: "Vote", getRawValue: (review: Review) => review.vote },
   ];

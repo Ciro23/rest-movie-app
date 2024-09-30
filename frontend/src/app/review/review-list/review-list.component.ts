@@ -63,13 +63,13 @@ export class ReviewListComponent implements OnInit {
     this.searchModel.movies = movies;
   }
 
-  getUserUsername = (user: User) => {
-    return user.username;
+  getUserEmail = (user: User) => {
+    return user.email;
   }
 
-  searchUsersByUsername = (username: string) => {
+  searchUsersByEmail = (email: string) => {
     const searchableUser: SearchableUser = {
-      username: username,
+      email: email,
     }
     return this.userService.fetchUsers(searchableUser);
   }

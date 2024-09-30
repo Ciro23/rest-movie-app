@@ -135,7 +135,10 @@ export class AutocompleteFieldComponent implements OnChanges {
       this.setInputValue(this.selectedItems[0]);
     }
 
-    this.handleResults(this.defaultResults);
+    // To manage the default results when clicking on the search box.
+    if (this.defaultResults.length > 0) {
+      this.handleResults(this.defaultResults);
+    }
   }
 
   selectItem(item: any) {
@@ -153,6 +156,7 @@ export class AutocompleteFieldComponent implements OnChanges {
       return;
     }
 
+    this.setInputValue("");
     this.handleResults(this.results)
     this.onSearchFieldFocus();
   }

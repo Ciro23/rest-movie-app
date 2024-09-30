@@ -22,10 +22,10 @@
           User
           <app-autocomplete-field
             [allowMultipleSelections]="true"
-            [placeholder]="'Search by username'"
+            [placeholder]="'Search by email'"
             [selectedItems]="selectedUsers"
-            [getDisplayValue]="getUserUsername"
-            [onSearch]="searchUsersByUsername"
+            [getDisplayValue]="getUserEmail"
+            [onSearch]="searchUsersByEmail"
             (onSelectedItems)="onSelectUsers($event)"></app-autocomplete-field>
         </label>
       </div>

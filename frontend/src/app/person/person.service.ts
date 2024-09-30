@@ -67,7 +67,7 @@ export class PersonService {
    * Downloads the .pdf file with the details of a person, given its id.
    */
   downloadPdfFile(personId: number) {
-    this.fileService.downloadPdfFile(`${this.apiUrl}/${personId}/pdf`, "people.pdf");
+    this.fileService.downloadPdfFile(`${this.apiUrl}/${personId}/pdf`, `person-${personId}.pdf`);
   }
 
   private getHttpParams(searchModel?: SearchablePerson) {

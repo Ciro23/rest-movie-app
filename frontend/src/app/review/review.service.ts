@@ -58,7 +58,7 @@ export class ReviewService {
    * Downloads the .pdf file with the details of a review, given its id.
    */
   downloadPdfFile(reviewId: number) {
-    this.fileService.downloadPdfFile(`${this.apiUrl}/${reviewId}/pdf`, "reviews.pdf");
+    this.fileService.downloadPdfFile(`${this.apiUrl}/${reviewId}/pdf`, `review-${reviewId}.pdf`);
   }
 
   private getHttpParams(searchModel?: SearchableReview) {

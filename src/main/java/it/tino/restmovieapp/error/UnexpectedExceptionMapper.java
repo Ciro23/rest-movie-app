@@ -15,6 +15,7 @@ public class UnexpectedExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(Throwable exception) {
+        System.out.println(exception.getMessage());
         ErrorResponse errorResponse = new ErrorResponse()
                 .setType("https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500")
                 .setTitle("Unexpected internal server error")

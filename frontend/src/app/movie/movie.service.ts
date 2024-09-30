@@ -80,7 +80,7 @@ export class MovieService {
    * Downloads the .pdf file with the details of a movie, given its id.
    */
   downloadPdfFile(movieId: number) {
-    this.fileService.downloadPdfFile(`${this.apiUrl}/${movieId}/pdf`, "movies.pdf");
+    this.fileService.downloadPdfFile(`${this.apiUrl}/${movieId}/pdf`, `movie-${movieId}.pdf`);
   }
 
   private getHttpParams(searchModel?: SearchableMovie) {

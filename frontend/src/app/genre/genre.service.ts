@@ -49,7 +49,7 @@ export class GenreService {
    * Downloads the .pdf file with the details of a genre, given its id.
    */
   downloadPdfFile(genreId: number) {
-    this.fileService.downloadPdfFile(`${this.apiUrl}/${genreId}/pdf`, "genres.pdf");
+    this.fileService.downloadPdfFile(`${this.apiUrl}/${genreId}/pdf`, `genre-${genreId}.pdf`);
   }
 
   private getHttpParams(searchModel?: Genre) {

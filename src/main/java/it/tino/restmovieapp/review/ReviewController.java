@@ -4,6 +4,7 @@ package it.tino.restmovieapp.review;
 import it.tino.restmovieapp.CollectionsUtility;
 import it.tino.restmovieapp.MovieApp;
 import it.tino.restmovieapp.error.ErrorResponse;
+import it.tino.restmovieapp.export.PdfGenerator;
 import it.tino.restmovieapp.export.XlsxGenerator;
 import it.tino.restmovieapp.mybatis.mapper.ReviewDbDynamicSqlSupport;
 import jakarta.inject.Inject;
@@ -13,15 +14,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import kotlin.Pair;
+import net.sf.jasperreports.engine.JRException;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Function;
 
 @Path("reviews")
@@ -78,24 +77,7 @@ public class ReviewController {
                 voteStart,
                 voteEnd
         );
-        Set<ReviewXlsx> reviewsXlsx = new TreeSet<>();
-
-        for (ReviewJson review : reviews) {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            String creationFormatted = "";
-            if (review.getCreationDate() != null) {
-                creationFormatted = dateTimeFormatter.format(review.getCreationDate());
-            }
-
-            ReviewXlsx reviewXlsx = new ReviewXlsx();
-            reviewXlsx.setId(review.getId());
-            reviewXlsx.setMovie(review.getMovie().getTitle());
-            reviewXlsx.setUser(review.getUser().getEmail());
-            reviewXlsx.setCreationDate(creationFormatted);
-            reviewXlsx.setVote(review.getVote());
-            reviewXlsx.setContent(review.getContent());
-            reviewsXlsx.add(reviewXlsx);
-        }
+        Set<ReviewXlsx> reviewsXlsx = convertInXlsx(reviews);
 
         byte[] excelContent = XlsxGenerator.generateXlsx(reviewsXlsx, "Reviews");
         return Response.ok(excelContent)
@@ -114,6 +96,26 @@ public class ReviewController {
 
         ReviewJson reviewJson = reviewJsonMapper.domainToTarget(review);
         return Response.ok(reviewJson).build();
+    }
+
+    @GET
+    @Path("{id}/pdf")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response exportReviewPdf(@PathParam("id") int id, @Context UriInfo uriInfo) throws JRException {
+        Review review = reviewManager.selectById(id);
+        if (review == null) {
+            return reviewNotFound(id, uriInfo);
+        }
+
+        ReviewJson reviewJson = reviewJsonMapper.domainToTarget(review);
+        ReviewXlsx reviewWithFullForeignKeys = convertInXlsx(Collections.singleton(reviewJson))
+                .iterator()
+                .next();
+
+        byte[] pdfContent = PdfGenerator.generateReviewPdf(reviewWithFullForeignKeys);
+        return Response.ok(pdfContent)
+                .header("Content-Disposition", "attachment; filename=review-" + review.getId() + ".pdf")
+                .build();
     }
 
     @POST
@@ -284,5 +286,27 @@ public class ReviewController {
                 .ifPresent(values -> CollectionsUtility.addOrRetain(filteredReviews, values));
 
         return reviewJsonMapper.domainToTarget(filteredReviews);
+    }
+
+    private static Set<ReviewXlsx> convertInXlsx(Collection<ReviewJson> reviews) {
+        Set<ReviewXlsx> reviewsXlsx = new TreeSet<>();
+        for (ReviewJson review : reviews) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            String creationFormatted = "";
+            if (review.getCreationDate() != null) {
+                creationFormatted = dateTimeFormatter.format(review.getCreationDate());
+            }
+
+            ReviewXlsx reviewXlsx = new ReviewXlsx();
+            reviewXlsx.setId(review.getId());
+            reviewXlsx.setMovie(review.getMovie().getTitle());
+            reviewXlsx.setUser(review.getUser().getEmail());
+            reviewXlsx.setCreationDate(creationFormatted);
+            reviewXlsx.setVote(review.getVote());
+            reviewXlsx.setContent(review.getContent());
+            reviewsXlsx.add(reviewXlsx);
+        }
+
+        return reviewsXlsx;
     }
 }

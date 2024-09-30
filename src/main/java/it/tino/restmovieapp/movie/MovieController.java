@@ -4,6 +4,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import it.tino.restmovieapp.CollectionsUtility;
 import it.tino.restmovieapp.MovieApp;
 import it.tino.restmovieapp.error.ErrorResponse;
+import it.tino.restmovieapp.export.PdfGenerator;
 import it.tino.restmovieapp.export.XlsxGenerator;
 import it.tino.restmovieapp.genre.Genre;
 import it.tino.restmovieapp.genre.GenreManager;
@@ -19,6 +20,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import kotlin.Pair;
+import net.sf.jasperreports.engine.JRException;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
@@ -211,6 +213,21 @@ public class MovieController {
         // Since in a movie the director can also have a role as an actor,
         // the HashSet prevents duplicates.
         return new HashSet<>(personManager.selectByMovieId(id));
+    }
+
+    @GET
+    @Path("{id}/pdf")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response exportMoviePdf(@PathParam("id") int id, @Context UriInfo uriInfo) throws JRException {
+        Movie movie = movieManager.selectById(id);
+        if (movie == null) {
+            return movieNotFound(id, uriInfo);
+        }
+
+        byte[] pdfContent = PdfGenerator.generateMoviePdf(movie);
+        return Response.ok(pdfContent)
+                .header("Content-Disposition", "attachment; filename=movie-" + movie.getId() + ".pdf")
+                .build();
     }
 
     @POST

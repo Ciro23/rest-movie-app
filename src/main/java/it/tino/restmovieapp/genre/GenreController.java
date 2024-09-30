@@ -3,6 +3,7 @@ package it.tino.restmovieapp.genre;
 
 import it.tino.restmovieapp.MovieApp;
 import it.tino.restmovieapp.error.ErrorResponse;
+import it.tino.restmovieapp.export.PdfGenerator;
 import it.tino.restmovieapp.export.XlsxGenerator;
 import it.tino.restmovieapp.mybatis.mapper.GenreDbDynamicSqlSupport;
 import jakarta.inject.Inject;
@@ -11,6 +12,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import net.sf.jasperreports.engine.JRException;
 import org.mybatis.dynamic.sql.SqlBuilder;
 
 import java.util.List;
@@ -62,6 +64,21 @@ public class GenreController {
             return genreNotFound(id, uriInfo);
         }
         return Response.ok(genre).build();
+    }
+
+    @GET
+    @Path("{id}/pdf")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response exportGenrePdf(@PathParam("id") int id, @Context UriInfo uriInfo) throws JRException {
+        Genre genre = genreManager.selectById(id);
+        if (genre == null) {
+            return genreNotFound(id, uriInfo);
+        }
+
+        byte[] pdfContent = PdfGenerator.generateGenrePdf(genre);
+        return Response.ok(pdfContent)
+                .header("Content-Disposition", "attachment; filename=genre-" + genre.getId() + ".pdf")
+                .build();
     }
 
     @POST

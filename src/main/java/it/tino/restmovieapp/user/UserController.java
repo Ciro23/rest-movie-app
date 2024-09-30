@@ -98,7 +98,7 @@ public class UserController {
 
         byte[] pdfContent = PdfGenerator.generateUserPdf(user);
         return Response.ok(pdfContent)
-                .header("Content-Disposition", "attachment; filename=" + user.getUsername() + ".pdf")
+                .header("Content-Disposition", "attachment; filename=user-" + user.getId() + ".pdf")
                 .build();
     }
 

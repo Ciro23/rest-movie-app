@@ -63,7 +63,7 @@ export class UserService {
    * Downloads the .pdf file with the details of a user, given its id.
    */
   downloadPdfFile(userId: number) {
-    this.fileService.downloadPdfFile(`${this.apiUrl}/${userId}/pdf`, "users.pdf");
+    this.fileService.downloadPdfFile(`${this.apiUrl}/${userId}/pdf`, `user-${userId}.pdf`);
   }
 
   private getHttpParams(searchModel?: SearchableUser) {

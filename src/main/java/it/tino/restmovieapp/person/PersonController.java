@@ -4,6 +4,7 @@ package it.tino.restmovieapp.person;
 import it.tino.restmovieapp.CollectionsUtility;
 import it.tino.restmovieapp.MovieApp;
 import it.tino.restmovieapp.error.ErrorResponse;
+import it.tino.restmovieapp.export.PdfGenerator;
 import it.tino.restmovieapp.export.XlsxGenerator;
 import it.tino.restmovieapp.movie.Movie;
 import it.tino.restmovieapp.movie.MovieManager;
@@ -15,6 +16,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import kotlin.Pair;
+import net.sf.jasperreports.engine.JRException;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
@@ -113,6 +115,21 @@ public class PersonController {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Movie> getStarredMoviesByPersonId(@PathParam("personId") int personId) {
         return movieManager.selectByActorId(personId);
+    }
+
+    @GET
+    @Path("{id}/pdf")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response exportPersonPdf(@PathParam("id") int id, @Context UriInfo uriInfo) throws JRException {
+        Person person = personManager.selectById(id);
+        if (person == null) {
+            return personNotFound(id, uriInfo);
+        }
+
+        byte[] pdfContent = PdfGenerator.generatePersonPdf(person);
+        return Response.ok(pdfContent)
+                .header("Content-Disposition", "attachment; filename=person-" + person.getId() + ".pdf")
+                .build();
     }
 
     @POST

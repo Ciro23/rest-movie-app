@@ -1,6 +1,10 @@
 package it.tino.restmovieapp.export;
 
 import it.tino.restmovieapp.error.MovieAppException;
+import it.tino.restmovieapp.genre.Genre;
+import it.tino.restmovieapp.movie.Movie;
+import it.tino.restmovieapp.person.Person;
+import it.tino.restmovieapp.review.ReviewXlsx;
 import it.tino.restmovieapp.user.User;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -17,8 +21,24 @@ import java.util.Map;
 
 public class PdfGenerator {
 
+    public static byte[] generateMoviePdf(Movie movie) throws JRException {
+        return generatePdf(Collections.singleton(movie), "/pdf_report_templates/movie.jrxml");
+    }
+
+    public static byte[] generatePersonPdf(Person person) throws JRException {
+        return generatePdf(Collections.singleton(person), "/pdf_report_templates/person.jrxml");
+    }
+
     public static byte[] generateUserPdf(User user) throws JRException {
         return generatePdf(Collections.singleton(user), "/pdf_report_templates/user.jrxml");
+    }
+
+    public static byte[] generateReviewPdf(ReviewXlsx review) throws JRException {
+        return generatePdf(Collections.singleton(review), "/pdf_report_templates/review.jrxml");
+    }
+
+    public static byte[] generateGenrePdf(Genre genre) throws JRException {
+        return generatePdf(Collections.singleton(genre), "/pdf_report_templates/genre.jrxml");
     }
 
     /**
@@ -42,7 +62,7 @@ public class PdfGenerator {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("CollectionBeanParam", dataSource);
 
-        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, new JREmptyDataSource());
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
 
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
         JRPdfExporter exporter = new JRPdfExporter();

@@ -76,7 +76,7 @@
       <input
         [(ngModel)]="reviewForm.vote"
         [disabled]="!editMode"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['vote']?.invalid}"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['vote'].invalid}"
         class="form-control"
         name="vote"
         type="number"

@@ -13,12 +13,12 @@
       Name
       <input
         [(ngModel)]="genre.name"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['name']?.invalid}"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['name'].invalid}"
         class="px-2 py-1 form-control"
         name="name"
         type="text"
-        placeholder="Comedy"
         minlength="3"
+        autocomplete="off"
         required>
     </label>
 

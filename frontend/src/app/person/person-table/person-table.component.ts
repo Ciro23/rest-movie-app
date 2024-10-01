@@ -5,12 +5,15 @@ import {Router} from "@angular/router";
 import {PersonService} from "../person.service";
 import {SearchablePerson} from "../searchable-person";
 import {TableField} from "../../table/table-field";
+import {FrontendTableComponent} from "../../table/frontend-table/frontend-table.component";
+import {catchError, map, Observable, of} from "rxjs";
 
 @Component({
   selector: 'app-person-table',
   standalone: true,
   imports: [
-    TableComponent
+    TableComponent,
+    FrontendTableComponent
   ],
   templateUrl: './person-table.component.html',
 })
@@ -47,12 +50,10 @@ export class PersonTableComponent {
     this.personService.downloadXlsxFile(this.searchModel);
   }
 
-  delete = (userId: number) => {
-    this.personService.deletePerson(userId)
-      .subscribe(response => {
-        if (response.status === 204) {
-          this.people = this.people.filter(user => user.id !== userId);
-        }
-      });
+  delete = (personId: number): Observable<boolean> => {
+    return this.personService.deletePerson(personId).pipe(
+      map(response => response.status === 204),
+      catchError(() => of(false))
+    );
   }
 }

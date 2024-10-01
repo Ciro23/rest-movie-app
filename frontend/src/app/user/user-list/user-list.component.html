@@ -9,12 +9,21 @@
       <div class="d-flex gap-3 flex-wrap">
         <label class="d-flex flex-column flex-grow-1">
           Username
-          <input name="username" [(ngModel)]="searchModel.username" class="form-control">
+          <input
+            [(ngModel)]="searchModel.username"
+            name="username"
+            autocomplete="off"
+            class="form-control">
         </label>
 
         <label class="d-flex flex-column flex-grow-1">
           Email
-          <input name="email" type="email" [(ngModel)]="searchModel.email" class="form-control">
+          <input
+            [(ngModel)]="searchModel.email"
+            name="email"
+            type="email"
+            autocomplete="off"
+            class="form-control">
         </label>
       </div>
 

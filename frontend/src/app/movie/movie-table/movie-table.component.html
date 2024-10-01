@@ -1,11 +1,11 @@
-<app-table
+<app-frontend-table
   [rows]="movies"
   [fields]="fields"
-  [sortedField]="fields[1]"
-  [sortOrder]="'desc'"
+  [sortField]="fields[1]"
+  [sortDirection]="'desc'"
   [onView]="view"
   [onCreateNew]="createNew"
   [onEdit]="edit"
   [onDelete]="delete"
   [onDownloadPdf]="downloadPdf"
-  [onDownloadXlsx]="downloadXlsx"></app-table>
+  [onDownloadXlsx]="downloadXlsx"></app-frontend-table>

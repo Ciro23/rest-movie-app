@@ -1,21 +1,34 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {TableComponent} from "../../table/table.component";
 import {Genre} from "../genre";
 import {Router} from "@angular/router";
 import {GenreService} from "../genre.service";
 import {TableField} from "../../table/table-field";
+import {BackendTableComponent} from "../../table/backend-table/backend-table.component";
+import {SortDirection} from "../../table/sort-direction";
+import {catchError, map, Observable, of} from "rxjs";
 
 @Component({
   selector: 'app-genre-table',
   standalone: true,
   imports: [
-    TableComponent
+    TableComponent,
+    BackendTableComponent
   ],
   templateUrl: './genre-table.component.html',
 })
 export class GenreTableComponent {
-  @Input() genres: Genre[] = [];
   @Input() searchModel?: Genre;
+
+  getRows = (
+    page: number,
+    pageSize: number,
+    sortField: string,
+    sortDirection: SortDirection,
+    searchModel: Genre
+  ) => {
+    return this.genreService.fetchGenresPaginated(page, pageSize, sortField, sortDirection, searchModel);
+  }
 
   fields: TableField[] = [
     { name: "Name", getRawValue: (genre: Genre) => genre.name },
@@ -39,12 +52,10 @@ export class GenreTableComponent {
     this.genreService.downloadXlsxFile(this.searchModel);
   }
 
-  delete = (userId: number) => {
-    this.genreService.deleteGenre(userId)
-      .subscribe(response => {
-        if (response.status === 204) {
-          this.genres = this.genres.filter(user => user.id !== userId);
-        }
-      });
+  delete = (genreId: number): Observable<boolean> => {
+    return this.genreService.deleteGenre(genreId).pipe(
+      map(response => response.status === 204),
+      catchError(() => of(false))
+    );
   }
 }

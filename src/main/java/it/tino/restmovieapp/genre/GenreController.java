@@ -2,6 +2,7 @@ package it.tino.restmovieapp.genre;
 
 
 import it.tino.restmovieapp.MovieApp;
+import it.tino.restmovieapp.PaginatedResponse;
 import it.tino.restmovieapp.error.ErrorResponse;
 import it.tino.restmovieapp.export.PdfGenerator;
 import it.tino.restmovieapp.export.XlsxGenerator;
@@ -14,6 +15,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import net.sf.jasperreports.engine.JRException;
 import org.mybatis.dynamic.sql.SqlBuilder;
+import org.mybatis.dynamic.sql.select.CountDSLCompleter;
+import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
 import java.util.List;
 import java.util.Set;
@@ -31,18 +34,24 @@ public class GenreController {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Set<Genre> getAll(@QueryParam("name") String name) {
-        return new TreeSet<>(filterGenres(name));
+    public PaginatedResponse<Genre> getAll(
+        @QueryParam("name") String name,
+        @QueryParam("page") @DefaultValue("1") Integer page,
+        @QueryParam("size") @DefaultValue("10") Integer size,
+        @QueryParam("sortField") @DefaultValue("name") String sortField,
+        @QueryParam("sortDirection") @DefaultValue("asc") String sortDirection
+    ) {
+        return filterGenres(name, page, size, sortField, sortDirection);
     }
 
     @GET
     @Path("xlsx")
     @Produces(MediaType.APPLICATION_JSON)
     public Response exportGenres(@QueryParam("name") String name) {
-        List<Genre> genres = filterGenres(name);
+        PaginatedResponse<Genre> genres = filterGenres(name, null, null, null, null);
         Set<GenreXlsx> genresXlsx = new TreeSet<>();
 
-        for (Genre genre : genres) {
+        for (Genre genre : genres.data()) {
             GenreXlsx genreXlsx = new GenreXlsx();
             genreXlsx.setId(genre.getId());
             genreXlsx.setName(genre.getName());
@@ -131,14 +140,46 @@ public class GenreController {
                 .build();
     }
 
-    private List<Genre> filterGenres(String name) {
-        if (name == null) {
-            return genreManager.selectAll();
+    private PaginatedResponse<Genre> filterGenres(
+        String name,
+        Integer page,
+        Integer size,
+        String sortField,
+        String sortDirection
+    ) {
+        if (page == null || size == null) {
+            if (name == null) {
+                List<Genre> allGenres = genreManager.selectAll();
+                return new PaginatedResponse<>(allGenres, allGenres.size());
+            }
+
+            List<Genre> filteredGenres = genreManager.selectByCriteria(c -> c.where(
+                    GenreDbDynamicSqlSupport.name,
+                    SqlBuilder.isLike("%" + name + "%")
+            ));
+            return new PaginatedResponse<>(filteredGenres, filteredGenres.size());
         }
 
-        return genreManager.selectByCriteria(c -> c.where(
+        int offset = (page - 1) * size;
+        if (name == null) {
+            return genreManager.selectPaginated(offset, size, sortField, sortDirection);
+        }
+
+        SelectDSLCompleter selectDSLCompleter = c -> c.where(
                 GenreDbDynamicSqlSupport.name,
                 SqlBuilder.isLike("%" + name + "%")
-        ));
+        );
+        CountDSLCompleter countDSLCompleter = c -> c.where(
+                GenreDbDynamicSqlSupport.name,
+                SqlBuilder.isLike("%" + name + "%")
+        );
+        return genreManager.selectPaginatedByCriteria(
+                selectDSLCompleter,
+                countDSLCompleter,
+                offset,
+                size,
+                sortField,
+                sortDirection
+        );
     }
 }

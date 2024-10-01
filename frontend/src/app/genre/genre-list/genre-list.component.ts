@@ -25,16 +25,14 @@ export class GenreListComponent implements OnInit {
     name: "",
   };
 
-  constructor(private genreService: GenreService) {}
-
   ngOnInit(): void {
-    this.search();
   }
 
   search() {
-    this.genreService.fetchGenres(this.searchModel).subscribe(genres => {
-      this.genres = genres;
-    })
+    this.searchModel = {
+      id: this.searchModel.id,
+      name: this.searchModel.name,
+    };
   }
 
   get filterOn(): boolean {

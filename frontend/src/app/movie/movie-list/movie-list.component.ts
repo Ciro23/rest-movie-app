@@ -50,7 +50,7 @@ export class MovieListComponent implements OnInit {
       this.movies = movies;
     })
     this.genreService.fetchGenres().subscribe(genres => {
-      this.genres = genres;
+      this.genres = genres.data;
     })
   }
 

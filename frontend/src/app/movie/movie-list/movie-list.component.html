@@ -9,7 +9,11 @@
       <div class="d-flex flex-column gap-2 mb-3">
         <label class="d-flex flex-column flex-grow-1">
           Title
-          <input [(ngModel)]="searchModel.title" name="title" class="form-control">
+          <input
+            [(ngModel)]="searchModel.title"
+            name="title"
+            autocomplete="off"
+            class="form-control">
         </label>
 
         <label class="d-flex flex-column flex-grow-1">

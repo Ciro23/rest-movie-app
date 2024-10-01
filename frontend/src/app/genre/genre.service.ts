@@ -3,6 +3,7 @@ import {HttpClient, HttpParams} from "@angular/common/http";
 import {FileService} from "../file-service";
 import {Genre} from "./genre";
 import {Observable} from "rxjs";
+import {PaginatedResponse} from "../paginated-response";
 
 @Injectable({
   providedIn: 'root'
@@ -12,9 +13,25 @@ export class GenreService {
 
   constructor(private httpClient: HttpClient, private fileService: FileService) {}
 
-  fetchGenres(searchModel?: Genre): Observable<Genre[]> {
+  fetchGenres(searchModel?: Genre): Observable<PaginatedResponse<Genre>> {
     const httpParams = this.getHttpParams(searchModel);
-    return this.httpClient.get<Genre[]>(this.apiUrl, {params: httpParams});
+    return this.httpClient.get<PaginatedResponse<Genre>>(this.apiUrl, {params: httpParams});
+  }
+
+  fetchGenresPaginated(
+    page: number,
+    pageSize: number,
+    sortField: string,
+    sortDirection: string,
+    searchModel?: Genre
+  ): Observable<PaginatedResponse<Genre>> {
+    let httpParams = this.getHttpParams(searchModel);
+    httpParams = httpParams.append("page", page);
+    httpParams = httpParams.append("size", pageSize);
+    httpParams = httpParams.append("sortField", sortField);
+    httpParams = httpParams.append("sortDirection", sortDirection);
+
+    return this.httpClient.get<PaginatedResponse<Genre>>(this.apiUrl, {params: httpParams});
   }
 
   fetchGenre(id: number): Observable<Genre> {

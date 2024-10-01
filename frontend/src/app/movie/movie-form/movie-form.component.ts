@@ -74,7 +74,7 @@ export class MovieFormComponent implements OnInit {
         people: this.movieService.fetchPeopleByMovieId(this.movieId),
       }).subscribe({
         next: ({ movie, genres, people }) => {
-          this.allGenres = genres;
+          this.allGenres = genres.data;
           this.people = people;
           this.movieForm = this.domainToForm(movie);
 
@@ -88,7 +88,7 @@ export class MovieFormComponent implements OnInit {
       });
     } else {
       this.genreService.fetchGenres().subscribe(genres => {
-        this.allGenres = genres;
+        this.allGenres = genres.data;
       });
     }
   }

@@ -1,7 +1,9 @@
 package it.tino.restmovieapp.genre;
 
+import it.tino.restmovieapp.PaginatedResponse;
 import it.tino.restmovieapp.SimpleManager;
 import it.tino.restmovieapp.error.MovieAppException;
+import it.tino.restmovieapp.mybatis.mapper.GenreDbDynamicSqlSupport;
 import it.tino.restmovieapp.mybatis.mapper.GenreDbMapper;
 import it.tino.restmovieapp.mybatis.mapper.VMovieGenreDbDynamicSqlSupport;
 import it.tino.restmovieapp.mybatis.mapper.VMovieGenreDbMapper;
@@ -11,10 +13,13 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlBuilder;
+import org.mybatis.dynamic.sql.select.CountDSLCompleter;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class GenreManager {
 
@@ -40,6 +45,10 @@ public class GenreManager {
 			GenreDbMapper dao = sqlSession.getMapper(GenreDbMapper.class);
 			return dao.select(key);
 		};
+		SimpleManager.CountFunction onCount = (sqlSession, key) -> {
+			GenreDbMapper dao = sqlSession.getMapper(GenreDbMapper.class);
+			return dao.count(key);
+		};
 		SimpleManager.SelectByIdFunction<GenreDb, Integer> onSelectById = (sqlSession, key) -> {
 			GenreDbMapper dao = sqlSession.getMapper(GenreDbMapper.class);
 			return dao.selectByPrimaryKey(key);
@@ -48,14 +57,33 @@ public class GenreManager {
 			GenreDbMapper dao = sqlSession.getMapper(GenreDbMapper.class);
 			return dao.deleteByPrimaryKey(key);
 		};
+
+		BiFunction<String, String, SortSpecification> onGetSortSpecification = (
+				String sortField,
+				String sortDirection
+		) -> {
+			SortSpecification sortSpec = GenreDbDynamicSqlSupport.name;
+			if (sortField.equalsIgnoreCase("id")) {
+				sortSpec = GenreDbDynamicSqlSupport.id;
+			}
+
+			if ("desc".equalsIgnoreCase(sortDirection)) {
+				sortSpec = sortSpec.descending();
+			}
+
+			return sortSpec;
+		};
+
 		this.simpleManager = new SimpleManager<>(
 				sqlSessionFactory,
 				genreMapper,
 				onInsert,
 				onUpdate,
 				onSelect,
+				onCount,
 				onSelectById,
-				onDelete
+				onDelete,
+				onGetSortSpecification
 		);
 	}
 
@@ -69,6 +97,15 @@ public class GenreManager {
 
 	public List<Genre> selectAll() {
 		return simpleManager.selectAll();
+	}
+
+	public PaginatedResponse<Genre> selectPaginated(
+		int offset,
+		int size,
+		String sortField,
+		String sortDirection
+	) {
+		return simpleManager.selectPaginated(offset, size, sortField, sortDirection);
 	}
 
 	public Genre selectById(int id) {
@@ -102,6 +139,24 @@ public class GenreManager {
 
 	public List<Genre> selectByCriteria(SelectDSLCompleter selectDSLCompleter) {
 		return simpleManager.selectByCriteria(selectDSLCompleter);
+	}
+
+	public PaginatedResponse<Genre> selectPaginatedByCriteria(
+		SelectDSLCompleter selectDSLCompleter,
+		CountDSLCompleter countDSLCompleter,
+		int offset,
+		int size,
+		String sortField,
+		String sortDirection
+	) {
+		return simpleManager.selectPaginatedByCriteria(
+				selectDSLCompleter,
+				countDSLCompleter,
+				offset,
+				size,
+				sortField,
+				sortDirection
+		);
 	}
 
 	public boolean delete(int id) {

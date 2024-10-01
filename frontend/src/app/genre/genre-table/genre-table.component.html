@@ -1,10 +1,11 @@
-<app-table
-  [rows]="genres"
+<app-backend-table
+  [getRows]="getRows"
   [fields]="fields"
-  [sortedField]="fields[0]"
-  [sortOrder]="'asc'"
+  [sortField]="fields[0]"
+  [sortDirection]="'asc'"
+  [searchModel]="searchModel"
   [onCreateNew]="createNew"
   [onEdit]="edit"
   [onDelete]="delete"
   [onDownloadPdf]="downloadPdf"
-  [onDownloadXlsx]="downloadXlsx"></app-table>
+  [onDownloadXlsx]="downloadXlsx"></app-backend-table>

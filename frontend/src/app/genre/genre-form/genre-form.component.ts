@@ -8,6 +8,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {FormUtil} from "../../form-util";
 import {ActionButtonsComponent} from "../../action-buttons/action-buttons.component";
 import {SaveAndCancelButtonsComponent} from "../../form/save-and-cancel-buttons/save-and-cancel-buttons.component";
+import {catchError, map, Observable, of} from "rxjs";
 
 @Component({
   selector: 'app-genre-form',
@@ -83,22 +84,5 @@ export class GenreFormComponent implements OnInit {
         this.errorMessages.push("Something went wrong");
       }
     });
-  }
-
-  edit = () => {
-    void this.router.navigate([`/genres/${this.genreId}/edit`]);
-  }
-
-  downloadPdf = () => {
-    this.genreService.downloadPdfFile(this.genreId!);
-  }
-
-  delete = () => {
-    this.genreService.deleteGenre(this.genreId!)
-      .subscribe(response => {
-        if (response.status === 204) {
-          window.history.back();
-        }
-      });
   }
 }

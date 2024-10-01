@@ -9,7 +9,11 @@
       <div class="d-flex gap-3 flex-wrap">
         <label class="d-flex flex-column flex-grow-1">
           Name
-          <input name="username" [(ngModel)]="searchModel.name" class="form-control">
+          <input
+            [(ngModel)]="searchModel.name"
+            name="username"
+            autocomplete="off"
+            class="form-control">
         </label>
       </div>
 
@@ -20,6 +24,5 @@
   </form>
 
   <app-genre-table
-    [genres]="genres"
     [searchModel]="searchModel"></app-genre-table>
 </div>

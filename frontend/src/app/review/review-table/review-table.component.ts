@@ -7,12 +7,15 @@ import {ReviewService} from "../review.service";
 import {Movie} from "../../movie/movie";
 import {User} from "../../user/user";
 import {TableField} from "../../table/table-field";
+import {FrontendTableComponent} from "../../table/frontend-table/frontend-table.component";
+import {catchError, map, Observable, of} from "rxjs";
 
 @Component({
   selector: 'app-review-table',
   standalone: true,
   imports: [
-    TableComponent
+    TableComponent,
+    FrontendTableComponent
   ],
   templateUrl: './review-table.component.html',
 })
@@ -52,12 +55,10 @@ export class ReviewTableComponent {
     this.reviewService.downloadXlsxFile(this.searchModel);
   }
 
-  delete = (userId: number) => {
-    this.reviewService.deleteReview(userId)
-      .subscribe(response => {
-        if (response.status === 204) {
-          this.reviews = this.reviews.filter(user => user.id !== userId);
-        }
-      });
+  delete = (reviewId: number): Observable<boolean> => {
+    return this.reviewService.deleteReview(reviewId).pipe(
+      map(response => response.status === 204),
+      catchError(() => of(false))
+    );
   }
 }

@@ -5,12 +5,15 @@ import {Router} from "@angular/router";
 import {MovieService} from "../movie.service";
 import {SearchableMovie} from "../searchable-movie";
 import {TableField} from "../../table/table-field";
+import {FrontendTableComponent} from "../../table/frontend-table/frontend-table.component";
+import {catchError, map, Observable, of} from "rxjs";
 
 @Component({
   selector: 'app-movie-table',
   standalone: true,
   imports: [
-    TableComponent
+    TableComponent,
+    FrontendTableComponent
   ],
   templateUrl: './movie-table.component.html',
 })
@@ -51,13 +54,11 @@ export class MovieTableComponent {
     this.movieService.downloadXlsxFile(this.searchModel);
   }
 
-  delete = (userId: number) => {
-    this.movieService.deleteMovie(userId)
-      .subscribe(response => {
-        if (response.status === 204) {
-          this.movies = this.movies.filter(user => user.id !== userId);
-        }
-      });
+  delete = (movieId: number): Observable<boolean> => {
+    return this.movieService.deleteMovie(movieId).pipe(
+      map(response => response.status === 204),
+      catchError(() => of(false))
+    );
   }
 
   formatCurrency(value?: number): string {

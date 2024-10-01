@@ -1,11 +1,11 @@
-<app-table
+<app-frontend-table
   [rows]="people"
   [fields]="fields"
-  [sortedField]="fields[1]"
-  [sortOrder]="'asc'"
+  [sortField]="fields[1]"
+  [sortDirection]="'asc'"
   [onView]="view"
   [onCreateNew]="createNew"
   [onEdit]="edit"
   [onDelete]="delete"
   [onDownloadPdf]="downloadPdf"
-  [onDownloadXlsx]="downloadXlsx"></app-table>
+  [onDownloadXlsx]="downloadXlsx"></app-frontend-table>

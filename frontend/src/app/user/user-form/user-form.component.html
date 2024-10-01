@@ -13,11 +13,12 @@
       Username
       <input
         [(ngModel)]="user.username"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['username']?.invalid}"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['username'].invalid}"
         class="form-control"
         name="username"
         type="text"
         minlength="4"
+        autocomplete="off"
         required>
     </label>
 
@@ -25,12 +26,13 @@
       Email
       <input
         [(ngModel)]="user.email"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['email']?.invalid}"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['email'].invalid}"
         class="form-control"
         name="email"
         type="email"
         placeholder="example@gmail.com"
         email
+        autocomplete="off"
         required>
     </label>
 
@@ -42,7 +44,7 @@
       Password
       <input
         [(ngModel)]="user.password"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['password']?.invalid}"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['password'].invalid}"
         [required]="!userId"
         class="form-control"
         name="password"
@@ -54,7 +56,7 @@
       Repeat password
       <input
         ngModel
-        [ngClass]="{'is-invalid': form.submitted && form.controls['repeat password']?.invalid}"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['repeat password'].invalid}"
         [required]="!userId"
         class="form-control"
         name="repeat password"

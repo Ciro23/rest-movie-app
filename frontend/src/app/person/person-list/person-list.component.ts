@@ -42,7 +42,7 @@ export class PersonListComponent {
       this.people = people;
     })
     this.genreService.fetchGenres().subscribe(genres => {
-      this.genres = genres;
+      this.genres = genres.data;
     })
   }
 

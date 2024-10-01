@@ -12,11 +12,12 @@
     Name*
     <input
       [(ngModel)]="personForm.name"
-      [ngClass]="{'is-invalid': form.submitted && form.controls['name']?.invalid}"
+      [ngClass]="{'is-invalid': form.submitted && form.controls['name'].invalid}"
       class="form-control"
       name="name"
       type="text"
       minlength="4"
+      autocomplete="off"
       required>
   </label>
 
@@ -24,11 +25,12 @@
     Last name*
     <input
       [(ngModel)]="personForm.lastName"
-      [ngClass]="{'is-invalid': form.submitted && form.controls['last name']?.invalid}"
+      [ngClass]="{'is-invalid': form.submitted && form.controls['last name'].invalid}"
       class="form-control"
       name="last name"
       type="text"
-      minlength="4">
+      minlength="4"
+      autocomplete="off">
   </label>
 
   <div class="d-flex gap-3 flex-wrap">
@@ -36,7 +38,7 @@
       Gender*
       <select
         [(ngModel)]="personForm.gender"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['gender']?.invalid}"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['gender'].invalid}"
         name="gender"
         class="form-select"
         required>
@@ -49,7 +51,7 @@
       Birth*
       <input
         [(ngModel)]="birth"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['birth']?.invalid}"
+        [ngClass]="{'is-invalid': form.submitted && form.controls['birth'].invalid}"
         class="form-control"
         name="birth"
         type="date"

@@ -5,9 +5,9 @@ import {RouterLink} from "@angular/router";
 import {TableField} from "./table-field";
 import {ConfirmationModalComponent} from "../confirmation-modal/confirmation-modal.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {compareNullableStrings} from "../collections";
+import {SortDirection} from "./sort-direction";
+import {Observable} from "rxjs";
 
-type SortOrder = 'asc' | 'desc';
 
 @Component({
   selector: 'app-table',
@@ -22,12 +22,25 @@ type SortOrder = 'asc' | 'desc';
   ],
   templateUrl: './table.component.html',
 })
-export class TableComponent implements OnChanges {
+export class TableComponent {
 
   /**
-   * The actual data to display in the table.
+   * The actual data to display in the current page of the table.
    */
   @Input() rows!: any[];
+
+  /**
+   * The total number of rows contained in the table, considering all
+   * pages.
+   */
+  @Input() totalCount: number = 0;
+
+  /**
+   * Number of rows displayed in each page.
+   */
+  @Input() pageSize: number = 10;
+  @Input() currentPage: number = 1;
+  @Input() totalPages: number = 0;
 
   /**
    * The columns of the table, with their name and callbacks
@@ -35,17 +48,20 @@ export class TableComponent implements OnChanges {
    */
   @Input() fields!: TableField[];
 
+  @Input() sortRows!: (field: TableField, sortDirection?: SortDirection) => void;
+  @Input() goToPage!: (page: number) => void;
+
   /**
    * The column currently used to sort the table.
    * If not specified, the table will not be sorted.
    */
-  @Input() sortedField?: TableField;
+  @Input() sortField?: TableField;
 
   /**
-   * The sorting order to apply on {@link sortedField}.
+   * The sorting order to apply on {@link sortField}.
    * If not specified, the first sorting will be ascending.
    */
-  @Input() sortOrder?: SortOrder;
+  @Input() sortDirection?: SortDirection;
 
   /**
    * The user message used when no rows are displayed.
@@ -54,91 +70,13 @@ export class TableComponent implements OnChanges {
 
   @Input() onView?: (rowId: number) => void;
   @Input() onEdit?: (rowId: number) => void;
-  @Input() onDelete?: (rowId: number) => void;
+  @Input() onDelete?: (rowId: number) => Observable<boolean>;
   @Input() onCreateNew!: () => void;
 
   @Input() onDownloadXlsx!: () => void;
   @Input() onDownloadPdf?: (rowId: number) => void;
 
-  /**
-   * Number of rows displayed in each page.
-   */
-  @Input() pageSize: number = 10;
-  paginatedRows: any[] = [];
-
-  /**
-   * Zero-based index of the available pages.
-   */
-  currentPage: number = 0;
-  totalPages: number = 0;
-
   constructor(private modalService: NgbModal) {}
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['rows']) {
-      // Pagination setup.
-      this.totalPages = Math.ceil(this.rows.length / this.pageSize);
-      this.paginateRows();
-
-      if (this.sortedField) {
-        this.sortRows(this.sortedField, this.sortOrder);
-      }
-    }
-  }
-
-  /**
-   * The sorting is made automatically based on the type of data
-   * contained in the cells. Supported one are: {@link number},
-   * {@link Date}, {@link string}. Unknown data types are converted
-   * to strings using {@link Object.toString}.
-   * @param field The column to use for sorting.
-   * @param sortOrder If not specified, the sorting order is toggled
-   * based on the current state.
-   */
-  sortRows(field: TableField, sortOrder?: SortOrder) {
-    if (sortOrder) {
-      this.sortOrder = sortOrder;
-    } else {
-      this.sortOrder = (this.sortedField === field && this.sortOrder === 'asc') ? 'desc' : 'asc';
-    }
-    this.sortedField = field;
-
-    this.rows.sort((a, b) => {
-      const valueA = this.getFieldValue(a, field);
-      const valueB = this.getFieldValue(b, field);
-
-      if (this.isNumber(valueA) && this.isNumber(valueB)) {
-        return this.sortOrder === 'asc' ? valueA - valueB : valueB - valueA;
-      }
-
-      const isValueADate = valueA instanceof Date;
-      const isValueBDate = valueB instanceof Date;
-      if (isValueADate && isValueBDate) {
-        return this.sortOrder === 'asc'
-          ? valueA.getTime() - valueB.getTime()
-          : valueB.getTime() - valueA.getTime();
-      }
-
-      return this.sortOrder === 'asc'
-        ? compareNullableStrings(valueA, valueB)
-        : compareNullableStrings(valueB, valueA);
-    });
-
-    this.paginateRows()
-  }
-
-  paginateRows() {
-    const startIndex = this.currentPage * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.paginatedRows = this.rows.slice(startIndex, endIndex);
-  }
-
-  goToPage(page: number) {
-    if (page >= 0 && page < this.totalPages) {
-      this.currentPage = page;
-      this.paginateRows();
-    }
-  }
 
   openDownloadXlsxConfirmationDialog() {
     const modalRef = this.modalService.open(ConfirmationModalComponent);
@@ -162,15 +100,14 @@ export class TableComponent implements OnChanges {
   }
 
   getOnDelete(rowId: number): () => void {
-    return () => this.onDelete?.(rowId);
+    return () => this.onDelete?.(rowId).subscribe(success => {
+      if (success) {
+        this.rows = this.rows.filter(row => row.id !== rowId);
+      }
+    });
   }
 
   isNumber(value: any): boolean {
     return typeof value === 'number';
-  }
-
-  private getFieldValue(row: any, field: TableField) {
-    const fieldDefinition = this.fields.find(f => f.name === field.name);
-    return fieldDefinition ? fieldDefinition.getRawValue(row) : null;
   }
 }

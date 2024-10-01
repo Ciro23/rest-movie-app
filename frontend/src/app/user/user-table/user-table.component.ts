@@ -7,6 +7,8 @@ import {UserService} from "../user.service";
 import {TableComponent} from "../../table/table.component";
 import {SearchableUser} from "../searchable-user";
 import {TableField} from "../../table/table-field";
+import {FrontendTableComponent} from "../../table/frontend-table/frontend-table.component";
+import {catchError, map, Observable, of} from "rxjs";
 
 @Component({
   selector: 'app-user-table',
@@ -17,7 +19,8 @@ import {TableField} from "../../table/table-field";
     ActionButtonsComponent,
     NgIf,
     NgOptimizedImage,
-    TableComponent
+    TableComponent,
+    FrontendTableComponent
   ],
   templateUrl: './user-table.component.html',
 })
@@ -52,12 +55,10 @@ export class UserTableComponent {
     this.userService.downloadXlsxFile(this.searchModel);
   }
 
-  delete = (userId: number) => {
-    this.userService.deleteUser(userId)
-      .subscribe(response => {
-        if (response.status === 204) {
-          this.users = this.users.filter(user => user.id !== userId);
-        }
-      });
+  delete = (userId: number): Observable<boolean> => {
+    return this.userService.deleteUser(userId).pipe(
+      map(response => response.status === 204),
+      catchError(() => of(false))
+    );
   }
 }

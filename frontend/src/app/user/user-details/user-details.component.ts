@@ -65,4 +65,8 @@ export class UserDetailsComponent implements OnInit {
         }
       });
   }
+
+  getOnReviewEdit(reviewId: number): () => void {
+    return () => void this.router.navigate([`/reviews/${reviewId}/edit`]);
+  }
 }

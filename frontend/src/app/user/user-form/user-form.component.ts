@@ -11,6 +11,7 @@ import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {BackButtonComponent} from "../../back-button/back-button.component";
 import {FormUtil} from "../../form-util";
 import {SaveAndCancelButtonsComponent} from "../../form/save-and-cancel-buttons/save-and-cancel-buttons.component";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
   selector: 'app-user-form',
@@ -46,7 +47,6 @@ export class UserFormComponent implements OnInit {
   constructor(
     private userService: UserService,
     private route: ActivatedRoute,
-    private router: Router,
   ) {
     const id = this.route.snapshot.paramMap.get("id");
     this.userId = id ? +id : undefined;
@@ -83,9 +83,9 @@ export class UserFormComponent implements OnInit {
         if (response.status == 200 && response.body) {
           window.history.back();
         }
-      }, error: (error) => {
-        console.error(error);
-        this.errorMessages.push("Something went wrong");
+      }, error: (error: HttpErrorResponse) => {
+        const errorResponse = error.error;
+        this.errorMessages.push(errorResponse.title);
       }
     });
   }

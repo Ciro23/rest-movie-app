@@ -4,7 +4,7 @@ import {
   EventEmitter,
   HostListener,
   Input,
-  OnChanges,
+  OnChanges, OnInit,
   Output,
   SimpleChanges,
   ViewChild
@@ -15,9 +15,10 @@ import { debounceTime, Observable, of, switchMap } from "rxjs";
 
 /**
  * Provides a text field to search data based on the provided
- * query. It's useful when it's necessary to search across very
- * large amount of data, because no data is loaded until the search
- * query has been written by the user.
+ * query.
+ * It's useful when it's necessary to search across very large
+ * amount of elements, because no data is loaded in bulk until the
+ * search query has been written by the user.
  * It supports both single and multiple selections.
  */
 @Component({
@@ -32,21 +33,23 @@ import { debounceTime, Observable, of, switchMap } from "rxjs";
   templateUrl: './autocomplete-field.component.html',
   styleUrl: './autocomplete-field.component.css'
 })
-export class AutocompleteFieldComponent implements OnChanges {
+export class AutocompleteFieldComponent implements OnInit, OnChanges {
   @Input() placeholder: string = "";
 
   /**
    * Useful in case this component is used inside a form.
    */
-  @Input() isInvalid: boolean = false;
+  @Input()
+  isInvalid: boolean = false;
 
   /**
    * The behaviour of the auto-completable field slightly changes
    * based on the value of this attribute. If false, the value of
    * the only selectable item is written as the value of the html
-   * input field, otherwise all results are listed externally.
+   * input field, otherwise all results are listed as small "tags".
    */
-  @Input() allowMultipleSelections: boolean = false;
+  @Input()
+  allowMultipleSelections: boolean = false;
 
   /**
    * All selected items are stored here in the order they gets
@@ -54,40 +57,48 @@ export class AutocompleteFieldComponent implements OnChanges {
    * It's also possible to preload some items, from the parent
    * component, to be already selected when this component initializes.
    */
-  @Input() selectedItems: any[] = [];
+  @Input()
+  selectedItems: any[] = [];
 
   /**
    * These will always be visible when focusing the search field,
    * when no search has been made.
    */
-  @Input() defaultResults: any[] = [];
+  @Input()
+  defaultResults: any[] = [];
 
   /**
    * The display value is what appears on the results menu
    * if the item appears from a search.
    */
-  @Input() getDisplayValue!: (item: any) => string;
-  @Input() onSearch!: (query: string) => Observable<any[]>;
+  @Input()
+  getDisplayValue!: (item: any) => string;
+
+  @Input()
+  search!: (query: string) => Observable<any[]>;
 
   /**
    * Selected items are emitted to the parent component each time
    * one gets added or removed. If {@link allowMultipleSelections}
    * is false, then the array will contain one element at best.
    */
-  @Output() onSelectedItems: EventEmitter<any[]> = new EventEmitter<any[]>();
+  @Output()
+  onSelectedItems: EventEmitter<any[]> = new EventEmitter<any[]>();
 
   @ViewChild('searchInput') searchInput!: ElementRef;
   searchControl = new FormControl();
-  loading: boolean = false;
+
+  isLoading: boolean = false;
   isDropdownOpen: boolean = false;
 
   /**
-   * Results produced by {@link onSearch}.
+   * Results produced by {@link search}.
    */
   results: any[] = [];
 
   /**
    * Keyboard arrows are supported to navigate through results.
+   * It's undefined when the search has produced no results.
    */
   highlightedResultIndex?: number;
 
@@ -96,23 +107,27 @@ export class AutocompleteFieldComponent implements OnChanges {
    * than this, to prevent tons of results from being loaded
    * by just typing a character.
    */
-  private readonly MIN_NUMBER_OF_CHARS: number = 2;
+  @Input()
+  minNumberOfChars: number = 2;
 
-  constructor() {
+  @Input()
+  debounceTime: number = 400;
+
+  ngOnInit(): void {
     this.searchControl.valueChanges.pipe(
-      debounceTime(400),
+      debounceTime(this.debounceTime),
       switchMap((searchTerm: string) => {
-        if (searchTerm.length < this.MIN_NUMBER_OF_CHARS) {
+        if (searchTerm.length < this.minNumberOfChars) {
           return of({ searchTerm, results: this.defaultResults });
         }
 
-        this.loading = true;
-        return this.onSearch(searchTerm).pipe(
+        this.isLoading = true;
+        return this.search(searchTerm).pipe(
           switchMap((results: any[]) => of({ searchTerm, results }))
         );
       })
     ).subscribe(({ searchTerm, results }: { searchTerm: string; results: any[] }) => {
-      this.loading = false;
+      this.isLoading = false;
 
       // When not using multiple selections, a single character change in the
       // search input field is enough to remove the current selection!
@@ -121,9 +136,8 @@ export class AutocompleteFieldComponent implements OnChanges {
       }
 
       this.handleResults(results)
-      this.isDropdownOpen = this.shouldOpenResultDropdown(searchTerm);
+      this.isDropdownOpen = this.shouldOpenResultsDropdown(searchTerm);
     });
-
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -132,11 +146,11 @@ export class AutocompleteFieldComponent implements OnChanges {
       && !this.allowMultipleSelections
       && this.selectedItems.length > 0
     ) {
-      this.setInputValue(this.selectedItems[0]);
+      this.setSearchInputValue(this.selectedItems[0]);
     }
 
     // To manage the default results when clicking on the search box.
-    if (this.defaultResults.length > 0) {
+    if (changes['defaultResults'] && this.defaultResults.length > 0) {
       this.handleResults(this.defaultResults);
     }
   }
@@ -150,13 +164,13 @@ export class AutocompleteFieldComponent implements OnChanges {
     this.onSelectedItems.emit(this.selectedItems);
 
     if (!this.allowMultipleSelections) {
-      this.setInputValue(item);
+      this.setSearchInputValue(item);
       this.isDropdownOpen = false;
       this.highlightedResultIndex = undefined;
       return;
     }
 
-    this.setInputValue("");
+    this.setSearchInputValue("");
     this.handleResults(this.results)
     this.onSearchFieldFocus();
   }
@@ -177,10 +191,14 @@ export class AutocompleteFieldComponent implements OnChanges {
 
   onSearchFieldFocus() {
     const inputValue = this.searchControl.value;
-    this.isDropdownOpen = this.shouldOpenResultDropdown(inputValue)
+    this.isDropdownOpen = this.shouldOpenResultsDropdown(inputValue)
   }
 
   private handleResults(results: any) {
+    if (results.length === 0 && this.searchControl.value.length === 0) {
+      this.results = this.defaultResults;
+    }
+
     this.results = this.filterOutSelectedItemsFromResults(results);
 
     // Initially, the selection must refer to the first result, so
@@ -192,7 +210,7 @@ export class AutocompleteFieldComponent implements OnChanges {
 
   /**
    * Already selected items are filtered out from the results,
-   * to help preventing them from being selected again.
+   * to prevent them from being selected again.
    */
   private filterOutSelectedItemsFromResults(results: any[]) {
     return results.filter(
@@ -202,7 +220,7 @@ export class AutocompleteFieldComponent implements OnChanges {
     );
   }
 
-  private setInputValue(item: any) {
+  private setSearchInputValue(item: any) {
     let value = this.getDisplayValue(item);
     if (this.allowMultipleSelections) {
       value = "";
@@ -211,19 +229,27 @@ export class AutocompleteFieldComponent implements OnChanges {
     this.searchControl.setValue(value, { emitEvent: false });
   }
 
-  private shouldOpenResultDropdown(searchQuery?: string): boolean {
+  private shouldOpenResultsDropdown(searchQuery?: string): boolean {
+    if (!searchQuery) {
+      searchQuery = "";
+    }
+
     if (!this.allowMultipleSelections && this.selectedItems.length === 1) {
       return false;
     }
 
-    if (this.results.length > 0) {
+    if (
+      (this.results.length > 0 && searchQuery.length > 0)
+      || (this.defaultResults.length > 0 && !this.allDefaultResultsAlreadySelected())
+    ) {
       return true;
     }
 
-    if (!searchQuery) {
-      searchQuery = "";
-    }
-    return searchQuery.length >= this.MIN_NUMBER_OF_CHARS
+    return searchQuery.length >= this.minNumberOfChars
+  }
+
+  private allDefaultResultsAlreadySelected() {
+    return this.defaultResults.every(r => this.selectedItems.includes(r));
   }
 
   @HostListener('keydown', ['$event'])

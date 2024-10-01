@@ -5,8 +5,8 @@
     (ngSubmit)="search()"
     class="d-flex flex-wrap justify-content-center">
 
-    <div class="d-flex flex-column gap-3">
-      <div class="d-flex gap-3 flex-wrap">
+    <div class="d-flex flex-column gap-3 mt-2">
+      <div class="d-flex gap-3 flex-wrap align-items-center justify-content-center">
         <label class="d-flex flex-column flex-grow-1">
           Name
           <input
@@ -23,34 +23,36 @@
             <option [value]="'FEMALE'">Female</option>
           </select>
         </label>
-      </div>
 
-      <div class="border position-relative p-3">
-        <p class="text-center position-absolute top-0 start-50 translate-middle bg-white px-2">
-          Birth
-        </p>
+        <div class="border position-relative p-3">
+          <p class="text-center position-absolute top-0 start-50 translate-middle bg-white px-2">
+            Birth
+          </p>
 
-        <label class="d-flex flex-column">
-          From
-          <input
-            [(ngModel)]="searchModel.birthStart"
-            name="birth-from"
-            type="date"
-            class="form-control">
-        </label>
+          <div class="d-flex gap-2">
+            <label class="d-flex flex-column">
+              From
+              <input
+                [(ngModel)]="searchModel.birthStart"
+                name="birth-from"
+                type="date"
+                class="form-control">
+            </label>
 
-        <label class="d-flex flex-column">
-          To
-          <input
-            [(ngModel)]="searchModel.birthEnd"
-            name="birth-to"
-            type="date"
-            class="form-control">
-        </label>
+            <label class="d-flex flex-column">
+              To
+              <input
+                [(ngModel)]="searchModel.birthEnd"
+                name="birth-to"
+                type="date"
+                class="form-control">
+            </label>
+          </div>
+        </div>
       </div>
 
       <app-search-and-reset-buttons
-        [filterOn]="filterOn"
+        [isFilterOn]="filterOn"
         [resetFilter]="resetFilter"></app-search-and-reset-buttons>
     </div>
   </form>

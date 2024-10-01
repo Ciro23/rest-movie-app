@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {TableComponent} from "../../table/table.component";
+import {TableComponent} from "../../table/table/table.component";
 import {Person} from "../person";
 import {Router} from "@angular/router";
 import {PersonService} from "../person.service";

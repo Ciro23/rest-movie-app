@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import {BackButtonComponent} from "../../back-button/back-button.component";
 import {FormsModule, NgForm} from "@angular/forms";
-import {MultiSelectDropdownComponent} from "../../multi-select-dropdown/multi-select-dropdown.component";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {Genre} from "../../genre/genre";
 import {GenreService} from "../../genre/genre.service";
@@ -11,6 +10,7 @@ import {Person} from "../person";
 import {PersonService} from "../person.service";
 import {PersonForm} from "../person-form";
 import {SaveAndCancelButtonsComponent} from "../../form/save-and-cancel-buttons/save-and-cancel-buttons.component";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
   selector: 'app-person-form',
@@ -18,7 +18,6 @@ import {SaveAndCancelButtonsComponent} from "../../form/save-and-cancel-buttons/
   imports: [
     BackButtonComponent,
     FormsModule,
-    MultiSelectDropdownComponent,
     NgForOf,
     NgIf,
     NgClass,
@@ -41,7 +40,6 @@ export class PersonFormComponent {
     private personService: PersonService,
     private genreService: GenreService,
     private route: ActivatedRoute,
-    private router: Router,
   ) {
     const id = this.route.snapshot.paramMap.get("id");
     this.personId = id ? +id : undefined;
@@ -74,9 +72,9 @@ export class PersonFormComponent {
         if (response.status == 200 && response.body) {
           window.history.back();
         }
-      }, error: (error) => {
-        console.error(error);
-        this.errorMessages.push("Something went wrong");
+      }, error: (error: HttpErrorResponse) => {
+        const errorResponse = error.error;
+        this.errorMessages.push(errorResponse.title);
       }
     });
   }

@@ -14,7 +14,7 @@
             [placeholder]="'Search by title'"
             [getDisplayValue]="getMovieTitle"
             [selectedItems]="selectedMovies"
-            [onSearch]="searchMoviesByTitle"
+            [search]="searchMoviesByTitle"
             (onSelectedItems)="onSelectMovies($event)"></app-autocomplete-field>
         </label>
 
@@ -25,13 +25,13 @@
             [placeholder]="'Search by email'"
             [selectedItems]="selectedUsers"
             [getDisplayValue]="getUserEmail"
-            [onSearch]="searchUsersByEmail"
+            [search]="searchUsersByEmail"
             (onSelectedItems)="onSelectUsers($event)"></app-autocomplete-field>
         </label>
       </div>
 
-      <div class="d-flex gap-3">
-        <div class="border position-relative p-3 flex-grow-1 w-100">
+      <div class="d-flex gap-3 flex-wrap justify-content-evenly">
+        <div class="border position-relative p-3 flex-grow-1">
           <p class="text-center position-absolute top-0 start-50 translate-middle bg-white px-2">
             Creation date
           </p>
@@ -55,7 +55,7 @@
           </label>
         </div>
 
-        <div class="border position-relative p-3 flex-grow-1 w-100">
+        <div class="border position-relative p-3 flex-grow-1">
           <p class="text-center position-absolute top-0 start-50 translate-middle bg-white px-2">
             Vote
           </p>
@@ -85,7 +85,7 @@
       </div>
 
       <app-search-and-reset-buttons
-        [filterOn]="filterOn"
+        [isFilterOn]="filterOn"
         [resetFilter]="resetFilter"></app-search-and-reset-buttons>
     </div>
 

@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import {FormsModule} from "@angular/forms";
-import {MultiSelectDropdownComponent} from "../../multi-select-dropdown/multi-select-dropdown.component";
 import {NgIf} from "@angular/common";
 import {Genre} from "../../genre/genre";
 import {GenreService} from "../../genre/genre.service";
@@ -16,7 +15,6 @@ import {SearchAndResetButtonsComponent} from "../../form/search-and-reset-button
     imports: [
         FormsModule,
         PersonTableComponent,
-        MultiSelectDropdownComponent,
         NgIf,
         SearchAndResetButtonsComponent,
     ],

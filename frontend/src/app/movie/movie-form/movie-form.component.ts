@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {BackButtonComponent} from "../../back-button/back-button.component";
-import {Form, FormsModule, NgForm, ReactiveFormsModule} from "@angular/forms";
+import {FormsModule, NgForm, ReactiveFormsModule} from "@angular/forms";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {Actor, Movie} from "../movie";
 import {MovieService} from "../movie.service";
@@ -10,14 +10,13 @@ import {MovieForm} from "../movie-form";
 import {Genre} from "../../genre/genre";
 import {GenreService} from "../../genre/genre.service";
 import {NgbDropdown, NgbDropdownMenu, NgbDropdownToggle} from "@ng-bootstrap/ng-bootstrap";
-import {MultiSelectDropdownComponent} from "../../multi-select-dropdown/multi-select-dropdown.component";
-import {forkJoin, map, Observable, of} from "rxjs";
+import {forkJoin, Observable, of} from "rxjs";
 import {AutocompleteFieldComponent} from "../../autocomplete-field/autocomplete-field.component";
 import {Person} from "../../person/person";
-import {SearchableUser} from "../../user/searchable-user";
 import {SearchablePerson} from "../../person/searchable-person";
 import {PersonService} from "../../person/person.service";
 import {SaveAndCancelButtonsComponent} from "../../form/save-and-cancel-buttons/save-and-cancel-buttons.component";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
   selector: 'app-movie-form',
@@ -31,7 +30,6 @@ import {SaveAndCancelButtonsComponent} from "../../form/save-and-cancel-buttons/
     NgbDropdown,
     NgbDropdownMenu,
     NgbDropdownToggle,
-    MultiSelectDropdownComponent,
     AutocompleteFieldComponent,
     NgClass,
     SaveAndCancelButtonsComponent
@@ -60,7 +58,6 @@ export class MovieFormComponent implements OnInit {
     private personService: PersonService,
     private genreService: GenreService,
     private route: ActivatedRoute,
-    private router: Router,
   ) {
     const id = this.route.snapshot.paramMap.get("id");
     this.movieId = id ? +id : undefined;
@@ -95,8 +92,17 @@ export class MovieFormComponent implements OnInit {
 
   save(form: NgForm) {
     this.errorMessages = FormUtil.getFormValidationErrors(form);
+
+    if (!this.movieForm.directors || this.movieForm.directors.length === 0) {
+      this.errorMessages.push("\"Directors\" is required");
+    }
+
+    if (!this.movieForm.actors || this.movieForm.actors.length === 0) {
+      this.errorMessages.push("\"Actors\" is required");
+    }
+
     if (!this.movieForm.genres || this.movieForm.genres.length === 0) {
-      this.errorMessages.push("Genres is required");
+      this.errorMessages.push("\"Genres\" is required");
     }
 
     if (!form.valid || this.errorMessages.length > 0) {
@@ -116,9 +122,9 @@ export class MovieFormComponent implements OnInit {
         if (response.status == 200 && response.body) {
           window.history.back();
         }
-      }, error: (error) => {
-        console.error(error);
-        this.errorMessages.push("Something went wrong");
+      }, error: (error: HttpErrorResponse) => {
+        const errorResponse = error.error;
+        this.errorMessages.push(errorResponse.title);
       }
     });
   }

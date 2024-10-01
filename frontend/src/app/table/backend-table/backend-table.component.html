@@ -1,5 +1,5 @@
 <app-table
-  [rows]="rows"
+  [rows]="paginatedRows"
   [totalCount]="totalCount"
   [fields]="fields"
   [sortRows]="sortRows"
@@ -8,7 +8,6 @@
   [sortDirection]="sortDirection"
   [pageSize]="pageSize"
   [currentPage]="currentPage"
-  [totalPages]="totalPages"
   [noRowsFoundMessage]="noRowsFoundMessage"
   [onView]="onView"
   [onEdit]="onEdit"

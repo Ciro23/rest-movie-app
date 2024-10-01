@@ -14,6 +14,6 @@ import {NgIf} from "@angular/common";
   templateUrl: './search-and-reset-buttons.component.html',
 })
 export class SearchAndResetButtonsComponent {
-  @Input() filterOn: boolean = false;
+  @Input() isFilterOn: boolean = false;
   @Input() resetFilter!: () => void;
 }

@@ -1,6 +1,6 @@
 <app-table
   [rows]="paginatedRows"
-  [totalCount]="rows.length"
+  [totalCount]="allRows.length"
   [fields]="fields"
   [sortRows]="sortRows"
   [goToPage]="goToPage"
@@ -8,7 +8,6 @@
   [sortDirection]="sortDirection"
   [pageSize]="pageSize"
   [currentPage]="currentPage"
-  [totalPages]="totalPages"
   [noRowsFoundMessage]="noRowsFoundMessage"
   [onView]="onView"
   [onEdit]="onEdit"

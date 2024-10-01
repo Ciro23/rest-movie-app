@@ -4,7 +4,7 @@ import {NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
 import {Router, RouterLink} from "@angular/router";
 import {ActionButtonsComponent} from "../../action-buttons/action-buttons.component";
 import {UserService} from "../user.service";
-import {TableComponent} from "../../table/table.component";
+import {TableComponent} from "../../table/table/table.component";
 import {SearchableUser} from "../searchable-user";
 import {TableField} from "../../table/table-field";
 import {FrontendTableComponent} from "../../table/frontend-table/frontend-table.component";

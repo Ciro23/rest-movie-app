@@ -13,7 +13,7 @@
 <h2 *ngIf="!reviewId && editMode" class="text-center">Add a new review</h2>
 
 <form
-  class="d-flex flex-column align-items-stretch w-50 m-auto px-5 gap-3 mt-4"
+  class="d-flex flex-column m-auto px-5 gap-3 mt-4"
   (ngSubmit)="save(form)"
   #form="ngForm">
 
@@ -25,7 +25,7 @@
         [isInvalid]="form.submitted && !reviewForm.movie"
         [placeholder]="'Search by title'"
         [getDisplayValue]="getMovieTitle"
-        [onSearch]="searchMoviesByTitle"
+        [search]="searchMoviesByTitle"
         [selectedItems]="reviewForm.movie ? [reviewForm.movie] : []"
         (onSelectedItems)="onSelectMovie($event)"></app-autocomplete-field>
 
@@ -44,8 +44,8 @@
         *ngIf="editMode"
         [isInvalid]="form.submitted && !reviewForm.user"
         [placeholder]="'Search by username'"
-        [getDisplayValue]="getUserUsername"
-        [onSearch]="searchUsersByUsername"
+        [getDisplayValue]="getUserEmail"
+        [search]="searchUsersByEmail"
         [selectedItems]="reviewForm.user ? [reviewForm.user] : []"
         (onSelectedItems)="onSelectUser($event)"></app-autocomplete-field>
 
@@ -97,7 +97,7 @@
       rows="7"></textarea>
   </label>
 
-  <app-save-and-cancel-buttons></app-save-and-cancel-buttons>
+  <app-save-and-cancel-buttons *ngIf="editMode"></app-save-and-cancel-buttons>
 </form>
 <ul *ngIf="errorMessages.length !== 0" class="w-75 m-auto alert alert-danger mt-4">
   <li *ngFor="let errorMessage of errorMessages" class="ms-4">

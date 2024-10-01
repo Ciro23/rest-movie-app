@@ -1,15 +1,16 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {TableField} from "../table-field";
-import {ConfirmationModalComponent} from "../../confirmation-modal/confirmation-modal.component";
-import {compareNullableStrings} from "../../collections";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {SortDirection} from "../sort-direction";
 import {Observable} from "rxjs";
 import {ActionButtonsComponent} from "../../action-buttons/action-buttons.component";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {PaginatedResponse} from "../../paginated-response";
-import {TableComponent} from "../table.component";
+import {TableComponent} from "../table/table.component";
 
+/**
+ * This table uses backend pagination (It has to be fully implemented
+ * in the backend).
+ */
 @Component({
   selector: 'app-backend-table',
   standalone: true,
@@ -23,39 +24,35 @@ import {TableComponent} from "../table.component";
   templateUrl: './backend-table.component.html',
 })
 export class BackendTableComponent implements OnInit, OnChanges {
+
   /**
-   * The actual data to display in the table.
+   * Rows must be fetched by the backend page by page.
    */
-  @Input() getRows!: (
+  @Input()
+  getPaginatedRows!: (
     page: number,
     pageSize: number,
     sortField: string,
-    sortDirection: SortDirection,
-    searchModel: any
+    sortDirection: SortDirection
   ) => Observable<PaginatedResponse<any>>;
 
-  /**
-   * The columns of the table, with their name and callbacks
-   * to obtains the values.
-   */
-  @Input() fields!: TableField[];
+  /** {@link TableComponent.pageSize} */
+  @Input() pageSize: number = 10;
 
-  /**
-   * The column currently used to sort the table.
-   * If not specified, the table will not be sorted.
-   */
-  @Input() sortField?: TableField;
+  /** {@link TableComponent.fields} */
+  @Input()
+  fields!: TableField[];
 
-  /**
-   * The sorting order to apply on {@link sortField}.
-   * If not specified, the first sorting will be ascending.
-   */
-  @Input() sortDirection?: SortDirection;
+  /** {@link TableComponent.sortField} */
+  @Input()
+  sortField?: TableField;
 
-  /**
-   * The user message used when no rows are displayed.
-   */
-  @Input() noRowsFoundMessage!: string;
+  /** {@link TableComponent.sortDirection} */
+  @Input()
+  sortDirection?: SortDirection;
+
+  @Input()
+  noRowsFoundMessage!: string;
 
   @Input() onView?: (rowId: number) => void;
   @Input() onEdit?: (rowId: number) => void;
@@ -66,13 +63,15 @@ export class BackendTableComponent implements OnInit, OnChanges {
   @Input() onDownloadPdf?: (rowId: number) => void;
 
   /**
-   * Number of rows displayed in each page.
+   * This is necessary to reload the rows from the backend when
+   * the filters are applied. It's not a perfect solution.
    */
-  @Input() pageSize: number = 10;
+  @Input()
+  searchModel: any;
 
-  @Input() searchModel: any;
+  /** {@link TableComponent.rows} */
+  paginatedRows: any[] = [];
 
-  rows: any[] = [];
   currentPage = 1;
   totalCount = 0;
 
@@ -81,7 +80,9 @@ export class BackendTableComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.ngOnInit();
+    if (changes['searchModel']) {
+      this.ngOnInit();
+    }
   }
 
   sortRows = (field: TableField, sortDirection?: SortDirection) => {
@@ -96,15 +97,11 @@ export class BackendTableComponent implements OnInit, OnChanges {
   }
 
   goToPage = (page: number) => {
-    this.getRows(page, this.pageSize, this.sortField!.name, this.sortDirection!, this.searchModel)
+    this.getPaginatedRows(page, this.pageSize, this.sortField!.name, this.sortDirection!)
       .subscribe(rows => {
         this.currentPage = page;
-        this.rows = rows.data;
+        this.paginatedRows = rows.data;
         this.totalCount = rows.totalCount;
       });
-  }
-
-  get totalPages() {
-    return Math.ceil(this.totalCount / this.pageSize);
   }
 }

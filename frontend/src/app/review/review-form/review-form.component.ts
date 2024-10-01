@@ -16,7 +16,8 @@ import {UserService} from "../../user/user.service";
 import {MovieService} from "../../movie/movie.service";
 import {ActionButtonsComponent} from "../../action-buttons/action-buttons.component";
 import {SaveAndCancelButtonsComponent} from "../../form/save-and-cancel-buttons/save-and-cancel-buttons.component";
-import {catchError, map, Observable, of} from "rxjs";
+import {ErrorResponse} from "../../error-response";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
   selector: 'app-review-form',
@@ -42,7 +43,9 @@ export class ReviewFormComponent implements OnInit {
    */
   readonly reviewId?: number;
 
-  reviewForm: ReviewForm = {};
+  reviewForm: ReviewForm = {
+    creationDate: new Date(),
+  };
   editMode: boolean = false;
   errorMessages: string[] = [];
 
@@ -74,6 +77,15 @@ export class ReviewFormComponent implements OnInit {
    */
   save(form: NgForm) {
     this.errorMessages = FormUtil.getFormValidationErrors(form);
+
+    if (!this.reviewForm.movie) {
+      this.errorMessages.push("\"Movie\" is required");
+    }
+
+    if (!this.reviewForm.user) {
+      this.errorMessages.push("\"User\" is required");
+    }
+
     if (!form.valid || this.errorMessages.length > 0) {
       return;
     }
@@ -91,9 +103,9 @@ export class ReviewFormComponent implements OnInit {
         if (response.status == 200 && response.body) {
           window.history.back();
         }
-      }, error: (error) => {
-        console.error(error);
-        this.errorMessages.push("Something went wrong");
+      }, error: (error: HttpErrorResponse) => {
+        const errorResponse = error.error;
+        this.errorMessages.push(errorResponse.title);
       }
     });
   }
@@ -128,13 +140,13 @@ export class ReviewFormComponent implements OnInit {
     }
   }
 
-  getUserUsername = (user: User) => {
-    return user.username;
+  getUserEmail = (user: User) => {
+    return user.email;
   }
 
-  searchUsersByUsername = (username: string) => {
+  searchUsersByEmail = (email: string) => {
     const searchableUser: SearchableUser = {
-      username: username,
+      email: email,
     }
     return this.userService.fetchUsers(searchableUser);
   }

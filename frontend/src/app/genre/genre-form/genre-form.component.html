@@ -1,30 +1,30 @@
-<app-back-button></app-back-button>
+<div class="d-flex justify-content-between align-items-center w-100 flex-wrap">
+  <app-back-button></app-back-button>
 
-<h2 *ngIf="genreId" class="text-center">Edit genre</h2>
-<h2 *ngIf="!genreId" class="text-center">Add a new genre</h2>
-
-<div class="w-75 m-auto">
-  <form
-    class="d-flex flex-column align-items-stretch w-50 m-auto px-5 gap-3 mt-4"
-    (ngSubmit)="save(form)"
-    #form="ngForm">
-
-    <label class="d-flex flex-column">
-      Name
-      <input
-        [(ngModel)]="genre.name"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['name'].invalid}"
-        class="px-2 py-1 form-control"
-        name="name"
-        type="text"
-        minlength="3"
-        autocomplete="off"
-        required>
-    </label>
-
-    <app-save-and-cancel-buttons></app-save-and-cancel-buttons>
-  </form>
+  <h2 *ngIf="genreId" class="text-center flex-grow-1 m-0">Edit genre</h2>
+  <h2 *ngIf="!genreId" class="text-center flex-grow-1 m-0">Add a new genre</h2>
 </div>
+
+<form
+  class="d-flex flex-column m-auto px-5 gap-3 mt-4"
+  (ngSubmit)="save(form)"
+  #form="ngForm">
+
+  <label class="d-flex flex-column">
+    Name
+    <input
+      [(ngModel)]="genre.name"
+      [ngClass]="{'is-invalid': form.submitted && form.controls['name'].invalid}"
+      class="px-2 py-1 form-control"
+      name="name"
+      type="text"
+      minlength="3"
+      autocomplete="off"
+      required>
+  </label>
+
+  <app-save-and-cancel-buttons></app-save-and-cancel-buttons>
+</form>
 <ul *ngIf="errorMessages.length !== 0" class="w-75 m-auto alert alert-danger mt-4">
   <li *ngFor="let errorMessage of errorMessages" class="ms-4">
     {{ errorMessage }}

@@ -14,6 +14,7 @@ import {MovieService} from "../../movie/movie.service";
 import {SearchableMovie} from "../../movie/searchable-movie";
 import {Movie} from "../../movie/movie";
 import {SearchAndResetButtonsComponent} from "../../form/search-and-reset-buttons/search-and-reset-buttons.component";
+import {ensureArray} from "../../collections";
 
 @Component({
   selector: 'app-review-list',
@@ -79,11 +80,11 @@ export class ReviewListComponent implements OnInit {
   }
 
   get selectedMovies() {
-    return this.getSelectedItems(this.searchModel.movies);
+    return ensureArray(this.searchModel.movies);
   }
 
   get selectedUsers() {
-    return this.getSelectedItems(this.searchModel.users);
+    return ensureArray(this.searchModel.users);
   }
 
   get filterOn(): boolean {
@@ -100,17 +101,5 @@ export class ReviewListComponent implements OnInit {
   resetFilter =() => {
     this.searchModel = {}
     this.search();
-  }
-
-  private getSelectedItems(items?: any[]) {
-    if (!items) {
-      return [];
-    }
-
-    if (items.length > 0) {
-      return items;
-    }
-
-    return [];
   }
 }

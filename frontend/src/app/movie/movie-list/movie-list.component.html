@@ -22,9 +22,11 @@
             [placeholder]="'Search by name'"
             [allowMultipleSelections]="true"
             [getDisplayValue]="getGenreName"
-            [onSearch]="searchGenreByName"
-            [selectedItems]="searchModel.genres ?? []"
+            [search]="searchGenreByName"
+            [selectedItems]="selectedGenres"
             [defaultResults]="genres"
+            [minNumberOfChars]="1"
+            [debounceTime]="0"
             (onSelectedItems)="onSelectedGenresChange($event)"></app-autocomplete-field>
         </label>
       </div>
@@ -140,7 +142,7 @@
       </div>
 
       <app-search-and-reset-buttons
-        [filterOn]="filterOn"
+        [isFilterOn]="filterOn"
         [resetFilter]="resetFilter"></app-search-and-reset-buttons>
     </div>
 

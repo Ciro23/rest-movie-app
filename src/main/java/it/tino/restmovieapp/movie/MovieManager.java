@@ -240,17 +240,7 @@ public class MovieManager {
 					})
 					.toList();
 
-			// TODO: horrible code. fetch only movies which have all the genres passed to this method.
-			HashSet<Movie> movies = new HashSet<>(movieMapper.sourceToDomain(new HashSet<>(moviesDb)));
-			List<Movie> moviesWithAllTheSelectedGenres = movies
-					.stream()
-					.filter(m -> new HashSet<>(m
-							.getGenreIds()
-							.stream()
-							.toList())
-							.containsAll(genreIds))
-					.toList();
-			return new ArrayList<>(moviesWithAllTheSelectedGenres);
+			return new ArrayList<>(new HashSet<>(movieMapper.sourceToDomain(moviesDb)));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new MovieAppException(e);

@@ -1,5 +1,5 @@
 import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
-import {TableComponent} from "../../table/table.component";
+import {TableComponent} from "../../table/table/table.component";
 import {Genre} from "../genre";
 import {Router} from "@angular/router";
 import {GenreService} from "../genre.service";
@@ -20,14 +20,13 @@ import {catchError, map, Observable, of} from "rxjs";
 export class GenreTableComponent {
   @Input() searchModel?: Genre;
 
-  getRows = (
+  getPaginatedRows = (
     page: number,
     pageSize: number,
     sortField: string,
     sortDirection: SortDirection,
-    searchModel: Genre
   ) => {
-    return this.genreService.fetchGenresPaginated(page, pageSize, sortField, sortDirection, searchModel);
+    return this.genreService.fetchGenresPaginated(page, pageSize, sortField, sortDirection, this.searchModel);
   }
 
   fields: TableField[] = [

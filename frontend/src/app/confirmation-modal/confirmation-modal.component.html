@@ -6,6 +6,10 @@
   <p>{{ message }}</p>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-primary" (click)="confirm()">Confirm</button>
-  <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+  <button
+    (click)="confirm()"
+    [ngClass]="{'btn-primary': type === 'primary', 'btn-danger': type === 'danger'}"
+    type="button"
+    class="btn">Confirm</button>
+  <button (click)="cancel()" type="button" class="btn btn-secondary">Cancel</button>
 </div>

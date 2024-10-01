@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {TableComponent} from "../../table/table.component";
+import {TableComponent} from "../../table/table/table.component";
 import {Router} from "@angular/router";
 import {Review} from "../review";
 import {SearchableReview} from "../searchable-review";

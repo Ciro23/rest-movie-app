@@ -38,6 +38,7 @@ export class ActionButtonsComponent {
     const modalRef = this.modalService.open(ConfirmationModalComponent);
     modalRef.componentInstance.title = "Confirm deletion";
     modalRef.componentInstance.message = "Are you sure you want to delete this item?";
+    modalRef.componentInstance.type = "danger";
     modalRef.componentInstance.confirmed.subscribe(() => {
       this.onDelete?.();
     });

@@ -8,7 +8,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {FormUtil} from "../../form-util";
 import {ActionButtonsComponent} from "../../action-buttons/action-buttons.component";
 import {SaveAndCancelButtonsComponent} from "../../form/save-and-cancel-buttons/save-and-cancel-buttons.component";
-import {catchError, map, Observable, of} from "rxjs";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
   selector: 'app-genre-form',
@@ -42,7 +42,6 @@ export class GenreFormComponent implements OnInit {
   constructor(
     private genreService: GenreService,
     private route: ActivatedRoute,
-    private router: Router,
   ) {
     const id = this.route.snapshot.paramMap.get("id");
     this.genreId = id ? +id : undefined;
@@ -79,9 +78,9 @@ export class GenreFormComponent implements OnInit {
         if (response.status == 200 && response.body) {
           window.history.back();
         }
-      }, error: (error) => {
-        console.error(error);
-        this.errorMessages.push("Something went wrong");
+      }, error: (error: HttpErrorResponse) => {
+        const errorResponse = error.error;
+        this.errorMessages.push(errorResponse.title);
       }
     });
   }

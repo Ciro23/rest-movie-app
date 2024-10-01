@@ -1,13 +1,10 @@
 import {Injectable} from "@angular/core";
 import {HttpClient, HttpParams} from "@angular/common/http";
-import {forkJoin, map, Observable} from "rxjs";
-import {Actor, Movie} from "./movie";
+import {Observable} from "rxjs";
+import {Movie} from "./movie";
 import {FileService} from "../file-service";
 import {SearchableMovie} from "./searchable-movie";
-import {User} from "../user/user";
-import {GenreService} from "../genre/genre.service";
 import {Genre} from "../genre/genre";
-import {Review} from "../review/review";
 import {Person} from "../person/person";
 
 @Injectable({providedIn: "root"})

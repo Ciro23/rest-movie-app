@@ -81,9 +81,9 @@ public class UserController {
     @Path("{userId}/reviews")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ReviewJson> getReviewsByUserId(@PathParam("userId") int userId) {
-        List<Review> reviews = reviewManager.selectByCriteria(c -> c
+        Set<Review> reviews = new TreeSet<>(reviewManager.selectByCriteria(c -> c
                 .where(ReviewDbDynamicSqlSupport.userId, SqlBuilder.isEqualTo(userId))
-        );
+        ));
         return reviewJsonMapper.domainToTarget(reviews);
     }
 

@@ -1,10 +1,12 @@
-<app-back-button></app-back-button>
+<div class="d-flex justify-content-between align-items-center w-100 flex-wrap">
+  <app-back-button></app-back-button>
 
-<h2 *ngIf="movieId" class="text-center">Edit movie</h2>
-<h2 *ngIf="!movieId" class="text-center">Add a new movie</h2>
+  <h2 *ngIf="movieId" class="text-center flex-grow-1 m-0">Edit movie</h2>
+  <h2 *ngIf="!movieId" class="text-center flex-grow-1 m-0">Add a new movie</h2>
+</div>
 
 <form
-  class="d-flex flex-column w-50 m-auto px-5 mt-4 gap-4"
+  class="d-flex flex-column m-auto px-5 mt-4 gap-4"
   (ngSubmit)="save(form)"
   #form="ngForm">
 
@@ -29,7 +31,7 @@
         [placeholder]="'Search by name'"
         [allowMultipleSelections]="true"
         [getDisplayValue]="getPersonFullName"
-        [onSearch]="searchPeopleByFullName"
+        [search]="searchPeopleByFullName"
         [selectedItems]="movieForm.directors ?? []"
         (onSelectedItems)="onSelectDirectors($event)"></app-autocomplete-field>
     </label>
@@ -41,7 +43,7 @@
         [placeholder]="'Search by name'"
         [allowMultipleSelections]="true"
         [getDisplayValue]="getPersonFullName"
-        [onSearch]="searchPeopleByFullName"
+        [search]="searchPeopleByFullName"
         [selectedItems]="movieForm.actors ?? []"
         (onSelectedItems)="onSelectActors($event)"></app-autocomplete-field>
     </label>
@@ -53,15 +55,43 @@
         [placeholder]="'Search by name'"
         [allowMultipleSelections]="true"
         [getDisplayValue]="getGenreName"
-        [onSearch]="searchGenreByName"
+        [search]="searchGenreByName"
         [selectedItems]="movieForm.genres ?? []"
         [defaultResults]="allGenres"
+        [minNumberOfChars]="1"
+        [debounceTime]="0"
         (onSelectedItems)="onSelectedGenresChange($event)"></app-autocomplete-field>
     </label>
 
-    <div class="d-flex gap-3">
+    <div class="d-flex gap-3 flex-wrap">
       <label class="d-flex flex-column flex-grow-1">
-        Budget*
+        Release date*
+        <input
+          [(ngModel)]="releaseDate"
+          [ngClass]="{'is-invalid': form.submitted && form.controls['release date'].invalid}"
+          class="form-control"
+          name="release date"
+          type="date"
+          required>
+      </label>
+
+      <label class="d-flex flex-column flex-grow-1">
+        Runtime*
+        <input
+          [(ngModel)]="movieForm.runtime"
+          [ngClass]="{'is-invalid': form.submitted && form.controls['runtime'].invalid}"
+          class="form-control"
+          name="runtime"
+          type="number"
+          min="0"
+          step="5"
+          required>
+      </label>
+    </div>
+
+    <div class="d-flex gap-3 flex-wrap">
+      <label class="d-flex flex-column flex-grow-1">
+        Budget
         <input
           [(ngModel)]="movieForm.budget"
           [ngClass]="{'is-invalid': form.submitted && form.controls['budget'].invalid}"
@@ -69,8 +99,7 @@
           name="budget"
           type="number"
           min="0"
-          step="1000"
-          required>
+          step="1000">
       </label>
 
       <label class="d-flex flex-column flex-grow-1">
@@ -82,32 +111,6 @@
           min="0"
           step="1000"
           type="number">
-      </label>
-    </div>
-
-    <div class="d-flex gap-3">
-      <label class="d-flex flex-column flex-grow-1 w-100">
-        Release date*
-        <input
-          [(ngModel)]="releaseDate"
-          [ngClass]="{'is-invalid': form.submitted && form.controls['release date'].invalid}"
-          class="form-control"
-          name="release date"
-          type="date"
-          required>
-      </label>
-
-      <label class="d-flex flex-column flex-grow-1 w-100">
-        Runtime*
-        <input
-          [(ngModel)]="movieForm.runtime"
-          [ngClass]="{'is-invalid': form.submitted && form.controls['runtime'].invalid}"
-          class="form-control"
-          name="runtime"
-          type="number"
-          min="0"
-          step="5"
-          required>
       </label>
     </div>
   </div>

@@ -76,11 +76,11 @@ export class ReviewService {
     }
 
     if (searchModel?.creationDateStart) {
-      params = params.append("creationDateStart", searchModel.creationDateStart.toLocaleDateString());
+      params = params.append("creationDateStart", new Date(searchModel.creationDateStart).toISOString());
     }
 
     if (searchModel?.creationDateEnd) {
-      params = params.append("creationDateEnd", searchModel.creationDateEnd.toLocaleDateString());
+      params = params.append("creationDateEnd", new Date(searchModel.creationDateEnd).toISOString());
     }
 
     if (searchModel?.voteStart) {

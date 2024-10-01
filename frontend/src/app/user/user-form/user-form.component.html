@@ -1,72 +1,72 @@
-<app-back-button></app-back-button>
+<div class="d-flex justify-content-between align-items-center w-100 flex-wrap">
+  <app-back-button></app-back-button>
 
-<h2 *ngIf="userId" class="text-center">Edit user</h2>
-<h2 *ngIf="!userId" class="text-center">Add a new user</h2>
-
-<div class="w-75 m-auto">
-  <form
-    class="d-flex flex-column align-items-stretch w-50 m-auto px-5 gap-3 mt-4"
-    (ngSubmit)="save(form)"
-    #form="ngForm">
-
-    <label class="d-flex flex-column">
-      Username
-      <input
-        [(ngModel)]="user.username"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['username'].invalid}"
-        class="form-control"
-        name="username"
-        type="text"
-        minlength="4"
-        autocomplete="off"
-        required>
-    </label>
-
-    <label class="d-flex flex-column">
-      Email
-      <input
-        [(ngModel)]="user.email"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['email'].invalid}"
-        class="form-control"
-        name="email"
-        type="email"
-        placeholder="example@gmail.com"
-        email
-        autocomplete="off"
-        required>
-    </label>
-
-    <p *ngIf="userId" class="mt-4 text-center">
-      Leave the following fields blank if you do not wish to change the password
-    </p>
-
-    <label class="d-flex flex-column">
-      Password
-      <input
-        [(ngModel)]="user.password"
-        [ngClass]="{'is-invalid': form.submitted && form.controls['password'].invalid}"
-        [required]="!userId"
-        class="form-control"
-        name="password"
-        type="password"
-        minlength="10">
-    </label>
-
-    <label class="d-flex flex-column">
-      Repeat password
-      <input
-        ngModel
-        [ngClass]="{'is-invalid': form.submitted && form.controls['repeat password'].invalid}"
-        [required]="!userId"
-        class="form-control"
-        name="repeat password"
-        type="password"
-        placeholder="j06N2L@1Y32!">
-    </label>
-
-    <app-save-and-cancel-buttons></app-save-and-cancel-buttons>
-  </form>
+  <h2 *ngIf="userId" class="text-center flex-grow-1 m-0">Edit user</h2>
+  <h2 *ngIf="!userId" class="text-center flex-grow-1 m-0">Add a new user</h2>
 </div>
+
+<form
+  class="d-flex flex-column m-auto px-5 gap-3 mt-4"
+  (ngSubmit)="save(form)"
+  #form="ngForm">
+
+  <label class="d-flex flex-column">
+    Username
+    <input
+      [(ngModel)]="user.username"
+      [ngClass]="{'is-invalid': form.submitted && form.controls['username'].invalid}"
+      class="form-control"
+      name="username"
+      type="text"
+      minlength="4"
+      autocomplete="off"
+      required>
+  </label>
+
+  <label class="d-flex flex-column">
+    Email
+    <input
+      [(ngModel)]="user.email"
+      [ngClass]="{'is-invalid': form.submitted && form.controls['email'].invalid}"
+      class="form-control"
+      name="email"
+      type="email"
+      placeholder="example@gmail.com"
+      email
+      autocomplete="off"
+      required>
+  </label>
+
+  <p *ngIf="userId" class="mt-4 text-center">
+    Leave the following fields blank if you do not wish to change the password
+  </p>
+
+  <label class="d-flex flex-column">
+    Password
+    <input
+      [(ngModel)]="user.password"
+      [ngClass]="{'is-invalid': form.submitted && form.controls['password'].invalid}"
+      [required]="!userId"
+      class="form-control"
+      name="password"
+      type="password"
+      minlength="10">
+  </label>
+
+  <label class="d-flex flex-column">
+    Repeat password
+    <input
+      ngModel
+      [ngClass]="{'is-invalid': form.submitted && form.controls['repeat password'].invalid}"
+      [required]="!userId"
+      class="form-control"
+      name="repeat password"
+      type="password"
+      placeholder="j06N2L@1Y32!">
+  </label>
+
+  <app-save-and-cancel-buttons></app-save-and-cancel-buttons>
+</form>
 <ul *ngIf="errorMessages.length !== 0" class="w-75 m-auto alert alert-danger mt-4">
   <li *ngFor="let errorMessage of errorMessages" class="ms-4">
     {{ errorMessage }}

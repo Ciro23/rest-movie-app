@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {TableComponent} from "../../table/table.component";
+import {TableComponent} from "../../table/table/table.component";
 import {Movie} from "../movie";
 import {Router} from "@angular/router";
 import {MovieService} from "../movie.service";
@@ -29,7 +29,7 @@ export class MovieTableComponent {
       getRawValue: (movie: Movie) => movie.boxOffice,
       getFormattedValue: (movie: Movie) => this.formatCurrency(movie.boxOffice)
     },
-    { name: "Runtime", getRawValue: (movie: Movie) => movie.runtime }
+    { name: "Runtime (m)", getRawValue: (movie: Movie) => movie.runtime }
   ];
 
   constructor(private movieService: MovieService, private router: Router) {}

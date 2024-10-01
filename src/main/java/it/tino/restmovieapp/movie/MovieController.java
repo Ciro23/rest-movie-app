@@ -142,7 +142,7 @@ public class MovieController {
             List<String> directorNames = people
                     .stream()
                     .filter(p -> movie.getDirectorIds().contains(p.getId()))
-                    .map(Person::getName)
+                    .map(p -> p.getName() + " " + p.getLastName())
                     .sorted()
                     .toList();
 
@@ -153,7 +153,7 @@ public class MovieController {
             List<String> actorNames = people
                     .stream()
                     .filter(p -> actorIds.contains(p.getId()))
-                    .map(Person::getName)
+                    .map(p -> p.getName() + " " + p.getLastName())
                     .sorted()
                     .toList();
 

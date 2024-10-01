@@ -6,7 +6,6 @@ import {MovieService} from "../movie.service";
 import {Movie} from "../movie";
 import {SearchableMovie} from "../searchable-movie";
 import {NgIf} from "@angular/common";
-import {MultiSelectDropdownComponent} from "../../multi-select-dropdown/multi-select-dropdown.component";
 import {Genre} from "../../genre/genre";
 import {GenreService} from "../../genre/genre.service";
 import {AutocompleteFieldComponent} from "../../autocomplete-field/autocomplete-field.component";
@@ -14,6 +13,7 @@ import {Observable, of} from "rxjs";
 import {SearchAndResetButtonsComponent} from "../../form/search-and-reset-buttons/search-and-reset-buttons.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfirmationModalComponent} from "../../confirmation-modal/confirmation-modal.component";
+import {ensureArray} from "../../collections";
 
 @Component({
   selector: 'app-movie-list',
@@ -23,7 +23,6 @@ import {ConfirmationModalComponent} from "../../confirmation-modal/confirmation-
     UserTableComponent,
     MovieTableComponent,
     NgIf,
-    MultiSelectDropdownComponent,
     AutocompleteFieldComponent,
     SearchAndResetButtonsComponent
   ],
@@ -38,7 +37,6 @@ export class MovieListComponent implements OnInit {
   constructor(
     private movieService: MovieService,
     private genreService: GenreService,
-    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -79,6 +77,10 @@ export class MovieListComponent implements OnInit {
         return genre.name.toLowerCase().includes(name.toLowerCase())
       });
     return of(genres);
+  }
+
+  get selectedGenres() {
+    return ensureArray(this.searchModel.genres);
   }
 
   onSelectedGenresChange(genres: Genre[]): void {

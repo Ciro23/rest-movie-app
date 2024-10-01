@@ -3,12 +3,14 @@ import {KeyValuePipe, NgClass, NgForOf, NgIf} from "@angular/common";
 import {RouterLink} from "@angular/router";
 import {TableField} from "../table-field";
 import {SortDirection} from "../sort-direction";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {compareNullableStrings} from "../../collections";
 import {ActionButtonsComponent} from "../../action-buttons/action-buttons.component";
-import {TableComponent} from "../table.component";
+import {TableComponent} from "../table/table.component";
 import {Observable} from "rxjs";
 
+/**
+ * This table uses frontend pagination.
+ */
 @Component({
   selector: 'app-frontend-table',
   standalone: true,
@@ -25,33 +27,27 @@ import {Observable} from "rxjs";
 })
 export class FrontendTableComponent implements OnChanges {
 
-  /**
-   * The actual data to display in the table.
-   */
-  @Input() rows!: any[];
+  @Input()
+  allRows: any[] = [];
 
-  /**
-   * The columns of the table, with their name and callbacks
-   * to obtains the values.
-   */
-  @Input() fields!: TableField[];
+  /** {@link TableComponent.pageSize} */
+  @Input()
+  pageSize: number = 10;
 
-  /**
-   * The column currently used to sort the table.
-   * If not specified, the table will not be sorted.
-   */
-  @Input() sortField?: TableField;
+  /** {@link TableComponent.fields} */
+  @Input()
+  fields!: TableField[];
 
-  /**
-   * The sorting order to apply on {@link sortField}.
-   * If not specified, the first sorting will be ascending.
-   */
-  @Input() sortDirection?: SortDirection;
+  /** {@link TableComponent.sortField} */
+  @Input()
+  sortField?: TableField;
 
-  /**
-   * The user message used when no rows are displayed.
-   */
-  @Input() noRowsFoundMessage!: string;
+  /** {@link TableComponent.sortDirection} */
+  @Input()
+  sortDirection?: SortDirection;
+
+  @Input()
+  noRowsFoundMessage!: string;
 
   @Input() onView?: (rowId: number) => void;
   @Input() onEdit?: (rowId: number) => void;
@@ -61,26 +57,21 @@ export class FrontendTableComponent implements OnChanges {
   @Input() onDownloadXlsx!: () => void;
   @Input() onDownloadPdf?: (rowId: number) => void;
 
-  /**
-   * Number of rows displayed in each page.
-   */
-  @Input() pageSize: number = 10;
+  /** {@link TableComponent.rows} */
   paginatedRows: any[] = [];
 
-  /**
-   * Zero-based index of the available pages.
-   */
   currentPage: number = 1;
+
   get totalPages() {
-    return Math.ceil(this.rows.length / this.pageSize);
-  };
+    return Math.ceil(this.allRows.length / this.pageSize);
+  }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['rows']) {
-      this.paginateRows();
-
+    if (changes['allRows']) {
       if (this.sortField) {
         this.sortRows(this.sortField, this.sortDirection);
+      } else {
+        this.paginateRows();
       }
     }
   }
@@ -102,7 +93,7 @@ export class FrontendTableComponent implements OnChanges {
     }
     this.sortField = field;
 
-    this.rows.sort((a, b) => {
+    this.allRows.sort((a, b) => {
       const valueA = this.getFieldValue(a, field);
       const valueB = this.getFieldValue(b, field);
 
@@ -136,7 +127,7 @@ export class FrontendTableComponent implements OnChanges {
   private paginateRows() {
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
-    this.paginatedRows = this.rows.slice(startIndex, endIndex);
+    this.paginatedRows = this.allRows.slice(startIndex, endIndex);
   }
 
   private isNumber(value: any): boolean {

@@ -108,7 +108,7 @@ public class Review implements Comparable<Review> {
 
     @Override
     public int compareTo(@NotNull Review other) {
-        return Comparator.comparing(Review::getCreationDate)
+        return Comparator.comparing(Review::getCreationDate, Comparator.reverseOrder())
                 .thenComparing(Review::getId)
                 .compare(this, other);
     }

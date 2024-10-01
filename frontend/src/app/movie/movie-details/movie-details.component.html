@@ -38,7 +38,10 @@
     <div class="col-md-3">
       <div class="card p-3">
         <h5>Budget</h5>
-        <p>{{ movie.budget | currency:'USD':'symbol':'1.0-0' }}</p>
+        <p *ngIf="movie.budget">
+          {{ movie.budget | currency:'USD':'symbol':'1.0-0' }}
+        </p>
+        <p *ngIf="!movie.budget">N/A</p>
       </div>
     </div>
 

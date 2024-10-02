@@ -7,46 +7,46 @@ import org.mybatis.dynamic.sql.AliasableSqlTable;
 import org.mybatis.dynamic.sql.SqlColumn;
 
 public final class VMovieDirectorDbDynamicSqlSupport {
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644062864+02:00", comments="Source Table: v_movies_directors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891185Z", comments="Source Table: v_movies_directors")
     public static final VMovieDirectorDb VMovieDirectorDb = new VMovieDirectorDb();
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644159464+02:00", comments="Source field: v_movies_directors.director_id")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891316Z", comments="Source field: v_movies_directors.director_id")
     public static final SqlColumn<Integer> directorId = VMovieDirectorDb.directorId;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644193748+02:00", comments="Source field: v_movies_directors.name")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891386Z", comments="Source field: v_movies_directors.name")
     public static final SqlColumn<String> name = VMovieDirectorDb.name;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.64422715+02:00", comments="Source field: v_movies_directors.last_name")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891457Z", comments="Source field: v_movies_directors.last_name")
     public static final SqlColumn<String> lastName = VMovieDirectorDb.lastName;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644269699+02:00", comments="Source field: v_movies_directors.birth")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.89153Z", comments="Source field: v_movies_directors.birth")
     public static final SqlColumn<Date> birth = VMovieDirectorDb.birth;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644304043+02:00", comments="Source field: v_movies_directors.gender")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891597Z", comments="Source field: v_movies_directors.gender")
     public static final SqlColumn<String> gender = VMovieDirectorDb.gender;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644335862+02:00", comments="Source field: v_movies_directors.movie_id")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891671Z", comments="Source field: v_movies_directors.movie_id")
     public static final SqlColumn<Integer> movieId = VMovieDirectorDb.movieId;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644366819+02:00", comments="Source field: v_movies_directors.title")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891743Z", comments="Source field: v_movies_directors.title")
     public static final SqlColumn<String> title = VMovieDirectorDb.title;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.64439952+02:00", comments="Source field: v_movies_directors.release_date")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891807Z", comments="Source field: v_movies_directors.release_date")
     public static final SqlColumn<Date> releaseDate = VMovieDirectorDb.releaseDate;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644429866+02:00", comments="Source field: v_movies_directors.budget")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891869Z", comments="Source field: v_movies_directors.budget")
     public static final SqlColumn<Integer> budget = VMovieDirectorDb.budget;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644459712+02:00", comments="Source field: v_movies_directors.box_office")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.89193Z", comments="Source field: v_movies_directors.box_office")
     public static final SqlColumn<Integer> boxOffice = VMovieDirectorDb.boxOffice;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.64449108+02:00", comments="Source field: v_movies_directors.runtime")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891994Z", comments="Source field: v_movies_directors.runtime")
     public static final SqlColumn<Integer> runtime = VMovieDirectorDb.runtime;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644520525+02:00", comments="Source field: v_movies_directors.overview")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.892064Z", comments="Source field: v_movies_directors.overview")
     public static final SqlColumn<String> overview = VMovieDirectorDb.overview;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.644117576+02:00", comments="Source Table: v_movies_directors")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.891256Z", comments="Source Table: v_movies_directors")
     public static final class VMovieDirectorDb extends AliasableSqlTable<VMovieDirectorDb> {
         public final SqlColumn<Integer> directorId = column("director_id", JDBCType.INTEGER);
 

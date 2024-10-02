@@ -7,7 +7,7 @@
     <context id="PostgreSQLTables" targetRuntime="MyBatis3DynamicSql">
         <!-- JDBC connection configuration -->
         <jdbcConnection driverClass="org.postgresql.Driver"
-                        connectionURL="jdbc:postgresql://127.0.0.1:5432/movie_app"
+                        connectionURL="jdbc:postgresql://db:5432/movie_app"
                         userId="postgres"
                         password="root">
         </jdbcConnection>

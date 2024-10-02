@@ -104,7 +104,7 @@ public class DependencyBinder extends AbstractBinder {
         @Override
         public void dispose(SqlSessionFactory sessionFactory) {}
 
-        private DataSource produceDataSource() {
+            private DataSource produceDataSource() {
             InitialContext ctx;
             try {
                 ctx = new InitialContext();

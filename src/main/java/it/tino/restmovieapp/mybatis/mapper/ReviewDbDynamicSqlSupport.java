@@ -7,28 +7,28 @@ import org.mybatis.dynamic.sql.AliasableSqlTable;
 import org.mybatis.dynamic.sql.SqlColumn;
 
 public final class ReviewDbDynamicSqlSupport {
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.632543491+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.869135Z", comments="Source Table: reviews")
     public static final ReviewDb reviewDb = new ReviewDb();
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.632659767+02:00", comments="Source field: reviews.id")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.86947Z", comments="Source field: reviews.id")
     public static final SqlColumn<Integer> id = reviewDb.id;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.632706695+02:00", comments="Source field: reviews.movie_id")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.869581Z", comments="Source field: reviews.movie_id")
     public static final SqlColumn<Integer> movieId = reviewDb.movieId;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.632751889+02:00", comments="Source field: reviews.user_id")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.869681Z", comments="Source field: reviews.user_id")
     public static final SqlColumn<Integer> userId = reviewDb.userId;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.632797774+02:00", comments="Source field: reviews.creation_date")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.869787Z", comments="Source field: reviews.creation_date")
     public static final SqlColumn<Date> creationDate = reviewDb.creationDate;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.632844551+02:00", comments="Source field: reviews.vote")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.869887Z", comments="Source field: reviews.vote")
     public static final SqlColumn<Float> vote = reviewDb.vote;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.632887992+02:00", comments="Source field: reviews.review")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.869993Z", comments="Source field: reviews.review")
     public static final SqlColumn<String> review = reviewDb.review;
 
-    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-02T11:37:13.632610636+02:00", comments="Source Table: reviews")
+    @Generated(value="org.mybatis.generator.api.MyBatisGenerator", date="2024-10-03T14:07:55.869337Z", comments="Source Table: reviews")
     public static final class ReviewDb extends AliasableSqlTable<ReviewDb> {
         public final SqlColumn<Integer> id = column("id", JDBCType.INTEGER);
 

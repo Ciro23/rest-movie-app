@@ -1,0 +1,76 @@
+services:
+  frontend:
+    container_name: "rest_movie_app_frontend"
+    restart: unless-stopped
+    build:
+      context: ./frontend
+    ports:
+      - "80:4200"
+    depends_on:
+      - backend
+    networks:
+      - network
+
+  backend:
+    build: .
+    container_name: "rest_movie_app_backend"
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    networks:
+      - network
+
+  mybatis-generator:
+    container_name: "rest_movie_app_mybatis_generator"
+    restart: on-failure
+    build: ./src/main/resources
+    profiles:
+      - dev
+    depends_on:
+      - db
+    environment:
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - .:/app
+      - ./src/main/java/it/tino/restmovieapp/mybatis/mapper:/app/src/main/java/it/tino/restmovieapp/mybatis/mapper
+      - ./src/main/java/it/tino/restmovieapp/mybatis/model:/app/src/main/java/it/tino/restmovieapp/mybatis/model
+    networks:
+      - network
+
+  db:
+    image: postgres:17
+    container_name: "rest_movie_app_postgres_db"
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD_FILE=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - network
+
+volumes:
+  postgres_data:
+
+networks:
+  network:
+    driver: bridge

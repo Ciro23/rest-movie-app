@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "http://127.0.0.1:8080/rest_movie_app/",
+    "target": "http://backend:8080/rest-movie-app-1.0/",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

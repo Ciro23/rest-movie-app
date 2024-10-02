@@ -13,9 +13,12 @@ import {ReviewFormComponent} from "./review/review-form/review-form.component";
 import {PersonListComponent} from "./person/person-list/person-list.component";
 import {PersonFormComponent} from "./person/person-form/person-form.component";
 import {PersonDetailsComponent} from "./person/person-details/person-details.component";
+import {HomeComponent} from "./home/home.component";
 
 export const routes: Routes = [
   { path: "404", component: NotFoundComponent },
+
+  { path: "", component: HomeComponent },
 
   { path: "users", component: UserListComponent },
   { path: "users/new", component: UserFormComponent },
